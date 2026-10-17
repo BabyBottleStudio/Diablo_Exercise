@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.Net.WebSockets;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -8,20 +9,22 @@ using System.Text;
 
 var goldManager = new GoldManager();
 var experienceManager = new ExperienceManager();
-var healthManger = new HealthManager(100, 100);
+var healthManger = new HealthResource(100, 100);
+var manaManger = new ManaResource(100, 100);
 
 
 var jovana = new Rogue(
     "Jovana",
     goldManager,
     experienceManager,
-    healthManger
+    healthManger,
+    manaManger
     );
 
 UserInterfaceDummy userInterface = new UserInterfaceDummy(
 
-    healthManger.Life,
-    healthManger.MaxLife,
+    healthManger.CurrentValue,
+    healthManger.MaxValue,
     100,
     100,
     goldManager.GoldCount
@@ -30,35 +33,125 @@ UserInterfaceDummy userInterface = new UserInterfaceDummy(
 //var petar = new Warrior("Petar", new GoldManager(), new ExperienceManager());
 //petar.goldManager.AddGold(50);
 
+Console.WriteLine("MANA TESTING");
+
+
+manaManger.Increase(50); // should return 100. Mana is on the maximum
+Console.WriteLine(manaManger.CurrentValue);
+
+userInterface.DisplayUI();
+
+manaManger.Decrease(50); // should sucseed and return 100
+Console.WriteLine(manaManger.CurrentValue);
+userInterface.DisplayUI();
+
+manaManger.Increase(1); // should return 51.
+Console.WriteLine(manaManger.CurrentValue);
+userInterface.DisplayUI();
+
+manaManger.Decrease(100); // should return 51. Not enough mana!
+Console.WriteLine(manaManger.CurrentValue);
+userInterface.DisplayUI();
+
+manaManger.Decrease(51); // should return 0.
+Console.WriteLine(manaManger.CurrentValue);
+userInterface.DisplayUI();
+
+manaManger.Increase(1); // should return 1.
+Console.WriteLine(manaManger.CurrentValue);
+userInterface.DisplayUI();
+
+manaManger.IncreaseMaxValue(50); // max should be 150
+manaManger.Increase(120); // should increase and return 121
+Console.WriteLine(manaManger.CurrentValue); // should write 121
+userInterface.DisplayUI();
+
+manaManger.Increase(120); // should increase and return 150
+Console.WriteLine(manaManger.CurrentValue); // should write 150
+userInterface.DisplayUI();
+
+
+Console.WriteLine("HEALTH TESTING");
+
+healthManger.Increase(50); // should not increase. Life is full
+Console.WriteLine(healthManger.CurrentValue);
+userInterface.DisplayUI();
+
+healthManger.Decrease(99); // should return 1
+Console.WriteLine(healthManger.CurrentValue);
+userInterface.DisplayUI();
+
+healthManger.IncreaseMaxValue(50);// max life should be 150
+userInterface.DisplayUI();
+
+healthManger.Increase(250); // should be 150.
+userInterface.DisplayUI();
+
+healthManger.Decrease(100); // should be 50
+userInterface.DisplayUI();
+
+healthManger.Decrease(500); // should be 0 and death of hero message should be displayed
+userInterface.DisplayUI();
+
+
+
+Console.WriteLine("Gold TESTING");
+
+
+
+goldManager.AddGold(500); // should be 500
+userInterface.DisplayUI();
+
+goldManager.AddGold(1); // 501
+userInterface.DisplayUI();
+
+goldManager.Remove(500); // 1
+userInterface.DisplayUI();
+
+
+goldManager.Remove(2); // should return 1 - not enough gold
+userInterface.DisplayUI();
+
+goldManager.Remove(1); // 0
+userInterface.DisplayUI();
+
 
 
 //HeroEvents.InvokeOnGoldReceived(1500);
 //HeroEvents.InvokeOnGoldRemoved(1000);
 
-Console.WriteLine(jovana.ToString());
+//Console.WriteLine(jovana.ToString());
 
-HeroEvents.InvokeOnExpirienceReceived(1079);
+//HeroEvents.InvokeOnExpirienceReceived(1079);
 
-Console.WriteLine(jovana.ToString());
+//Console.WriteLine(jovana.ToString());
 
-HeroEvents.InvokeOnExpirienceReceived(1);
-Console.WriteLine(jovana.ToString());
+//HeroEvents.InvokeOnExpirienceReceived(1);
+//Console.WriteLine(jovana.ToString());
 
-HeroEvents.InvokeOnExpirienceReceived(22200);
-Console.WriteLine(jovana.ToString());
+//HeroEvents.InvokeOnExpirienceReceived(22200);
+//Console.WriteLine(jovana.ToString());
 
 
-goldManager.AddGold(1200);
-goldManager.Remove(1300);
-goldManager.Remove(328);
-goldManager.Remove(432);
-goldManager.AddGold(732);
+//goldManager.AddGold(1200);
+//goldManager.Remove(1300);
+//goldManager.Remove(328);
+//goldManager.Remove(432);
+//goldManager.AddGold(732);
 
-healthManger.GetDamage(50);
+//healthManger.Decrease(50);
+//healthManger.Decrease(2);
 
-Console.WriteLine(jovana.ToString());
+//manaManger.Decrease(25);
+//manaManger.Increase(50);
+//manaManger.Increase(2);
+//manaManger.Decrease(500);
+//manaManger.Decrease(1);
+//manaManger.Increase(789);
 
-userInterface.DisplayUI();
+//Console.WriteLine(jovana.ToString());
+
+//userInterface.DisplayUI();
 
 
 
@@ -102,7 +195,8 @@ public abstract class Hero
 
     private IExperienceManager experienceManager;
     private IGoldManager goldManager;
-    private IHealthManager healthManager;
+    private IResource healthManager;
+    private IResource manaManager;
 
 
     /// <summary>
@@ -112,12 +206,13 @@ public abstract class Hero
     /// </summary>
     public virtual string HeroClass => GetType().Name;
 
-    protected Hero(string name, IGoldManager goldManager, IExperienceManager experienceManager, IHealthManager healthManager)
+    protected Hero(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager)
     {
         _name = name;
         this.goldManager = goldManager;
         this.experienceManager = experienceManager;
         this.healthManager = healthManager;
+        this.manaManager = manaManager;
     }
 
 
@@ -131,97 +226,18 @@ public abstract class Hero
         sb.AppendLine($"Level: {experienceManager.Level}");
         sb.AppendLine($"Experience:{experienceManager.Experience}. XPforNextLevel:{experienceManager.NextLevelExperience}");
         sb.AppendLine($"Gold: {goldManager.GoldCount}");
-        sb.AppendLine($"MaxLife:{healthManager.MaxLife}. CurrentLife: {healthManager.Life}");
+        sb.AppendLine($"MaxLife:{healthManager.MaxValue}. CurrentLife: {healthManager.CurrentValue}");
+        sb.AppendLine($"MaxMana:{manaManager.MaxValue}. CurrentMana: {manaManager.CurrentValue}");
         sb.AppendLine();
 
         return sb.ToString();
     }
 }
 
-public interface IHealthManager
-{
-    public float Life { get; }
-    public float MaxLife { get; }
 
-}
-public class HealthManager : IDisposable, IHealthManager // same class could be used for life and mana
-{
-    private float _life;
-    public float Life => _life;
 
-    private float _maxLife;
-    public float MaxLife => _maxLife;
 
-    private const float MAX_LIFE_INCREMENT = 2f;
 
-    public HealthManager(float startHealth, float startMaxHealth)
-    {
-        _life = startHealth;
-        _maxLife = startMaxHealth;
-
-        HeroEvents.OnLevelUp += OnLevelUp;
-    }
-
-    public void Heal(float lifeToAdd)
-    {
-        if (lifeToAdd <= 0) return;
-
-        var lifeBeforeHeal = _life;
-
-        //if (_life > _maxLife) return;
-
-        _life = Math.Min(_life + lifeToAdd, _maxLife);
-
-        Console.WriteLine($"Hero had {lifeBeforeHeal}, and after healing {lifeToAdd} has {_life} health points.");
-
-        // event 
-        HeroEvents.InvokeOnLifeAmountChanged(_life);
-    }
-
-    public void IncreaseMaxLife(float amountToIncrease)
-    {
-        if (amountToIncrease <= 0) return;
-
-        _maxLife += amountToIncrease;
-
-        HeroEvents.InvokeOnMaxLifeChanged(_maxLife);
-    }
-
-    /// <summary>
-    /// This method is invoked when hero is leveling up. <br/>
-    /// Method is called by the respective event and serves to increase max health and heals hero to 100% health.
-    /// </summary>
-    public void OnLevelUp()
-    {
-        IncreaseMaxLife(MAX_LIFE_INCREMENT);
-        _life = _maxLife; // heal
-        HeroEvents.InvokeOnLifeAmountChanged(_life);
-    }
-
-    public void GetDamage(float amountOfLifeToLose)
-    {
-        if (amountOfLifeToLose <= 0) return;
-
-        var lifeBeforeDamage = _life;
-
-        _life = Math.Max(_life - amountOfLifeToLose, 0);
-
-        HeroEvents.InvokeOnLifeAmountChanged(_life);
-
-        Console.WriteLine($"Hero had {lifeBeforeDamage}, and after receiving damage of {amountOfLifeToLose} has {_life} life points.");
-
-        if (_life == 0)
-        {
-            Console.WriteLine($"Hero is dead! Game Over");
-            HeroEvents.InvokeOnHeroDeath();
-        }
-    }
-
-    public void Dispose()
-    {
-        HeroEvents.OnLevelUp -= OnLevelUp;
-    }
-}
 
 
 public interface IExperienceManager
@@ -405,7 +421,7 @@ public class GoldManager : IDisposable, IGoldManager
 
 public class Rogue : Hero
 {
-    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IHealthManager healthManager) : base(name, goldManager, experienceManager, healthManager)
+    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
     {
     }
 }
@@ -414,127 +430,47 @@ public class Rogue : Hero
 
 public class Warrior : Hero
 {
-    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IHealthManager healthManager) : base(name, goldManager, experienceManager, healthManager)
+    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
     {
     }
 }
 
 
-public class HeroEvents
-{
-    public static Action<long>? OnExperienceReceived;
-    public static event Action? OnLevelUp;
+// consumables
+// healling potion -> heals 50hp
+// full healing potion -> restores full health
+// mana potion -> restores 50 mana
+// full mana potion -> restores full mana
+// potion of rejuvination -> heals 50hp and 50 mana
+// potion of full rejuvination - restores full health and mana
 
-    public static event Action<int>? OnGoldReceived;
-    public static event Func<int, bool>? OnGoldRemoved;
-    public static event Action<int>? OnGoldCountChanged;
-
-    public static event Action<float>? OnLifeAmountChanged;
-    public static event Action<float>? OnMaxLifeChanged;
-
-    public static event Action? OnHeroDeath;
-
-    public static void InvokeOnExpirienceReceived(long expirienceToReceive)
-    {
-        OnExperienceReceived?.Invoke(expirienceToReceive);
-    }
-    public static void InvokeOnLevelUp()
-    {
-        OnLevelUp?.Invoke();
-    }
-
-    public static void InvokeOnGoldReceived(int amountToAdd)
-    {
-        OnGoldReceived?.Invoke(amountToAdd);
-    }
-
-    public static void InvokeOnGoldRemoved(int amountToRemove)
-    {
-        OnGoldRemoved?.Invoke(amountToRemove);
-    }
-
-    public static void InvokeOnGoldCountChanged(int newAmount)
-    {
-        OnGoldCountChanged?.Invoke(newAmount);
-    }
-
-    public static void InvokeOnLifeAmountChanged(float updatedLife)
-    {
-        OnLifeAmountChanged?.Invoke(updatedLife);
-    }
-
-    public static void InvokeOnMaxLifeChanged(float newMaxLife)
-    {
-        OnMaxLifeChanged?.Invoke(newMaxLife);
-    }
-
-    internal static void InvokeOnHeroDeath()
-    {
-        OnHeroDeath?.Invoke();
-    }
-}
-
-public interface IUserInterface
-{
-    void DisplayUI();
-}
-
-public class UserInterfaceDummy : IDisposable, IUserInterface
-{
-    private float _life;
-    private float _maxLife;
-
-    private float _manaBar;
-    private float _maxMana;
-
-    private float _goldBar;
-
-    public UserInterfaceDummy(float initialLife, float initialMaxLife, float initialMana, float initialMaxMana, float initialGold)
-    {
-        _life = initialLife;
-        _maxLife = initialMaxLife;
-        _manaBar = initialMana;
-        _maxMana = initialMaxMana;
-        _goldBar = initialGold;
+// value
+// metoda -> consume
 
 
-        HeroEvents.OnLifeAmountChanged += UptadeLifeBarUI;
-        HeroEvents.OnGoldCountChanged += UpdateGoldUI;
-
-        HeroEvents.OnMaxLifeChanged += UpdateMaxLife;
-    }
-
-    void UptadeManaBarUI() { }
-    void UpdateGoldUI(int newGoldCount)
-    {
-        _goldBar = newGoldCount;
-    }
-    void UpdateMaxLife(float newMaxLife)
-    {
-        _maxLife = newMaxLife;
-    }
-    void UptadeLifeBarUI(float newLifeAmount)
-    {
-        _life = newLifeAmount;
-    }
-
-    public void DisplayUI()
-    {
-        Console.WriteLine("* I N T E R F A C E *");
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"Life:{_life} - MaxLife:{_maxLife} - HealthBar:{_life * 100 / _maxLife:F2}%");
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.Write($"Mana:{_manaBar} * ");
-        Console.ForegroundColor = ConsoleColor.DarkYellow;
-        Console.Write($"Gold:{_goldBar}");
-        Console.ResetColor();
-    }
-
-    public void Dispose()
-    {
-        HeroEvents.OnLifeAmountChanged -= UptadeLifeBarUI;
-        HeroEvents.OnGoldCountChanged -= UpdateGoldUI;
-
-        HeroEvents.OnMaxLifeChanged -= UpdateMaxLife;
-    }
-}
+// Items
+// - Weapons - deals damage to the enemies
+//      - OneHand weapon
+//          - Sword
+//      - TwoHanded weapon
+//          - Axe
+//          - Staff
+//          - Bow
+// - Shields - protect from damage + special stuff
+// - Head pieces - protect from damage + special stuff
+// - Body wearables - protect from damage + special stuff
+// - Amulet - special attributes
+// - Ring - special attributes
+//
+// properties:
+// name
+// armor
+// minimum damage
+// maximum damage
+// max duration
+// current duration
+// special affect
+// requirements
+// reduce current duration 
+//
+//
