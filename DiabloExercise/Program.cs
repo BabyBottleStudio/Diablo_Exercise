@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using System;
 using System.Net.WebSockets;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -6,114 +7,143 @@ using System.Text;
 
 
 
+HeroFactory heroFactory = new HeroFactory();
 
-var goldManager = new GoldManager();
-var experienceManager = new ExperienceManager();
-var healthManger = new HealthResource(100, 100);
-var manaManger = new ManaResource(100, 100);
+var jovana = heroFactory.Instantiate("Rogue", "Jovana");
+
+Console.WriteLine(jovana);
+
+float CalculateIncrease()
+{
+    var _random = new Random();
+
+    float Modifier = 1.5f;
+    float maxValue = 80f;
+
+    float baseValue = maxValue / 8; // 10
+    float min = Modifier * baseValue; // 1.5 * 10 = 15
+    float max = 3 * min; // 3 * 15 = 45
+
+    float output = min + _random.NextSingle() * (max - min);
+
+    return MathF.Round(output, 2);
+}
+
+for (int i = 0; i < 50; i++)
+{
+    Console.WriteLine(CalculateIncrease().ToString());
+}
 
 
-var jovana = new Rogue(
-    "Jovana",
-    goldManager,
-    experienceManager,
-    healthManger,
-    manaManger
-    );
+//var goldManager = new GoldManager();
+//var experienceManager = new ExperienceManager();
+//var healthManger = new HealthResource(100, 100);
+//var manaManager = new ManaResource(100, 100);
 
-UserInterfaceDummy userInterface = new UserInterfaceDummy(
 
-    healthManger.CurrentValue,
-    healthManger.MaxValue,
-    100,
-    100,
-    goldManager.GoldCount
-    );
+//var jovana = new Rogue(
+//    "Jovana",
+//    goldManager,
+//    experienceManager,
+//    healthManger,
+//    manaManager
+//    );
+
+//UserInterfaceDummy userInterface = new UserInterfaceDummy(
+
+//    healthManger.CurrentValue,
+//    healthManger.MaxValue,
+//    manaManager.CurrentValue,
+//    manaManager.MaxValue,
+//    goldManager.GoldCount
+//    );
+
+
 
 //var petar = new Warrior("Petar", new GoldManager(), new ExperienceManager());
 //petar.goldManager.AddGold(50);
 
-Console.WriteLine("MANA TESTING");
+//Console.WriteLine("MANA TESTING");
 
 
-manaManger.Increase(50); // should return 100. Mana is on the maximum
-Console.WriteLine(manaManger.CurrentValue);
+//manaManager.Increase(50); // should return 100. Mana is on the maximum
+//Console.WriteLine(manaManager.CurrentValue);
 
-userInterface.DisplayUI();
+//userInterface.DisplayUI();
 
-manaManger.Decrease(50); // should sucseed and return 100
-Console.WriteLine(manaManger.CurrentValue);
-userInterface.DisplayUI();
+//manaManager.Decrease(50); // should sucseed and return 100
+//Console.WriteLine(manaManager.CurrentValue);
+//userInterface.DisplayUI();
 
-manaManger.Increase(1); // should return 51.
-Console.WriteLine(manaManger.CurrentValue);
-userInterface.DisplayUI();
+//manaManager.Increase(1); // should return 51.
+//Console.WriteLine(manaManager.CurrentValue);
+//userInterface.DisplayUI();
 
-manaManger.Decrease(100); // should return 51. Not enough mana!
-Console.WriteLine(manaManger.CurrentValue);
-userInterface.DisplayUI();
+//manaManager.Decrease(100); // should return 51. Not enough mana!
+//Console.WriteLine(manaManager.CurrentValue);
+//userInterface.DisplayUI();
 
-manaManger.Decrease(51); // should return 0.
-Console.WriteLine(manaManger.CurrentValue);
-userInterface.DisplayUI();
+//manaManager.Decrease(51); // should return 0.
+//Console.WriteLine(manaManager.CurrentValue);
+//userInterface.DisplayUI();
 
-manaManger.Increase(1); // should return 1.
-Console.WriteLine(manaManger.CurrentValue);
-userInterface.DisplayUI();
+//manaManager.Increase(1); // should return 1.
+//Console.WriteLine(manaManager.CurrentValue);
+//userInterface.DisplayUI();
 
-manaManger.IncreaseMaxValue(50); // max should be 150
-manaManger.Increase(120); // should increase and return 121
-Console.WriteLine(manaManger.CurrentValue); // should write 121
-userInterface.DisplayUI();
+//manaManager.IncreaseMaxValue(50); // max should be 150
+//manaManager.Increase(120); // should increase and return 121
+//Console.WriteLine(manaManager.CurrentValue); // should write 121
+//userInterface.DisplayUI();
 
-manaManger.Increase(120); // should increase and return 150
-Console.WriteLine(manaManger.CurrentValue); // should write 150
-userInterface.DisplayUI();
-
-
-Console.WriteLine("HEALTH TESTING");
-
-healthManger.Increase(50); // should not increase. Life is full
-Console.WriteLine(healthManger.CurrentValue);
-userInterface.DisplayUI();
-
-healthManger.Decrease(99); // should return 1
-Console.WriteLine(healthManger.CurrentValue);
-userInterface.DisplayUI();
-
-healthManger.IncreaseMaxValue(50);// max life should be 150
-userInterface.DisplayUI();
-
-healthManger.Increase(250); // should be 150.
-userInterface.DisplayUI();
-
-healthManger.Decrease(100); // should be 50
-userInterface.DisplayUI();
-
-healthManger.Decrease(500); // should be 0 and death of hero message should be displayed
-userInterface.DisplayUI();
+//manaManager.Increase(120); // should increase and return 150
+//Console.WriteLine(manaManager.CurrentValue); // should write 150
+//userInterface.DisplayUI();
 
 
+//Console.WriteLine("HEALTH TESTING");
 
-Console.WriteLine("Gold TESTING");
+//healthManger.Increase(50); // should not increase. Life is full
+//Console.WriteLine(healthManger.CurrentValue);
+//userInterface.DisplayUI();
+
+//healthManger.Decrease(99); // should return 1
+//Console.WriteLine(healthManger.CurrentValue);
+//userInterface.DisplayUI();
+
+//healthManger.IncreaseMaxValue(50);// max life should be 150
+//userInterface.DisplayUI();
+
+//healthManger.Increase(250); // should be 150.
+//userInterface.DisplayUI();
+
+//healthManger.Decrease(100); // should be 50
+//userInterface.DisplayUI();
+
+//healthManger.Decrease(500); // should be 0 and death of hero message should be displayed
+//userInterface.DisplayUI();
 
 
 
-goldManager.AddGold(500); // should be 500
-userInterface.DisplayUI();
-
-goldManager.AddGold(1); // 501
-userInterface.DisplayUI();
-
-goldManager.Remove(500); // 1
-userInterface.DisplayUI();
+//Console.WriteLine("Gold TESTING");
 
 
-goldManager.Remove(2); // should return 1 - not enough gold
-userInterface.DisplayUI();
 
-goldManager.Remove(1); // 0
-userInterface.DisplayUI();
+//goldManager.AddGold(500); // should be 500
+//userInterface.DisplayUI();
+
+//goldManager.AddGold(1); // 501
+//userInterface.DisplayUI();
+
+//goldManager.Remove(500); // 1
+//userInterface.DisplayUI();
+
+
+//goldManager.Remove(2); // should return 1 - not enough gold
+//userInterface.DisplayUI();
+
+//goldManager.Remove(1); // 0
+//userInterface.DisplayUI();
 
 
 
@@ -421,6 +451,7 @@ public class GoldManager : IDisposable, IGoldManager
 
 public class Rogue : Hero
 {
+
     public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
     {
     }
@@ -430,13 +461,172 @@ public class Rogue : Hero
 
 public class Warrior : Hero
 {
+
     public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
     {
     }
 }
 
+public class Sorcerer : Hero
+{
 
-// consumables
+    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
+    {
+    }
+}
+
+public class HeroFactory
+{
+    private readonly string[] flags = new string[] { "Warrior", "Rogue", "Sorcerer" };
+
+    public Hero? Instantiate(string flag, string heroName)
+    {
+        if (string.IsNullOrEmpty(flag))
+        {
+            throw new ArgumentNullException($"{GetType().Name} - Instantiate method: flag is null");
+        }
+
+        if (!flags.Contains(flag))
+        {
+            throw new ArgumentException("Flag not recognized");
+        }
+
+        if (string.IsNullOrEmpty(heroName))
+        {
+            heroName = $"Some {flag}";
+        }
+
+
+
+        var heroData = new HeroData();
+
+        float healthModifier = 1f;
+        float manaModifier = 1f;
+
+
+        var goldManager = new GoldManager();
+        var experienceManager = new ExperienceManager();
+
+
+        switch (flag)
+        {
+            case "Warrior":
+                healthModifier = heroData.WarriorData[0];
+                manaModifier = heroData.WarriorData[1];
+                break;
+
+            case "Rogue":
+
+                healthModifier = heroData.RogueData[0];
+                manaModifier = heroData.RogueData[1];
+                break;
+
+            case "Sorcerer":
+                healthModifier = heroData.SorcererData[0];
+                manaModifier = heroData.SorcererData[1];
+                break;
+        }
+
+        var healthManger = new HealthResource(100, 100, healthModifier, new Random());
+        var manaManager = new ManaResource(100, 100, manaModifier, new Random());
+
+        switch (flag)
+        {
+            case "Warrior":
+
+                return new Warrior(heroName, goldManager, experienceManager, healthManger, manaManager);
+
+            case "Rogue":
+
+                return new Rogue(heroName, goldManager, experienceManager, healthManger, manaManager);
+
+
+            case "Sorcerer":
+                return new Sorcerer(heroName, goldManager, experienceManager, healthManger, manaManager);
+            default:
+                return null;
+        }
+
+
+
+    }
+}
+
+public class HeroData
+{
+    // this class is a dummy class. This data should be stored in JSon file or Scriptable Object if in Unity
+    // index 0 -> lifeModifier
+    // index 1 -> manaModifier
+
+    public readonly float[] WarriorData = new float[] { 2.0f, 1.0f };
+
+    public readonly float[] RogueData = new float[] { 1.5f, 1.5f };
+
+    public readonly float[] SorcererData = new float[] { 1.0f, 1.0f };
+
+
+}
+
+/*
+ * Potions of Healing and Mana restore life and mana as stated below. Potions of Rejuvenation are basically treated as one Potion of Mana and one Potion of Healing. For information on how scrolls of healing and the Healing spell work, see chapter 4.1.2.
+
+Potion of Healing: bonus · maxlife/8 to bonus · 3·maxlife/8
+
+Potion of Mana: bonus · maxmana/8 to bonus · 3·maxmana/8
+
+    Any value in the range is equally probable.
+
+    The bonus is summarized in the table below.
+
+    maxlife and maxmana are the modified values. If they are negative, the amount added will also be negative and in fact subtract life or mana.
+
+Type 	    Warrior 	Rogue 	Sorcerer 	Monk    	Bard    	Barbarian
+Healing 	2.0 	    1.5 	1.0 	    1.51    	1.51    	2.0
+Mana 	    1.0 	    1.5 	2.0 	    1.51    	1.51    	1.0
+
+1 When using a Potion of Rejuvenation the bonus for a Monk and a Bard is 1.0 due to a bug in Hellfire.
+ * 
+ */
+
+/*
+public class Modifiers // this should be injected to hero 
+{
+    private float _healingModifier;
+
+    public Modifiers(float healingModifier)
+    {
+        _healingModifier = healingModifier;
+    }
+
+    public float HealingModifier { get => _healingModifier; }
+}
+*/
+
+public class Item
+{
+
+}
+
+public abstract class Potion : Item
+{
+    // potion should send a message, and hero class should calculate the effect
+
+    private const string _name = "Potion of Full Healing";
+    // "Potion of Healing"
+    // "Potion of Full Mana"
+    public string Name => _name;
+
+    private const string _description = "Fully Recover Life";
+    public string Description => _description;
+
+
+    public abstract void Consume();
+
+}
+
+// Items - base abstract class for all items that can go into the inventory - or interface?
+
+// consumables - IConsumable
 // healling potion -> heals 50hp
 // full healing potion -> restores full health
 // mana potion -> restores 50 mana
@@ -448,7 +638,7 @@ public class Warrior : Hero
 // metoda -> consume
 
 
-// Items
+// hero equipment - IEquipable (equip, unequip)
 // - Weapons - deals damage to the enemies
 //      - OneHand weapon
 //          - Sword
@@ -471,6 +661,6 @@ public class Warrior : Hero
 // current duration
 // special affect
 // requirements
-// reduce current duration 
+// reduce current duration (get damage)
 //
 //
