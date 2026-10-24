@@ -7,7 +7,9 @@ using System.Text;
 
 
 
-HeroFactory heroFactory = new HeroFactory();
+HeroFactory heroFactory = new HeroFactory(
+    new HeroData()
+    );
 
 var jovana = heroFactory.Instantiate("Rogue", "Jovana");
 
@@ -479,6 +481,13 @@ public class HeroFactory
 {
     private readonly string[] flags = new string[] { "Warrior", "Rogue", "Sorcerer" };
 
+    private readonly HeroData heroData;
+
+    public HeroFactory(HeroData heroData)
+    {
+        this.heroData = heroData;
+    }
+
     public Hero? Instantiate(string flag, string heroName)
     {
         if (string.IsNullOrEmpty(flag))
@@ -495,10 +504,7 @@ public class HeroFactory
         {
             heroName = $"Some {flag}";
         }
-
-
-
-        var heroData = new HeroData();
+             
 
         float healthModifier = 1f;
         float manaModifier = 1f;
@@ -511,19 +517,19 @@ public class HeroFactory
         switch (flag)
         {
             case "Warrior":
-                healthModifier = heroData.WarriorData[0];
-                manaModifier = heroData.WarriorData[1];
+                healthModifier = heroData.WarriorData["LifeModifier"];
+                manaModifier = heroData.WarriorData["ManaModifier"];
                 break;
 
             case "Rogue":
 
-                healthModifier = heroData.RogueData[0];
-                manaModifier = heroData.RogueData[1];
+                healthModifier = heroData.RogueData["LifeModifier"];
+                manaModifier = heroData.RogueData["ManaModifier"];
                 break;
 
             case "Sorcerer":
-                healthModifier = heroData.SorcererData[0];
-                manaModifier = heroData.SorcererData[1];
+                healthModifier = heroData.SorcererData["LifeModifier"];
+                manaModifier = heroData.SorcererData["ManaModifier"];
                 break;
         }
 
@@ -558,11 +564,23 @@ public class HeroData
     // index 0 -> lifeModifier
     // index 1 -> manaModifier
 
-    public readonly float[] WarriorData = new float[] { 2.0f, 1.0f };
+    public readonly Dictionary<string, float> WarriorData = new Dictionary<string, float>() {
 
-    public readonly float[] RogueData = new float[] { 1.5f, 1.5f };
+        { "LifeModifier", 2.0f },
+        { "ManaModifier", 1.0f }
+    };
 
-    public readonly float[] SorcererData = new float[] { 1.0f, 1.0f };
+    public readonly Dictionary<string, float> RogueData = new Dictionary<string, float>() {
+
+        { "LifeModifier", 1.5f },
+        { "ManaModifier", 1.5f }
+    };
+
+    public readonly Dictionary<string, float> SorcererData = new Dictionary<string, float>() {
+
+        { "LifeModifier", 1.0f },
+        { "ManaModifier", 2.0f }
+    };
 
 
 }
