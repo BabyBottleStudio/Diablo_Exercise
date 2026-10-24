@@ -15,26 +15,61 @@ var jovana = heroFactory.Instantiate("Rogue", "Jovana");
 
 Console.WriteLine(jovana);
 
-float CalculateIncrease()
-{
-    var _random = new Random();
+//float CalculateIncrease()
+//{
+//    var _random = new Random();
 
-    float Modifier = 1.5f;
-    float maxValue = 80f;
+//    float Modifier = 1.5f;
+//    float maxValue = 80f;
 
-    float baseValue = maxValue / 8; // 10
-    float min = Modifier * baseValue; // 1.5 * 10 = 15
-    float max = 3 * min; // 3 * 15 = 45
+//    float baseValue = maxValue / 8; // 10
+//    float min = Modifier * baseValue; // 1.5 * 10 = 15
+//    float max = 3 * min; // 3 * 15 = 45
 
-    float output = min + _random.NextSingle() * (max - min);
+//    float output = min + _random.NextSingle() * (max - min);
 
-    return MathF.Round(output, 2);
-}
+//    return MathF.Round(output, 2);
+//}
 
-for (int i = 0; i < 50; i++)
-{
-    Console.WriteLine(CalculateIncrease().ToString());
-}
+//for (int i = 0; i < 50; i++)
+//{
+//    Console.WriteLine(CalculateIncrease().ToString());
+//}
+
+
+
+
+var smallHealing = new SmallHealing();
+Console.WriteLine(smallHealing);
+smallHealing.Consume();
+
+var fullHealing = new FullHealing();
+Console.WriteLine(fullHealing);
+fullHealing.Consume();
+
+
+var smallMana = new SmallMana();
+Console.WriteLine(smallMana);
+smallMana.Consume();
+
+var fullMana = new FullMana();
+Console.WriteLine(fullMana);
+fullMana.Consume();
+
+
+
+var smallRejuvenation = new SmallRejuvenation();
+Console.WriteLine(smallRejuvenation);
+smallRejuvenation.Consume();
+
+var fullRejuvenation = new FullRejuvenation();
+Console.WriteLine(fullRejuvenation);
+fullRejuvenation.Consume();
+
+
+
+
+
 
 
 //var goldManager = new GoldManager();
@@ -504,7 +539,7 @@ public class HeroFactory
         {
             heroName = $"Some {flag}";
         }
-             
+
 
         float healthModifier = 1f;
         float manaModifier = 1f;
@@ -594,6 +629,11 @@ public class Modifiers // this should be injected to hero
 */
 
 
+public abstract class Item
+{
+    // this class should enable using the potion as an item in the inventory
+    // not sure how is it going to work yet
+}
 
 
 
@@ -601,27 +641,96 @@ public abstract class Potion : Item
 {
     // potion should send a message, and hero class should calculate the effect
 
-    private const string _name = "Potion of Full Healing";
     // "Potion of Healing"
     // "Potion of Full Mana"
-    public string Name => _name;
+    public abstract string Name { get; }
+    public abstract string Description { get; }
 
-    private const string _description = "Fully Recover Life";
-    public string Description => _description;
-
-
+    protected const string _instruction = "Right click to use";
+    public string Instruction => _instruction;
     public abstract void Consume();
 
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.AppendLine(Name);
+        sb.AppendLine(Description);
+        sb.AppendLine(Instruction);
+        return sb.ToString();
+    }
 }
 
-public class Item
+public class SmallHealing : Potion
 {
+    public override string Name => "Potion of Healing";
+    public override string Description => "Recover Partial Life";
+
+
+    public override void Consume()
+    {
+        PotionEvents.InvokeOnHealthPotionConsumed();
+    }
 }
 
-public interface IConsumable
+public class FullHealing : Potion
 {
-    public void Consume();
+    public override string Name => "Potion of Full Healing";
+    public override string Description => "Fully Recover Life";
+
+    public override void Consume()
+    {
+        PotionEvents.InvokeOnFullHealthPotionConsumed();
+    }
 }
+
+public class SmallMana : Potion
+{
+    public override string Name => "Potion of Mana";
+    public override string Description => "Recover Mana";
+
+    public override void Consume()
+    {
+        PotionEvents.InvokeOnManaPotionConsumed();
+    }
+}
+
+public class FullMana : Potion
+{
+    public override string Name => "Potion of Full Mana";
+    public override string Description => "Fully Recover Mana";
+
+    public override void Consume()
+    {
+        PotionEvents.InvokeOnFullHealthPotionConsumed();
+    }
+}
+
+public class SmallRejuvenation : Potion
+{
+    public override string Name => "Potion of Rejuvenation";
+    public override string Description => "Recover Life and Mana";
+
+    public override void Consume()
+    {
+        PotionEvents.InvokeOnHealthPotionConsumed();
+        PotionEvents.InvokeOnManaPotionConsumed();
+    }
+}
+
+public class FullRejuvenation : Potion
+{
+    public override string Name => "Potion of Full Rejuvenation";
+    public override string Description => "Fully Recover Life and Mana";
+
+    public override void Consume()
+    {
+        PotionEvents.InvokeOnFullHealthPotionConsumed();
+        PotionEvents.InvokeOnFullManaPotionConsumed();
+    }
+}
+
+
 
 // Items - base abstract class for all items that can go into the inventory - or interface?
 

@@ -49,17 +49,6 @@ public class HeroEvents
     public static event Action<int>? OnGoldCountChanged;
 
 
-    public static event Action<float>? OnHealthPotionConsumed;
-    public static event Action<float>? OnFullHealthPotionConsumed;
-
-    public static event Action<float>? OnManaPotionConsumed;
-    public static event Action<float>? OnFullManaPotionConsumed;
-
-    public static event Action<float>? OnRejuvinationPotionConsumed;
-    public static event Action<float>? OnFullRejuvinationPotionConsumed;
-
-
-
     public static event Action<float>? OnLifeAmountChanged;
     public static event Action<float>? OnMaxLifeChanged;
 

@@ -105,8 +105,7 @@ public abstract class Resource : IResource, IDisposable
         InvokeOnCurrentValueChanged(_currentValue);
     }
 
-    public void Decrease(float amount) // napravi da ova metoda poziva 
-
+    public void Decrease(float amount) // napravi da ova metoda poziva
     {
         // life
         // ukoliko je amount veci od CurrentValue -> CurrentValue postaje 0 -> heroj umire
