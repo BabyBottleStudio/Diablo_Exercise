@@ -558,33 +558,6 @@ public class HeroFactory
     }
 }
 
-public class HeroData
-{
-    // this class is a dummy class. This data should be stored in JSon file or Scriptable Object if in Unity
-    // index 0 -> lifeModifier
-    // index 1 -> manaModifier
-
-    public readonly Dictionary<string, float> WarriorData = new Dictionary<string, float>() {
-
-        { "LifeModifier", 2.0f },
-        { "ManaModifier", 1.0f }
-    };
-
-    public readonly Dictionary<string, float> RogueData = new Dictionary<string, float>() {
-
-        { "LifeModifier", 1.5f },
-        { "ManaModifier", 1.5f }
-    };
-
-    public readonly Dictionary<string, float> SorcererData = new Dictionary<string, float>() {
-
-        { "LifeModifier", 1.0f },
-        { "ManaModifier", 2.0f }
-    };
-
-
-}
-
 /*
  * Potions of Healing and Mana restore life and mana as stated below. Potions of Rejuvenation are basically treated as one Potion of Mana and one Potion of Healing. For information on how scrolls of healing and the Healing spell work, see chapter 4.1.2.
 
@@ -620,10 +593,9 @@ public class Modifiers // this should be injected to hero
 }
 */
 
-public class Item
-{
 
-}
+
+
 
 public abstract class Potion : Item
 {
@@ -640,6 +612,15 @@ public abstract class Potion : Item
 
     public abstract void Consume();
 
+}
+
+public class Item
+{
+}
+
+public interface IConsumable
+{
+    public void Consume();
 }
 
 // Items - base abstract class for all items that can go into the inventory - or interface?
