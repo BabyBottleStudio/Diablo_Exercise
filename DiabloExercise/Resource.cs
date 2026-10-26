@@ -23,7 +23,7 @@ public abstract class Resource : IResource, IDisposable
 
     private float CalculateIncrease()
     {
-        float baseValue = MaxValue / 8; 
+        float baseValue = MaxValue / 8;
         float min = Modifier * baseValue;
         float max = 3 * min;
 
@@ -34,10 +34,27 @@ public abstract class Resource : IResource, IDisposable
 
     public Resource(float startValue, float startMaxValue, float modifier, Random random)
     {
-        _currentValue = startValue;
+        if (startValue <= 0 || startMaxValue <= 0 || modifier <= 0)
+        {
+            throw new ArgumentException("Constructor receives only positive numbers as parameters!");
+        }
+
+        if (random == null)
+        {
+            throw new ArgumentNullException("Random can not be null");
+        }
+
         _maxValue = startMaxValue;
+
+        if (startValue <= startMaxValue)
+            _currentValue = startValue;
+        else
+            _currentValue = startMaxValue;
+
+
         Modifier = modifier;
         //Console.WriteLine($"modifier = {Modifier}");
+        
         _random = random;
         HeroEvents.OnLevelUp += OnLevelUp;
 
@@ -46,7 +63,7 @@ public abstract class Resource : IResource, IDisposable
     }
 
 
-    public void Increase()
+    protected void Increase()
     {
         //if (value <= 0) return;
 
@@ -77,7 +94,7 @@ public abstract class Resource : IResource, IDisposable
     protected abstract void InvokeOnCurrentValueChanged(float currentValue);
     protected abstract void InvokeOnMaxValueChanged(float maxValue);
 
-    public void IncreaseMaxValue(float amount)
+    protected void IncreaseMaxValue(float amount)
     {
         if (amount <= 0) return;
 
@@ -94,18 +111,21 @@ public abstract class Resource : IResource, IDisposable
     /// This method is invoked when hero is leveling up. <br/>
     /// Method is called by the respective event and serves to increase max health and heals hero to 100% health.
     /// </summary>
-    public void OnLevelUp()
+    private void OnLevelUp()
     {
         IncreaseMaxValue(MAX_VALUE_INCREMENT);
         Restore(); // restore to original value -- heal for health and refil mana to 100%
     }
     protected void Restore()
     {
+        var startValue = _currentValue;
+
         _currentValue = _maxValue; // restore to original value -- heal for health and refil mana to 100%
         InvokeOnCurrentValueChanged(_currentValue);
+        Console.WriteLine($"Hero had {startValue} {_resourceName}, and after restoring has {_currentValue} {_resourceName}.");
     }
 
-    public void Decrease(float amount) // napravi da ova metoda poziva
+    protected void Decrease(float amount) // napravi da ova metoda poziva
     {
         // life
         // ukoliko je amount veci od CurrentValue -> CurrentValue postaje 0 -> heroj umire
@@ -148,12 +168,14 @@ public class HealthResource : Resource
     {
         PotionEvents.OnFullHealthPotionConsumed += Restore;
         PotionEvents.OnHealthPotionConsumed += Increase;
+        HeroEvents.OnDecreaseLife += Decrease;
     }
 
     protected override void HandleDecrease(float amountBeforeDecrease, float amount)
     {
         // life
         // ukoliko je amount veci od CurrentValue -> CurrentValue postaje 0 -> heroj umire
+
 
 
         _currentValue = Math.Max(CurrentValue - amount, 0);
@@ -192,6 +214,7 @@ public class HealthResource : Resource
 
         PotionEvents.OnFullHealthPotionConsumed -= Restore;
         PotionEvents.OnHealthPotionConsumed -= Increase;
+        HeroEvents.OnDecreaseLife -= Decrease;
     }
 }
 
@@ -206,7 +229,7 @@ public class ManaResource : Resource
     {
         PotionEvents.OnFullManaPotionConsumed += Restore;
         PotionEvents.OnManaPotionConsumed += Increase;
-
+        HeroEvents.OnDecreaseMana += Decrease;
     }
 
     protected override void InvokeOnCurrentValueChanged(float currentValue)
@@ -232,6 +255,8 @@ public class ManaResource : Resource
             return;
         }
 
+
+
         _currentValue -= amount;
 
         InvokeOnCurrentValueChanged(_currentValue);
@@ -243,5 +268,6 @@ public class ManaResource : Resource
     {
         PotionEvents.OnFullManaPotionConsumed -= Restore;
         PotionEvents.OnManaPotionConsumed -= Increase;
+        HeroEvents.OnDecreaseMana -= Decrease;
     }
 }
