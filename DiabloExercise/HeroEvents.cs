@@ -39,6 +39,8 @@
 }
 
 
+
+
 public class HeroEvents
 {
     public static Action<long>? OnExperienceReceived;
@@ -56,6 +58,9 @@ public class HeroEvents
     public static event Action<float>? OnMaxManaChanged;
 
     public static event Action? OnHeroDeath;
+
+    public static event Action<float>? OnDecreaseLife;
+    public static event Action<float>? OnDecreaseMana;
 
     public static void InvokeOnExpirienceReceived(long expirienceToReceive)
     {
@@ -103,8 +108,18 @@ public class HeroEvents
         OnMaxManaChanged?.Invoke(newMaxMana);
     }
 
-    internal static void InvokeOnHeroDeath()
+    public static void InvokeOnHeroDeath()
     {
         OnHeroDeath?.Invoke();
+    }
+
+    public static void InvokeOnDecreaseLife(float amount)
+    {
+        OnDecreaseLife?.Invoke(amount);
+    }
+
+    public static void InvokeOnDecreaseMana(float amount)
+    {
+        OnDecreaseMana?.Invoke(amount);
     }
 }
