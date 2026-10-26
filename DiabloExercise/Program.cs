@@ -6,65 +6,61 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 
+HeroDataRepository heroData = new HeroDataRepository();
 
-HeroFactory heroFactory = new HeroFactory(
-    new HeroData()
-    );
+HeroFactory heroFactory = new HeroFactory(heroData);
 
-var jovana = heroFactory.Instantiate("Rogue", "Jovana");
+var jovana = heroFactory.Instantiate("Rogue", "Jovana", out IUserInterface userInterface); // hm
 
 Console.WriteLine(jovana);
 
-//float CalculateIncrease()
-//{
-//    var _random = new Random();
-
-//    float Modifier = 1.5f;
-//    float maxValue = 80f;
-
-//    float baseValue = maxValue / 8; // 10
-//    float min = Modifier * baseValue; // 1.5 * 10 = 15
-//    float max = 3 * min; // 3 * 15 = 45
-
-//    float output = min + _random.NextSingle() * (max - min);
-
-//    return MathF.Round(output, 2);
-//}
-
-//for (int i = 0; i < 50; i++)
-//{
-//    Console.WriteLine(CalculateIncrease().ToString());
-//}
 
 
-
+HeroEvents.InvokeOnDecreaseLife(99);
+HeroEvents.InvokeOnDecreaseMana(99);
 
 var smallHealing = new SmallHealing();
 Console.WriteLine(smallHealing);
 smallHealing.Consume();
 
+userInterface.DisplayUI();
+
+
 var fullHealing = new FullHealing();
 Console.WriteLine(fullHealing);
 fullHealing.Consume();
 
+userInterface.DisplayUI();
 
 var smallMana = new SmallMana();
 Console.WriteLine(smallMana);
 smallMana.Consume();
 
+userInterface.DisplayUI();
+
 var fullMana = new FullMana();
 Console.WriteLine(fullMana);
 fullMana.Consume();
 
+userInterface.DisplayUI();
+
+HeroEvents.InvokeOnDecreaseLife(25);
+HeroEvents.InvokeOnDecreaseMana(25);
+
+userInterface.DisplayUI();
 
 
 var smallRejuvenation = new SmallRejuvenation();
 Console.WriteLine(smallRejuvenation);
 smallRejuvenation.Consume();
 
+userInterface.DisplayUI();
+
 var fullRejuvenation = new FullRejuvenation();
 Console.WriteLine(fullRejuvenation);
 fullRejuvenation.Consume();
+
+userInterface.DisplayUI();
 
 
 
@@ -86,14 +82,7 @@ fullRejuvenation.Consume();
 //    manaManager
 //    );
 
-//UserInterfaceDummy userInterface = new UserInterfaceDummy(
 
-//    healthManger.CurrentValue,
-//    healthManger.MaxValue,
-//    manaManager.CurrentValue,
-//    manaManager.MaxValue,
-//    goldManager.GoldCount
-//    );
 
 
 
@@ -516,14 +505,14 @@ public class HeroFactory
 {
     private readonly string[] flags = new string[] { "Warrior", "Rogue", "Sorcerer" };
 
-    private readonly HeroData heroData;
+    private readonly HeroDataRepository heroData;
 
-    public HeroFactory(HeroData heroData)
+    public HeroFactory(HeroDataRepository heroData)
     {
         this.heroData = heroData;
     }
 
-    public Hero? Instantiate(string flag, string heroName)
+    public Hero? Instantiate(string flag, string heroName, out IUserInterface userInterface)
     {
         if (string.IsNullOrEmpty(flag))
         {
@@ -544,32 +533,67 @@ public class HeroFactory
         float healthModifier = 1f;
         float manaModifier = 1f;
 
+        float initialLife = 100f;
+        float initialMaxLife = 100f;
+        float initialMana = 100f;
+        float initialMaxMana = 100f;
+
 
         var goldManager = new GoldManager();
         var experienceManager = new ExperienceManager();
 
 
+        /*
+         Keys
+        "InitialLife"
+        "InitialMaxLife"
+        "InitialMana"
+        "IntialMaxMana" 
+        "InitialGold"
+
+
+         */
+
         switch (flag)
         {
             case "Warrior":
-                healthModifier = heroData.WarriorData["LifeModifier"];
-                manaModifier = heroData.WarriorData["ManaModifier"];
+                healthModifier = heroData.GetValue(flag, "LifeModifier");
+                                
+                manaModifier = heroData.GetValue(flag, "ManaModifier");
+
+                initialLife = heroData.GetValue(flag, "InitialLife");
+                initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
+                initialMana = heroData.GetValue(flag, "InitialMana");
+                initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
                 break;
 
             case "Rogue":
 
-                healthModifier = heroData.RogueData["LifeModifier"];
-                manaModifier = heroData.RogueData["ManaModifier"];
+                healthModifier = heroData.GetValue(flag, "LifeModifier");
+                manaModifier = heroData.GetValue(flag, "ManaModifier");
+
+                initialLife = heroData.GetValue(flag, "InitialLife");
+                initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
+                initialMana = heroData.GetValue(flag, "InitialMana");
+                initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
+
                 break;
 
             case "Sorcerer":
-                healthModifier = heroData.SorcererData["LifeModifier"];
-                manaModifier = heroData.SorcererData["ManaModifier"];
+                healthModifier = heroData.GetValue(flag, "LifeModifier");
+                manaModifier = heroData.GetValue(flag, "ManaModifier");
+
+                initialLife = heroData.GetValue(flag, "InitialLife");
+                initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
+                initialMana = heroData.GetValue(flag, "InitialMana");
+                initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
                 break;
         }
 
-        var healthManger = new HealthResource(100, 100, healthModifier, new Random());
-        var manaManager = new ManaResource(100, 100, manaModifier, new Random());
+        var healthManger = new HealthResource(initialLife, initialMaxLife, healthModifier, new Random());
+        var manaManager = new ManaResource(initialMana, initialMaxMana, manaModifier, new Random());
+
+        userInterface = new UserInterfaceDummy(initialLife, initialMaxLife, initialMana, initialMaxMana, 0);
 
         switch (flag)
         {
@@ -587,188 +611,5 @@ public class HeroFactory
             default:
                 return null;
         }
-
-
-
     }
 }
-
-/*
- * Potions of Healing and Mana restore life and mana as stated below. Potions of Rejuvenation are basically treated as one Potion of Mana and one Potion of Healing. For information on how scrolls of healing and the Healing spell work, see chapter 4.1.2.
-
-Potion of Healing: bonus · maxlife/8 to bonus · 3·maxlife/8
-
-Potion of Mana: bonus · maxmana/8 to bonus · 3·maxmana/8
-
-    Any value in the range is equally probable.
-
-    The bonus is summarized in the table below.
-
-    maxlife and maxmana are the modified values. If they are negative, the amount added will also be negative and in fact subtract life or mana.
-
-Type 	    Warrior 	Rogue 	Sorcerer 	Monk    	Bard    	Barbarian
-Healing 	2.0 	    1.5 	1.0 	    1.51    	1.51    	2.0
-Mana 	    1.0 	    1.5 	2.0 	    1.51    	1.51    	1.0
-
-1 When using a Potion of Rejuvenation the bonus for a Monk and a Bard is 1.0 due to a bug in Hellfire.
- * 
- */
-
-/*
-public class Modifiers // this should be injected to hero 
-{
-    private float _healingModifier;
-
-    public Modifiers(float healingModifier)
-    {
-        _healingModifier = healingModifier;
-    }
-
-    public float HealingModifier { get => _healingModifier; }
-}
-*/
-
-
-public abstract class Item
-{
-    // this class should enable using the potion as an item in the inventory
-    // not sure how is it going to work yet
-}
-
-
-
-public abstract class Potion : Item
-{
-    // potion should send a message, and hero class should calculate the effect
-
-    // "Potion of Healing"
-    // "Potion of Full Mana"
-    public abstract string Name { get; }
-    public abstract string Description { get; }
-
-    protected const string _instruction = "Right click to use";
-    public string Instruction => _instruction;
-    public abstract void Consume();
-
-    public override string ToString()
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.AppendLine(Name);
-        sb.AppendLine(Description);
-        sb.AppendLine(Instruction);
-        return sb.ToString();
-    }
-}
-
-public class SmallHealing : Potion
-{
-    public override string Name => "Potion of Healing";
-    public override string Description => "Recover Partial Life";
-
-
-    public override void Consume()
-    {
-        PotionEvents.InvokeOnHealthPotionConsumed();
-    }
-}
-
-public class FullHealing : Potion
-{
-    public override string Name => "Potion of Full Healing";
-    public override string Description => "Fully Recover Life";
-
-    public override void Consume()
-    {
-        PotionEvents.InvokeOnFullHealthPotionConsumed();
-    }
-}
-
-public class SmallMana : Potion
-{
-    public override string Name => "Potion of Mana";
-    public override string Description => "Recover Mana";
-
-    public override void Consume()
-    {
-        PotionEvents.InvokeOnManaPotionConsumed();
-    }
-}
-
-public class FullMana : Potion
-{
-    public override string Name => "Potion of Full Mana";
-    public override string Description => "Fully Recover Mana";
-
-    public override void Consume()
-    {
-        PotionEvents.InvokeOnFullHealthPotionConsumed();
-    }
-}
-
-public class SmallRejuvenation : Potion
-{
-    public override string Name => "Potion of Rejuvenation";
-    public override string Description => "Recover Life and Mana";
-
-    public override void Consume()
-    {
-        PotionEvents.InvokeOnHealthPotionConsumed();
-        PotionEvents.InvokeOnManaPotionConsumed();
-    }
-}
-
-public class FullRejuvenation : Potion
-{
-    public override string Name => "Potion of Full Rejuvenation";
-    public override string Description => "Fully Recover Life and Mana";
-
-    public override void Consume()
-    {
-        PotionEvents.InvokeOnFullHealthPotionConsumed();
-        PotionEvents.InvokeOnFullManaPotionConsumed();
-    }
-}
-
-
-
-// Items - base abstract class for all items that can go into the inventory - or interface?
-
-// consumables - IConsumable
-// healling potion -> heals 50hp
-// full healing potion -> restores full health
-// mana potion -> restores 50 mana
-// full mana potion -> restores full mana
-// potion of rejuvination -> heals 50hp and 50 mana
-// potion of full rejuvination - restores full health and mana
-
-// value
-// metoda -> consume
-
-
-// hero equipment - IEquipable (equip, unequip)
-// - Weapons - deals damage to the enemies
-//      - OneHand weapon
-//          - Sword
-//      - TwoHanded weapon
-//          - Axe
-//          - Staff
-//          - Bow
-// - Shields - protect from damage + special stuff
-// - Head pieces - protect from damage + special stuff
-// - Body wearables - protect from damage + special stuff
-// - Amulet - special attributes
-// - Ring - special attributes
-//
-// properties:
-// name
-// armor
-// minimum damage
-// maximum damage
-// max duration
-// current duration
-// special affect
-// requirements
-// reduce current duration (get damage)
-//
-//
