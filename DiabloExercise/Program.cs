@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System;
+using System.Diagnostics.Contracts;
 using System.Net.WebSockets;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -246,21 +247,16 @@ public abstract class Hero
 {
     // Name - created once at the begining of the game. Not changable.
     private string _name;
-
     public string Name => _name;
+
+    public virtual string HeroClass => GetType().Name;
+
 
     private IExperienceManager experienceManager;
     private IGoldManager goldManager;
     private IResource healthManager;
     private IResource manaManager;
 
-
-    /// <summary>
-    /// Hero class returns the object's class name.
-    /// Serves to be used in UI.
-    /// Design choice: Every new class created will inherit this property and have a proper class name in the UI.
-    /// </summary>
-    public virtual string HeroClass => GetType().Name;
 
     protected Hero(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager)
     {
@@ -269,6 +265,47 @@ public abstract class Hero
         this.experienceManager = experienceManager;
         this.healthManager = healthManager;
         this.manaManager = manaManager;
+    }
+
+
+
+    public void GainExpirience(long incrementAmount)
+    {
+        experienceManager.Increase(incrementAmount);
+    }
+
+
+
+    public void AddGold(int amountToAdd)
+    {
+        goldManager.Add(amountToAdd);
+
+        Console.WriteLine($"Hero received {amountToAdd} gold, and now has {goldManager.GoldCount}");
+    }
+
+    public void SpendGold(int amountToSpend)
+    {
+        bool isSpent = goldManager.Decrease(amountToSpend);
+
+        if (isSpent)
+        {
+            Console.WriteLine("Transaction sucsessfull");
+            Console.WriteLine($"Hero deducted {amountToSpend} gold, and now has {goldManager.GoldCount}");
+        }
+        else
+        {
+            Console.WriteLine("Not enough gold");
+        }
+    }
+
+    public void GetDamage(float lifePointsToLose)
+    {
+        healthManager.Decrease(lifePointsToLose);
+    }
+
+    public void SpendMana(float manaToSpend)
+    {
+        manaManager.Decrease(manaToSpend); // information of sucsess potentionally needed
     }
 
 
@@ -291,8 +328,27 @@ public abstract class Hero
 }
 
 
+public class Warrior : Hero
+{
 
+    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
+    {
+    }
+}
+public class Rogue : Hero
+{
 
+    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
+    {
+    }
+}
+public class Sorcerer : Hero
+{
+
+    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
+    {
+    }
+}
 
 
 
@@ -302,12 +358,9 @@ public interface IExperienceManager
     long Experience { get; }
     long NextLevelExperience { get; }
 
-    void GainExperience(long xpPointsToAdd);
+    void Increase(long xpPointsToAdd);
     //void LevelUp();
 }
-
-
-
 public class ExperienceManager : IDisposable, IExperienceManager
 {
     private const int MAX_LEVEL = 50;
@@ -335,7 +388,7 @@ public class ExperienceManager : IDisposable, IExperienceManager
 
         InitializeNextLevelTresholds();
 
-        HeroEvents.OnExperienceReceived += GainExperience;
+        //HeroEvents.OnExperienceReceived += GainExperience;
     }
 
     private void InitializeNextLevelTresholds()
@@ -366,7 +419,7 @@ public class ExperienceManager : IDisposable, IExperienceManager
         }
     }
 
-    public void GainExperience(long xpPointsToAdd)
+    public void Increase(long xpPointsToAdd)
     {
         if (_level == MAX_LEVEL) return;
 
@@ -378,16 +431,21 @@ public class ExperienceManager : IDisposable, IExperienceManager
         {
             LevelUp();
         }
+
+        HeroEvents.InvokeOnExpirienceIncreased(Experience);
     }
 
 
     private void LevelUp()
     {
-        if (_level == MAX_LEVEL) return;
+        if (_level == MAX_LEVEL)
+        {
+            Console.WriteLine("Hero is already on the maximum level.");
+            return;
+        }
 
         _level++;
 
-        HeroEvents.InvokeOnLevelUp();
 
 
         // printing message
@@ -397,24 +455,28 @@ public class ExperienceManager : IDisposable, IExperienceManager
         {
             nextLevelXP = $"{nextLevelThreshold[_level + 1]}";
         }
-
         Console.WriteLine($"Level:{_level}; XP:{_experience}; XPtNextLevel: {nextLevelXP}");
+
+
+        HeroEvents.InvokeOnLevelUp();
     }
 
     public void Dispose()
     {
-        HeroEvents.OnExperienceReceived -= GainExperience;
+        //HeroEvents.OnExperienceReceived -= GainExperience;
     }
 }
+
+
+
 
 public interface IGoldManager
 {
     int GoldCount { get; }
 
-    void AddGold(int amountToAdd);
-    bool Remove(int amountToRemove);
+    void Add(int amountToAdd);
+    bool Decrease(int amount);
 }
-
 public class GoldManager : IDisposable, IGoldManager
 {
     private int _goldCount;
@@ -427,14 +489,12 @@ public class GoldManager : IDisposable, IGoldManager
         //HeroEvents.OnGoldRemoved += Remove;
     }
 
-    public void AddGold(int amountToAdd)
+    public void Add(int amountToAdd)
     {
         if (amountToAdd < 0) return;
 
         _goldCount += amountToAdd;
 
-
-        Console.WriteLine($"Hero received {amountToAdd} gold, and now has {_goldCount}");
         HeroEvents.InvokeOnGoldCountChanged(_goldCount);
         // gold is added when:
         // player picks up the gold item in the dungeon
@@ -444,26 +504,22 @@ public class GoldManager : IDisposable, IGoldManager
 
     }
 
-    public bool Remove(int amountToRemove)
+    public bool Decrease(int amountToDecrease)
     {
         // gold is removed when:
         // player drops it from the inventory
         // player buys items in the shop
-        if (amountToRemove < 0) return false;
+        if (amountToDecrease < 0) return false;
 
-        var difference = _goldCount - amountToRemove;
+        int difference = _goldCount - amountToDecrease;
 
         if (difference < 0)
-        {
-            Console.WriteLine($"Not enough gold!");
-
             return false;
-        }
+
 
         _goldCount = difference;
-        HeroEvents.InvokeOnGoldCountChanged(_goldCount);
 
-        Console.WriteLine($"Hero deducted {amountToRemove} gold, and now has {_goldCount}");
+        HeroEvents.InvokeOnGoldCountChanged(_goldCount);
 
         return true;
     }
@@ -475,141 +531,151 @@ public class GoldManager : IDisposable, IGoldManager
     }
 }
 
-public class Rogue : Hero
+/*
+public interface ILightRadius
 {
-
-    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
-    {
-    }
+    float BaseLightRadius { get; }
+    float ModifiedRadius { get; }
 }
 
-
-
-public class Warrior : Hero
-{
-
-    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
+    public class LightRadiusManager : ILightRadius
     {
-    }
-}
+        float _baseLightRadius;
+        public float BaseLightRadius => _baseLightRadius;
 
-public class Sorcerer : Hero
-{
+        float _modifiedRadius;
+        public float ModifiedRadius => _modifiedRadius;
 
-    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
-    {
-    }
-}
+        public LightRadiusManager(int startRadius)
+        {
+            if (startRadius < 0)
+            {
+                throw new ArgumentOutOfRangeException($"Start radius must be positive number.");
+            }
 
-public class HeroFactory
-{
-    private readonly string[] flags = new string[] { "Warrior", "Rogue", "Sorcerer" };
+            _baseLightRadius = startRadius;
+            _modifiedRadius = startRadius;
+        }
 
-    private readonly HeroDataRepository heroData;
 
-    public HeroFactory(HeroDataRepository heroData)
-    {
-        this.heroData = heroData;
+        private void ModifyLightRadius(float amount)
+        {
+            _modifiedRadius += amount;
+        }
     }
 
-    public Hero? Instantiate(string flag, string heroName, out IUserInterface userInterface)
+
+
+*/
+
+
+    public class HeroFactory
     {
-        if (string.IsNullOrEmpty(flag))
+        private readonly string[] flags = new string[] { "Warrior", "Rogue", "Sorcerer" };
+
+        private readonly HeroDataRepository heroData;
+
+        public HeroFactory(HeroDataRepository heroData)
         {
-            throw new ArgumentNullException($"{GetType().Name} - Instantiate method: flag is null");
+            this.heroData = heroData;
         }
 
-        if (!flags.Contains(flag))
+        public Hero? Instantiate(string flag, string heroName, out IUserInterface userInterface)
         {
-            throw new ArgumentException("Flag not recognized");
-        }
+            if (string.IsNullOrEmpty(flag))
+            {
+                throw new ArgumentNullException($"{GetType().Name} - Instantiate method: flag is null");
+            }
 
-        if (string.IsNullOrEmpty(heroName))
-        {
-            heroName = $"Some {flag}";
-        }
+            if (!flags.Contains(flag))
+            {
+                throw new ArgumentException("Flag not recognized");
+            }
 
-
-        float healthModifier = 1f;
-        float manaModifier = 1f;
-
-        float initialLife = 100f;
-        float initialMaxLife = 100f;
-        float initialMana = 100f;
-        float initialMaxMana = 100f;
+            if (string.IsNullOrEmpty(heroName))
+            {
+                heroName = $"Some {flag}";
+            }
 
 
-        var goldManager = new GoldManager();
-        var experienceManager = new ExperienceManager();
+            float healthModifier = 1f;
+            float manaModifier = 1f;
+
+            float initialLife = 100f;
+            float initialMaxLife = 100f;
+            float initialMana = 100f;
+            float initialMaxMana = 100f;
 
 
-        /*
-         Keys
-        "InitialLife"
-        "InitialMaxLife"
-        "InitialMana"
-        "IntialMaxMana" 
-        "InitialGold"
+            var goldManager = new GoldManager();
+            var experienceManager = new ExperienceManager();
 
 
-         */
+            /*
+             Keys
+            "InitialLife"
+            "InitialMaxLife"
+            "InitialMana"
+            "IntialMaxMana" 
+            "InitialGold"
+             */
 
-        switch (flag)
-        {
-            case "Warrior":
-                healthModifier = heroData.GetValue(flag, "LifeModifier");
-                                
-                manaModifier = heroData.GetValue(flag, "ManaModifier");
+            switch (flag)
+            {
+                case "Warrior":
+                    healthModifier = heroData.GetValue(flag, "LifeModifier");
 
-                initialLife = heroData.GetValue(flag, "InitialLife");
-                initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
-                initialMana = heroData.GetValue(flag, "InitialMana");
-                initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
-                break;
+                    manaModifier = heroData.GetValue(flag, "ManaModifier");
 
-            case "Rogue":
+                    initialLife = heroData.GetValue(flag, "InitialLife");
+                    initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
+                    initialMana = heroData.GetValue(flag, "InitialMana");
+                    initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
+                    break;
 
-                healthModifier = heroData.GetValue(flag, "LifeModifier");
-                manaModifier = heroData.GetValue(flag, "ManaModifier");
+                case "Rogue":
 
-                initialLife = heroData.GetValue(flag, "InitialLife");
-                initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
-                initialMana = heroData.GetValue(flag, "InitialMana");
-                initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
+                    healthModifier = heroData.GetValue(flag, "LifeModifier");
+                    manaModifier = heroData.GetValue(flag, "ManaModifier");
 
-                break;
+                    initialLife = heroData.GetValue(flag, "InitialLife");
+                    initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
+                    initialMana = heroData.GetValue(flag, "InitialMana");
+                    initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
 
-            case "Sorcerer":
-                healthModifier = heroData.GetValue(flag, "LifeModifier");
-                manaModifier = heroData.GetValue(flag, "ManaModifier");
+                    break;
 
-                initialLife = heroData.GetValue(flag, "InitialLife");
-                initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
-                initialMana = heroData.GetValue(flag, "InitialMana");
-                initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
-                break;
-        }
+                case "Sorcerer":
+                    healthModifier = heroData.GetValue(flag, "LifeModifier");
+                    manaModifier = heroData.GetValue(flag, "ManaModifier");
 
-        var healthManger = new HealthResource(initialLife, initialMaxLife, healthModifier, new Random());
-        var manaManager = new ManaResource(initialMana, initialMaxMana, manaModifier, new Random());
+                    initialLife = heroData.GetValue(flag, "InitialLife");
+                    initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
+                    initialMana = heroData.GetValue(flag, "InitialMana");
+                    initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
+                    break;
+            }
 
-        userInterface = new UserInterfaceDummy(initialLife, initialMaxLife, initialMana, initialMaxMana, 0);
+            var healthManger = new HealthResource(initialLife, initialMaxLife, healthModifier, new Random());
+            var manaManager = new ManaResource(initialMana, initialMaxMana, manaModifier, new Random());
 
-        switch (flag)
-        {
-            case "Warrior":
+            userInterface = new UserInterfaceDummy(initialLife, initialMaxLife, initialMana, initialMaxMana, 0);
 
-                return new Warrior(heroName, goldManager, experienceManager, healthManger, manaManager);
+            switch (flag)
+            {
+                case "Warrior":
 
-            case "Rogue":
+                    return new Warrior(heroName, goldManager, experienceManager, healthManger, manaManager);
 
-                return new Rogue(heroName, goldManager, experienceManager, healthManger, manaManager);
+                case "Rogue":
+
+                    return new Rogue(heroName, goldManager, experienceManager, healthManger, manaManager);
 
 
-            case "Sorcerer":
-                return new Sorcerer(heroName, goldManager, experienceManager, healthManger, manaManager);
-            default:
-                return null;
+                case "Sorcerer":
+                    return new Sorcerer(heroName, goldManager, experienceManager, healthManger, manaManager);
+                default:
+                    return null;
+            }
         }
     }
-}

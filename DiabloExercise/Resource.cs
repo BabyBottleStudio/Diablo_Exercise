@@ -2,6 +2,8 @@
 {
     public float CurrentValue { get; }
     public float MaxValue { get; }
+
+    public void Decrease(float value);
 }
 
 public abstract class Resource : IResource, IDisposable
@@ -12,7 +14,7 @@ public abstract class Resource : IResource, IDisposable
     protected float _maxValue;
     public float MaxValue => _maxValue;
 
-    private const float MAX_VALUE_INCREMENT = 2f;
+    private const float MAX_VALUE_INCREMENT = 2f; // this should be in the HeroDataRepository
 
     private float Modifier { get; init; }
     protected abstract string _resourceName { get; }
@@ -125,7 +127,7 @@ public abstract class Resource : IResource, IDisposable
         Console.WriteLine($"Hero had {startValue} {_resourceName}, and after restoring has {_currentValue} {_resourceName}.");
     }
 
-    protected void Decrease(float amount) // napravi da ova metoda poziva
+    public void Decrease(float amount) // napravi da ova metoda poziva
     {
         // life
         // ukoliko je amount veci od CurrentValue -> CurrentValue postaje 0 -> heroj umire

@@ -8,6 +8,8 @@
 
     private float _goldBar;
 
+    private long _expirience;
+
     public UserInterfaceDummy(float initialLife, float initialMaxLife, float initialMana, float initialMaxMana, float initialGold)
     {
         _life = initialLife;
@@ -15,7 +17,7 @@
         _manaBar = initialMana;
         _maxMana = initialMaxMana;
         _goldBar = initialGold;
-
+        _expirience = 0;
 
         HeroEvents.OnLifeAmountChanged += UptadeLifeBarUI;
         HeroEvents.OnMaxLifeChanged += UpdateMaxLife;
@@ -25,12 +27,17 @@
 
         HeroEvents.OnGoldCountChanged += UpdateGoldUI;
 
+        HeroEvents.OnExperienceIncreased += UpdateXPDisplay;
+    }
+
+    void UpdateXPDisplay(long xpToDisplay)
+    {
+        _expirience = xpToDisplay;
     }
 
 
     void UptadeManaBarUI(float amount)
     {
-
         _manaBar = amount;
     }
     void UptadeMaxMana(float amount)
@@ -56,6 +63,8 @@
     public void DisplayUI()
     {
         Console.WriteLine("* I N T E R F A C E *");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"Expirience: {_expirience}");
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine($"Life:{_life} - MaxLife:{_maxLife} - HealthBar:{percentBar(_life, _maxLife):F2}%");
         Console.ForegroundColor = ConsoleColor.Blue;
@@ -71,10 +80,11 @@
         HeroEvents.OnLifeAmountChanged -= UptadeLifeBarUI;
         HeroEvents.OnMaxLifeChanged -= UpdateMaxLife;
 
-        HeroEvents.OnManaAmountChanged += UptadeManaBarUI;
-        HeroEvents.OnMaxManaChanged += UptadeMaxMana;
+        HeroEvents.OnManaAmountChanged -= UptadeManaBarUI;
+        HeroEvents.OnMaxManaChanged -= UptadeMaxMana;
 
         HeroEvents.OnGoldCountChanged -= UpdateGoldUI;
 
+        HeroEvents.OnExperienceIncreased -= UpdateXPDisplay;
     }
 }
