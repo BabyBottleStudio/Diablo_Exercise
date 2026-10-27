@@ -1,49 +1,6 @@
-﻿public class PotionEvents
+﻿public class HeroEvents
 {
-    public static event Action? OnHealthPotionConsumed;
-    public static event Action? OnFullHealthPotionConsumed;
-
-    public static event Action? OnManaPotionConsumed;
-    public static event Action? OnFullManaPotionConsumed;
-
-    public static event Action<float>? OnRejuvenationPotionConsumed;
-    public static event Action? OnFullRejuvenationPotionConsumed;
-
-    public static void InvokeOnHealthPotionConsumed()
-    {
-        OnHealthPotionConsumed?.Invoke();
-    }
-    public static void InvokeOnFullHealthPotionConsumed()
-    {
-        OnFullHealthPotionConsumed?.Invoke();
-    }
-
-    public static void InvokeOnManaPotionConsumed()
-    {
-        OnManaPotionConsumed?.Invoke();
-    }
-    public static void InvokeOnFullManaPotionConsumed()
-    {
-        OnFullManaPotionConsumed?.Invoke();
-    }
-
-    public static void InvokeOnRejuvenationPotionConsumed(float amountToRestore)
-    {
-        OnRejuvenationPotionConsumed?.Invoke(amountToRestore);
-    }
-    public static void InvokeOnFullRejuvenationPotionConsumed()
-    {
-        OnFullRejuvenationPotionConsumed?.Invoke();
-    }
-
-}
-
-
-
-
-public class HeroEvents
-{
-    public static Action<long>? OnExperienceReceived;
+    public static Action<long>? OnExperienceIncreased;
     public static event Action? OnLevelUp;
 
     //public static event Action<int>? OnGoldReceived;
@@ -62,9 +19,9 @@ public class HeroEvents
     public static event Action<float>? OnDecreaseLife;
     public static event Action<float>? OnDecreaseMana;
 
-    public static void InvokeOnExpirienceReceived(long expirienceToReceive)
+    public static void InvokeOnExpirienceIncreased(long newExpirience)
     {
-        OnExperienceReceived?.Invoke(expirienceToReceive);
+        OnExperienceIncreased?.Invoke(newExpirience);
     }
     public static void InvokeOnLevelUp()
     {
@@ -123,3 +80,25 @@ public class HeroEvents
         OnDecreaseMana?.Invoke(amount);
     }
 }
+
+/*
+
+public class EquipementEventArgs : EventArgs
+{
+    public float LightRadiusModifier { get; init; }
+
+    // here should be other modifiers
+}
+
+public class EquipementEvents
+{
+    public static EventHandler<EquipementEventArgs> OnEquip;
+
+
+    public static void InvokeOnEquip(object sender, EquipementEventArgs e)
+    {
+        OnEquip?.Invoke(sender, e);
+    }
+
+}
+*/
