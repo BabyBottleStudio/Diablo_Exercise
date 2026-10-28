@@ -64,10 +64,26 @@ fullRejuvenation.Consume();
 userInterface.DisplayUI();
 
 
+var lightRadius = new LightRadiusManager(100f);
+
+var modifier = new StatsModifier()
+{
+
+    LightRadius = 20f
+
+};
+
+var weapon = new TestWeapon(2, 4, modifier);
+var weapon2 = new TestWeapon(2, 4, modifier);
 
 
 
+weapon.OnEquip();
+weapon2.OnEquip();
+weapon.OnUnequip();
+weapon2.OnUnequip();
 
+Console.WriteLine(modifier);
 
 //var goldManager = new GoldManager();
 //var experienceManager = new ExperienceManager();
@@ -531,151 +547,303 @@ public class GoldManager : IDisposable, IGoldManager
     }
 }
 
-/*
+
+public interface IEquipable
+{
+    void OnEquip();
+    void OnUnequip();
+}
+
+public interface IDamage
+{
+    float MinDamage { get; init; }
+    float MaxDamage { get; init; }
+}
+public class TestWeapon : Item, IEquipable, IDamage
+{
+    bool isEquipped = false;
+    public float MinDamage { get; init; }
+    public float MaxDamage { get; init; }
+
+    private StatsModifier _statsModifier;
+    public StatsModifier StatsModifier => _statsModifier;
+
+    public TestWeapon(float minDamage, float maxDamage, StatsModifier statsModifier)
+    {
+        if (minDamage < 0 || maxDamage < 0)
+        {
+            throw new ArgumentOutOfRangeException("Arguemts must be positive numbers.");
+        }
+
+        if (statsModifier is null)
+        {
+            throw new ArgumentNullException("Stats modifier can't be null!");
+        }
+
+
+        if (minDamage < MaxDamage)
+        {
+            this.MinDamage = minDamage;
+            this.MaxDamage = maxDamage;
+        }
+        else
+        {
+            this.MinDamage = maxDamage;
+            this.MaxDamage = minDamage;
+        }
+
+        _statsModifier = statsModifier;
+    }
+
+    public void OnEquip()
+    {
+        if (isEquipped)
+        {
+            Console.WriteLine("Weapon already equipped.");
+            return;
+        }
+
+        EquipementEvents.InvokeOnItemEquip(StatsModifier);
+        isEquipped = true;
+    }
+
+    public void OnUnequip()
+    {
+        if (!isEquipped)
+        {
+            Console.WriteLine("Unable to unequip: weapon is not equipped.");
+            return;
+        }
+
+        EquipementEvents.InvokeOnItemUnequip(StatsModifier);
+        isEquipped = false;
+    }
+}
+
+public class StatsModifier
+{
+    public float LightRadius { get; init; }
+
+    public float Strength { get; init; }
+    public float Magic { get; init; }
+    public float Dexterity { get; init; }
+    public float Vitality { get; init; }
+
+    public float ArmorClass { get; init; }
+    public float ChanceToHit { get; init; }
+    public float Damage { get; init; }
+
+    public float ResistMagic { get; init; }
+    public float ResistFire { get; init; }
+    public float ResistLighting { get; init; }
+
+    public float Life { get; init; }
+    public float Mana { get; init; }
+
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        // Pomoćna lokalna funkcija za lepši RPG format (+5 umesto 5)
+        string FormatStat(float value) => value > 0 ? $"+{value}" : value.ToString();
+
+        if (LightRadius != 0) sb.AppendLine($"{FormatStat(LightRadius)} to Light Radius.");
+        if (Strength != 0) sb.AppendLine($"{FormatStat(Strength)} to Strength");
+        if (Magic != 0) sb.AppendLine($"{FormatStat(Magic)} to Magic");
+        if (Dexterity != 0) sb.AppendLine($"{FormatStat(Dexterity)} to Dexterity");
+        if (Vitality != 0) sb.AppendLine($"{FormatStat(Vitality)} to Vitality");
+
+        if (ArmorClass != 0) sb.AppendLine($"{FormatStat(ArmorClass)} to Armor");
+        if (ChanceToHit != 0) sb.AppendLine($"{FormatStat(ChanceToHit)}% to Chance to hit"); // % je čest kod šanse za pogodak
+        if (Damage != 0) sb.AppendLine($"{FormatStat(Damage)} to Damage");
+
+        if (ResistMagic != 0) sb.AppendLine($"{FormatStat(ResistMagic)}% to Magic Resistance");
+        if (ResistFire != 0) sb.AppendLine($"{FormatStat(ResistFire)}% to Fire Resistance");
+        if (ResistLighting != 0) sb.AppendLine($"{FormatStat(ResistLighting)}% to Lightning Resistance");
+
+        if (Life != 0) sb.AppendLine($"{FormatStat(Life)} to Life");
+        if (Mana != 0) sb.AppendLine($"{FormatStat(Mana)} to Mana");
+
+        return sb.ToString().TrimEnd(); // TrimEnd uklanja poslednji prazan red koji AppendLine napravi
+    }
+
+}
+
+
 public interface ILightRadius
 {
     float BaseLightRadius { get; }
     float ModifiedRadius { get; }
 }
 
-    public class LightRadiusManager : ILightRadius
+public class LightRadiusManager : ILightRadius, IDisposable
+{
+    float _baseLightRadius;
+    public float BaseLightRadius => _baseLightRadius;
+
+    float _radiusModifier;
+    public float ModifiedRadius => _baseLightRadius * (_radiusModifier / 100f);
+
+
+    public LightRadiusManager(float startRadius)
     {
-        float _baseLightRadius;
-        public float BaseLightRadius => _baseLightRadius;
-
-        float _modifiedRadius;
-        public float ModifiedRadius => _modifiedRadius;
-
-        public LightRadiusManager(int startRadius)
+        if (startRadius < 0)
         {
-            if (startRadius < 0)
-            {
-                throw new ArgumentOutOfRangeException($"Start radius must be positive number.");
-            }
-
-            _baseLightRadius = startRadius;
-            _modifiedRadius = startRadius;
+            throw new ArgumentOutOfRangeException($"Start radius must be positive number.");
         }
 
+        _baseLightRadius = startRadius;
+        _radiusModifier = 100f;
 
-        private void ModifyLightRadius(float amount)
-        {
-            _modifiedRadius += amount;
-        }
+        EquipementEvents.OnItemEquip += ModifyLightRadius;
+        EquipementEvents.OnItemUnequip += RevertLightRadius;
     }
 
 
-
-*/
-
-
-    public class HeroFactory
+    private void ModifyLightRadius(StatsModifier statsModifier)
     {
-        private readonly string[] flags = new string[] { "Warrior", "Rogue", "Sorcerer" };
+        // -60% || -20% || 20% || 40%
 
-        private readonly HeroDataRepository heroData;
+        // amount should be 0.6 || 0.8 || 1.2 || 1.4
+        float percent = statsModifier.LightRadius;
 
-        public HeroFactory(HeroDataRepository heroData)
+        _radiusModifier += percent;
+        Console.WriteLine(this.ToString());
+    }
+
+    private void RevertLightRadius(StatsModifier statsModifier)
+    {
+        float percent = statsModifier.LightRadius * -1;
+
+        _radiusModifier += percent;
+        Console.WriteLine(this.ToString());
+    }
+
+
+    public override string ToString()
+    {
+        return $"Base light radius: {BaseLightRadius} || Modified light radius: {ModifiedRadius}";
+    }
+
+    public void Dispose()
+    {
+        EquipementEvents.OnItemEquip -= ModifyLightRadius;
+        EquipementEvents.OnItemUnequip -= RevertLightRadius;
+    }
+}
+
+
+
+
+
+
+public class HeroFactory
+{
+    private readonly string[] flags = new string[] { "Warrior", "Rogue", "Sorcerer" };
+
+    private readonly HeroDataRepository heroData;
+
+    public HeroFactory(HeroDataRepository heroData)
+    {
+        this.heroData = heroData;
+    }
+
+    public Hero? Instantiate(string flag, string heroName, out IUserInterface userInterface)
+    {
+        if (string.IsNullOrEmpty(flag))
         {
-            this.heroData = heroData;
+            throw new ArgumentNullException($"{GetType().Name} - Instantiate method: flag is null");
         }
 
-        public Hero? Instantiate(string flag, string heroName, out IUserInterface userInterface)
+        if (!flags.Contains(flag))
         {
-            if (string.IsNullOrEmpty(flag))
-            {
-                throw new ArgumentNullException($"{GetType().Name} - Instantiate method: flag is null");
-            }
+            throw new ArgumentException("Flag not recognized");
+        }
 
-            if (!flags.Contains(flag))
-            {
-                throw new ArgumentException("Flag not recognized");
-            }
-
-            if (string.IsNullOrEmpty(heroName))
-            {
-                heroName = $"Some {flag}";
-            }
+        if (string.IsNullOrEmpty(heroName))
+        {
+            heroName = $"Some {flag}";
+        }
 
 
-            float healthModifier = 1f;
-            float manaModifier = 1f;
+        float healthModifier = 1f;
+        float manaModifier = 1f;
 
-            float initialLife = 100f;
-            float initialMaxLife = 100f;
-            float initialMana = 100f;
-            float initialMaxMana = 100f;
-
-
-            var goldManager = new GoldManager();
-            var experienceManager = new ExperienceManager();
+        float initialLife = 100f;
+        float initialMaxLife = 100f;
+        float initialMana = 100f;
+        float initialMaxMana = 100f;
 
 
-            /*
-             Keys
-            "InitialLife"
-            "InitialMaxLife"
-            "InitialMana"
-            "IntialMaxMana" 
-            "InitialGold"
-             */
-
-            switch (flag)
-            {
-                case "Warrior":
-                    healthModifier = heroData.GetValue(flag, "LifeModifier");
-
-                    manaModifier = heroData.GetValue(flag, "ManaModifier");
-
-                    initialLife = heroData.GetValue(flag, "InitialLife");
-                    initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
-                    initialMana = heroData.GetValue(flag, "InitialMana");
-                    initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
-                    break;
-
-                case "Rogue":
-
-                    healthModifier = heroData.GetValue(flag, "LifeModifier");
-                    manaModifier = heroData.GetValue(flag, "ManaModifier");
-
-                    initialLife = heroData.GetValue(flag, "InitialLife");
-                    initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
-                    initialMana = heroData.GetValue(flag, "InitialMana");
-                    initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
-
-                    break;
-
-                case "Sorcerer":
-                    healthModifier = heroData.GetValue(flag, "LifeModifier");
-                    manaModifier = heroData.GetValue(flag, "ManaModifier");
-
-                    initialLife = heroData.GetValue(flag, "InitialLife");
-                    initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
-                    initialMana = heroData.GetValue(flag, "InitialMana");
-                    initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
-                    break;
-            }
-
-            var healthManger = new HealthResource(initialLife, initialMaxLife, healthModifier, new Random());
-            var manaManager = new ManaResource(initialMana, initialMaxMana, manaModifier, new Random());
-
-            userInterface = new UserInterfaceDummy(initialLife, initialMaxLife, initialMana, initialMaxMana, 0);
-
-            switch (flag)
-            {
-                case "Warrior":
-
-                    return new Warrior(heroName, goldManager, experienceManager, healthManger, manaManager);
-
-                case "Rogue":
-
-                    return new Rogue(heroName, goldManager, experienceManager, healthManger, manaManager);
+        var goldManager = new GoldManager();
+        var experienceManager = new ExperienceManager();
 
 
-                case "Sorcerer":
-                    return new Sorcerer(heroName, goldManager, experienceManager, healthManger, manaManager);
-                default:
-                    return null;
-            }
+        /*
+         Keys
+        "InitialLife"
+        "InitialMaxLife"
+        "InitialMana"
+        "IntialMaxMana" 
+        "InitialGold"
+         */
+
+        switch (flag)
+        {
+            case "Warrior":
+                healthModifier = heroData.GetValue(flag, "LifeModifier");
+
+                manaModifier = heroData.GetValue(flag, "ManaModifier");
+
+                initialLife = heroData.GetValue(flag, "InitialLife");
+                initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
+                initialMana = heroData.GetValue(flag, "InitialMana");
+                initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
+                break;
+
+            case "Rogue":
+
+                healthModifier = heroData.GetValue(flag, "LifeModifier");
+                manaModifier = heroData.GetValue(flag, "ManaModifier");
+
+                initialLife = heroData.GetValue(flag, "InitialLife");
+                initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
+                initialMana = heroData.GetValue(flag, "InitialMana");
+                initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
+
+                break;
+
+            case "Sorcerer":
+                healthModifier = heroData.GetValue(flag, "LifeModifier");
+                manaModifier = heroData.GetValue(flag, "ManaModifier");
+
+                initialLife = heroData.GetValue(flag, "InitialLife");
+                initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
+                initialMana = heroData.GetValue(flag, "InitialMana");
+                initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
+                break;
+        }
+
+        var healthManger = new HealthResource(initialLife, initialMaxLife, healthModifier, new Random());
+        var manaManager = new ManaResource(initialMana, initialMaxMana, manaModifier, new Random());
+
+        userInterface = new UserInterfaceDummy(initialLife, initialMaxLife, initialMana, initialMaxMana, 0);
+
+        switch (flag)
+        {
+            case "Warrior":
+
+                return new Warrior(heroName, goldManager, experienceManager, healthManger, manaManager);
+
+            case "Rogue":
+
+                return new Rogue(heroName, goldManager, experienceManager, healthManger, manaManager);
+
+
+            case "Sorcerer":
+                return new Sorcerer(heroName, goldManager, experienceManager, healthManger, manaManager);
+            default:
+                return null;
         }
     }
+}

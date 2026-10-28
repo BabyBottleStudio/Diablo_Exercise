@@ -81,24 +81,21 @@
     }
 }
 
-/*
 
-public class EquipementEventArgs : EventArgs
-{
-    public float LightRadiusModifier { get; init; }
-
-    // here should be other modifiers
-}
 
 public class EquipementEvents
 {
-    public static EventHandler<EquipementEventArgs> OnEquip;
+    public static Action<StatsModifier>? OnItemEquip;
+    public static Action<StatsModifier>? OnItemUnequip;
 
 
-    public static void InvokeOnEquip(object sender, EquipementEventArgs e)
+    public static void InvokeOnItemEquip(StatsModifier statsModifier)
     {
-        OnEquip?.Invoke(sender, e);
+        OnItemEquip?.Invoke(statsModifier);
     }
 
+    public static void InvokeOnItemUnequip(StatsModifier statsModifier)
+    {
+        OnItemUnequip?.Invoke(statsModifier);
+    }
 }
-*/
