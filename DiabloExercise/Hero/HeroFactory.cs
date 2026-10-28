@@ -34,7 +34,7 @@
         float initialMaxLife = 100f;
         float initialMana = 100f;
         float initialMaxMana = 100f;
-
+        float initialLightRadius = 100f;
 
         var goldManager = new GoldManager();
         var experienceManager = new ExperienceManager();
@@ -52,6 +52,7 @@
         switch (flag)
         {
             case "Warrior":
+                initialLightRadius = heroData.GetValue(flag, "LightRadius");
                 healthModifier = heroData.GetValue(flag, "LifeModifier");
 
                 manaModifier = heroData.GetValue(flag, "ManaModifier");
@@ -64,6 +65,7 @@
 
             case "Rogue":
 
+                initialLightRadius = heroData.GetValue(flag, "LightRadius");
                 healthModifier = heroData.GetValue(flag, "LifeModifier");
                 manaModifier = heroData.GetValue(flag, "ManaModifier");
 
@@ -75,6 +77,7 @@
                 break;
 
             case "Sorcerer":
+                initialLightRadius = heroData.GetValue(flag, "LightRadius");
                 healthModifier = heroData.GetValue(flag, "LifeModifier");
                 manaModifier = heroData.GetValue(flag, "ManaModifier");
 
@@ -90,19 +93,21 @@
 
         userInterface = new UserInterfaceDummy(initialLife, initialMaxLife, initialMana, initialMaxMana, 0);
 
+        ILightRadius lihgtRadiusManger = new LightRadiusManager(initialLightRadius);
+
         switch (flag)
         {
             case "Warrior":
 
-                return new Warrior(heroName, goldManager, experienceManager, healthManger, manaManager);
+                return new Warrior(heroName, goldManager, experienceManager, healthManger, manaManager, lihgtRadiusManger);
 
             case "Rogue":
 
-                return new Rogue(heroName, goldManager, experienceManager, healthManger, manaManager);
+                return new Rogue(heroName, goldManager, experienceManager, healthManger, manaManager, lihgtRadiusManger);
 
 
             case "Sorcerer":
-                return new Sorcerer(heroName, goldManager, experienceManager, healthManger, manaManager);
+                return new Sorcerer(heroName, goldManager, experienceManager, healthManger, manaManager, lihgtRadiusManger);
             default:
                 return null;
         }

@@ -64,13 +64,10 @@ fullRejuvenation.Consume();
 userInterface.DisplayUI();
 
 
-var lightRadius = new LightRadiusManager(100f);
 
 var modifier = new StatsModifier()
 {
-
     LightRadius = 20f
-
 };
 
 var weapon = new TestWeapon(2, 4, modifier);
@@ -89,6 +86,9 @@ weapon2.OnUnequip();
 
 Console.WriteLine(modifier);
 
+
+Console.WriteLine();
+Console.WriteLine(jovana);
 //var goldManager = new GoldManager();
 //var experienceManager = new ExperienceManager();
 //var healthManger = new HealthResource(100, 100);
@@ -272,19 +272,21 @@ public abstract class Hero
     public virtual string HeroClass => GetType().Name;
 
 
-    private IExperienceManager experienceManager;
-    private IGoldManager goldManager;
-    private IResource healthManager;
-    private IResource manaManager;
+    public readonly IExperienceManager experienceManager;
+    public readonly IGoldManager goldManager;
+    public readonly IResource healthManager;
+    public readonly IResource manaManager;
+    public readonly ILightRadius lightRadius;
 
 
-    protected Hero(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager)
+    protected Hero(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius)
     {
         _name = name;
         this.goldManager = goldManager;
         this.experienceManager = experienceManager;
         this.healthManager = healthManager;
         this.manaManager = manaManager;
+        this.lightRadius = lightRadius;
     }
 
 
@@ -328,6 +330,9 @@ public abstract class Hero
         manaManager.Decrease(manaToSpend); // information of sucsess potentionally needed
     }
 
+    
+    public float GetLightRadius() => lightRadius.ModifiedRadius;
+    public float GetBaseLightRadius() => lightRadius.BaseLightRadius;
 
     public override string ToString()
     {
@@ -341,6 +346,7 @@ public abstract class Hero
         sb.AppendLine($"Gold: {goldManager.GoldCount}");
         sb.AppendLine($"MaxLife:{healthManager.MaxValue}. CurrentLife: {healthManager.CurrentValue}");
         sb.AppendLine($"MaxMana:{manaManager.MaxValue}. CurrentMana: {manaManager.CurrentValue}");
+        sb.AppendLine($"BaseLihtRadius: {GetBaseLightRadius()}. ModifiedLightRadius: {GetLightRadius()}");
         sb.AppendLine();
 
         return sb.ToString();
@@ -350,22 +356,19 @@ public abstract class Hero
 
 public class Warrior : Hero
 {
-
-    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
+    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius)
     {
     }
 }
 public class Rogue : Hero
 {
-
-    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
+    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius)
     {
     }
 }
 public class Sorcerer : Hero
 {
-
-    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager) : base(name, goldManager, experienceManager, healthManager, manaManager)
+    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius)
     {
     }
 }
@@ -686,9 +689,17 @@ public class LightRadiusManager : ILightRadius, IDisposable
     public float BaseLightRadius => _baseLightRadius;
 
     float _radiusModifier;
-    public float ModifiedRadius => Math.Clamp(_baseLightRadius * (_radiusModifier / 100f), 20f, 160);
+    public float ModifiedRadius
+    {
+        get
+        {
+            var newRadius = Math.Clamp(_baseLightRadius * (_radiusModifier / 100f), 20f, 160);
+            return (float)Math.Round(newRadius, 0);
+        }
+    }
 
-        public LightRadiusManager(float startRadius)
+
+    public LightRadiusManager(float startRadius)
     {
         if (startRadius < 0)
         {
@@ -708,17 +719,22 @@ public class LightRadiusManager : ILightRadius, IDisposable
         // -60% || -20% || 20% || 40%
 
         // amount should be 0.6 || 0.8 || 1.2 || 1.4
-        float percent = statsModifier.LightRadius;
+        float modPercent = statsModifier.LightRadius;
 
-        _radiusModifier += percent;
+        _radiusModifier += modPercent;
         Console.WriteLine(this.ToString());
     }
 
     private void RevertLightRadius(StatsModifier statsModifier)
     {
-        float percent = statsModifier.LightRadius * -1;
+        float modPercent = statsModifier.LightRadius * -1;
 
-        _radiusModifier += percent;
+        HandleModifier(modPercent);
+    }
+
+    private void HandleModifier(float modificationPercent)
+    {
+        _radiusModifier += modificationPercent;
         Console.WriteLine(this.ToString());
     }
 

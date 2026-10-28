@@ -12,6 +12,7 @@
                 // value
                 new Dictionary<string, float>()
                 {
+                    { "LightRadius", 100f},
                     { "LifeModifier", 2.0f },
                     { "ManaModifier", 1.0f },
                     { "InitialLife", 100f},
@@ -26,6 +27,7 @@
                        
                 new Dictionary<string, float>() // value
                 {
+                    { "LightRadius", 100f},
                     { "LifeModifier", 2.0f },
                     { "ManaModifier", 1.0f },
                     { "InitialLife", 100f},
@@ -40,6 +42,7 @@
                           
                 new Dictionary<string, float>() // value
                 {
+                    { "LightRadius", 100f},
                     { "LifeModifier", 1.0f },
                     { "ManaModifier", 2.0f },
                     { "InitialLife", 100f},
