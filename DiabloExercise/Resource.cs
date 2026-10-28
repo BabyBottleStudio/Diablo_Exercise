@@ -155,6 +155,9 @@ public abstract class Resource : IResource, IDisposable
 
         HandleDispose();
     }
+
+    public override string ToString() => $"Max {_resourceName}: {MaxValue}. Current {_resourceName}: {CurrentValue}";
+    
 }
 
 

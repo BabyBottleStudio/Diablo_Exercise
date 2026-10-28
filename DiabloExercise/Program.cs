@@ -330,7 +330,7 @@ public abstract class Hero
         manaManager.Decrease(manaToSpend); // information of sucsess potentionally needed
     }
 
-    
+
     public float GetLightRadius() => lightRadius.ModifiedRadius;
     public float GetBaseLightRadius() => lightRadius.BaseLightRadius;
 
@@ -341,12 +341,17 @@ public abstract class Hero
         sb.AppendLine("****** Hero Table ******");
         sb.AppendLine($"Name: {Name}");
         sb.AppendLine($"Class: {HeroClass}");
-        sb.AppendLine($"Level: {experienceManager.Level}");
-        sb.AppendLine($"Experience:{experienceManager.Experience}. XPforNextLevel:{experienceManager.NextLevelExperience}");
-        sb.AppendLine($"Gold: {goldManager.GoldCount}");
-        sb.AppendLine($"MaxLife:{healthManager.MaxValue}. CurrentLife: {healthManager.CurrentValue}");
-        sb.AppendLine($"MaxMana:{manaManager.MaxValue}. CurrentMana: {manaManager.CurrentValue}");
-        sb.AppendLine($"BaseLihtRadius: {GetBaseLightRadius()}. ModifiedLightRadius: {GetLightRadius()}");
+
+        sb.AppendLine(experienceManager.ToString());
+        //sb.AppendLine($"Level: {experienceManager.Level}");
+        //sb.AppendLine($"Experience:{experienceManager.Experience}. XPforNextLevel:{experienceManager.NextLevelExperience}");
+
+        sb.AppendLine(goldManager.ToString());
+        sb.AppendLine(healthManager.ToString());
+        sb.AppendLine(manaManager.ToString());
+        //sb.AppendLine($"MaxLife:{healthManager.MaxValue}. CurrentLife: {healthManager.CurrentValue}");
+        //sb.AppendLine($"MaxMana:{manaManager.MaxValue}. CurrentMana: {manaManager.CurrentValue}");
+        sb.AppendLine(lightRadius.ToString());
         sb.AppendLine();
 
         return sb.ToString();
@@ -384,7 +389,7 @@ public interface IExperienceManager
     void Increase(long xpPointsToAdd);
     //void LevelUp();
 }
-public class ExperienceManager : IDisposable, IExperienceManager
+public class ExperienceManager : IExperienceManager
 {
     private const int MAX_LEVEL = 50;
     private int _level;
@@ -484,9 +489,14 @@ public class ExperienceManager : IDisposable, IExperienceManager
         HeroEvents.InvokeOnLevelUp();
     }
 
-    public void Dispose()
+    public override string ToString()
     {
-        //HeroEvents.OnExperienceReceived -= GainExperience;
+        StringBuilder sb = new StringBuilder();
+
+        sb.AppendLine($"Level: {Level}");
+        sb.AppendLine($"Experience:{Experience}. XPforNextLevel:{NextLevelExperience}");
+
+        return sb.ToString().TrimEnd();
     }
 }
 
@@ -500,17 +510,13 @@ public interface IGoldManager
     void Add(int amountToAdd);
     bool Decrease(int amount);
 }
-public class GoldManager : IDisposable, IGoldManager
+public class GoldManager : IGoldManager
 {
     private int _goldCount;
 
     public int GoldCount => _goldCount;
 
-    public GoldManager()
-    {
-        //HeroEvents.OnGoldReceived += AddGold;
-        //HeroEvents.OnGoldRemoved += Remove;
-    }
+
 
     public void Add(int amountToAdd)
     {
@@ -547,11 +553,9 @@ public class GoldManager : IDisposable, IGoldManager
         return true;
     }
 
-    public void Dispose()
-    {
-        //HeroEvents.OnGoldReceived -= AddGold;
-        //HeroEvents.OnGoldRemoved -= Remove;
-    }
+
+    public override string ToString() => $"Gold: {GoldCount}";
+
 }
 
 
@@ -740,10 +744,10 @@ public class LightRadiusManager : ILightRadius, IDisposable
 
 
     public override string ToString()
-    {
-        return $"Base light radius: {BaseLightRadius} || Modified light radius: {ModifiedRadius}";
-    }
+        => $"Base light radius: {BaseLightRadius}. Modified light radius: {ModifiedRadius}";
+    
 
+    
     public void Dispose()
     {
         EquipementEvents.OnItemEquip -= ModifyLightRadius;
