@@ -75,11 +75,15 @@ var modifier = new StatsModifier()
 
 var weapon = new TestWeapon(2, 4, modifier);
 var weapon2 = new TestWeapon(2, 4, modifier);
+var weapon3 = new TestWeapon(2, 4, modifier);
+var weapon4 = new TestWeapon(2, 4, modifier);
 
 
 
 weapon.OnEquip();
 weapon2.OnEquip();
+weapon3.OnEquip();
+weapon4.OnEquip();
 weapon.OnUnequip();
 weapon2.OnUnequip();
 
@@ -682,11 +686,14 @@ public class LightRadiusManager : ILightRadius, IDisposable
     public float BaseLightRadius => _baseLightRadius;
 
     float _radiusModifier;
-    public float ModifiedRadius => _baseLightRadius * (_radiusModifier / 100f);
+    public float ModifiedRadius => Math.Clamp(_baseLightRadius * (_radiusModifier / 100f), 20f, 160);
 
+    // videti kakav matematicki sistem omogucava da vrati broj koji je manji od neke vrednosti i veci od neke vrednosti
 
     public LightRadiusManager(float startRadius)
     {
+        
+
         if (startRadius < 0)
         {
             throw new ArgumentOutOfRangeException($"Start radius must be positive number.");
