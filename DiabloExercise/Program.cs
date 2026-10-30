@@ -89,6 +89,18 @@ Console.WriteLine(modifier);
 
 Console.WriteLine();
 Console.WriteLine(jovana);
+
+
+var resistManager = new ResistanceManager();
+Console.WriteLine(resistManager);
+
+//resistManager.Test(50, 25, 101);
+
+Console.WriteLine(resistManager);
+
+//resistManager.Test(150, 0, 99);
+Console.WriteLine(resistManager);
+
 //var goldManager = new GoldManager();
 //var experienceManager = new ExperienceManager();
 //var healthManger = new HealthResource(100, 100);
@@ -570,11 +582,25 @@ public interface IDamage
     float MinDamage { get; init; }
     float MaxDamage { get; init; }
 }
-public class TestWeapon : Item, IEquipable, IDamage
+
+public interface IDurable
+{
+    bool IsIndistructable { get; }
+    float MaxDurability { get; }
+    float CurrentDurability { get; }
+}
+
+public class TestWeapon : Item, IEquipable, IDamage, IDurable
 {
     bool isEquipped = false;
     public float MinDamage { get; init; }
     public float MaxDamage { get; init; }
+
+    private bool _isIndistructable;
+    public bool IsIndistructable => _isIndistructable;
+    public float MaxDurability { get; }
+    public float CurrentDurability { get; }
+
 
     private StatsModifier _statsModifier;
     public StatsModifier StatsModifier => _statsModifier;
@@ -681,6 +707,85 @@ public class StatsModifier
 }
 
 
+public class ResistanceManager :IDisposable
+{
+    int _resistMagic;
+    int _resistFire;
+    int _resistLightning;
+
+    // max je 100% i treba da bude capovan na to
+    public int ResistMagic => Math.Clamp(_resistMagic, 0, 100);
+    public int ResistFire => Math.Clamp(_resistFire, 0, 100);
+    public int ResistLightning => Math.Clamp(_resistLightning, 0, 100);
+
+    public ResistanceManager()
+    {
+        // subscribe to events
+    }
+    
+    //public void Test(int rm, int rf, int rl)
+    //{
+    //    _resistMagic = rm;
+    //    _resistFire = rf;
+    //    _resistLightning = rl;
+    //}
+
+    Func<int, int> SwithcSign = (x) => -1 * x;
+    private void AddToFireResistance(int valueToAdd)
+    {
+        _resistFire += valueToAdd;
+    }
+
+    private void RemoveFromFireResistance(int valueToRemove)
+    {
+        _resistFire += SwithcSign(valueToRemove);
+    }
+
+    private void AddToMagicResistance(int valueToAdd)
+    {
+        _resistMagic += valueToAdd;
+    }
+
+    private void RemoveFromMagicResistance(int valueToRemove)
+    {
+        _resistMagic += SwithcSign(valueToRemove);
+    }
+
+    private void AddToLightningResistance(int valueToAdd)
+    {
+        _resistLightning += valueToAdd;
+    }
+
+    private void RemoveFromLightningResistance(int valueToRemove)
+    {
+        _resistLightning += SwithcSign(valueToRemove);
+    }
+
+    
+    
+    Func<int, string> ModifyValueToString = resistancePower => resistancePower.ToString() + "%";
+
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+
+        string resistMagic = ResistMagic >= 100 ? "Max" : ModifyValueToString(ResistMagic);
+        string resistFire = ResistFire >= 100 ? "Max" : ModifyValueToString(ResistFire);
+        string resistLightning = ResistLightning >= 100 ? "Max" : ModifyValueToString(ResistLightning);
+
+        sb.AppendLine($"Resist Magic: {resistMagic}");
+        sb.AppendLine($"Resist Magic: {resistFire}");
+        sb.AppendLine($"Resist Magic: {resistLightning}");
+        return sb.ToString();
+    }
+
+    public void Dispose()
+    {
+        // unsubscribe from events
+    }
+}
+
 public interface ILightRadius
 {
     float BaseLightRadius { get; }
@@ -745,9 +850,9 @@ public class LightRadiusManager : ILightRadius, IDisposable
 
     public override string ToString()
         => $"Base light radius: {BaseLightRadius}. Modified light radius: {ModifiedRadius}";
-    
 
-    
+
+
     public void Dispose()
     {
         EquipementEvents.OnItemEquip -= ModifyLightRadius;
