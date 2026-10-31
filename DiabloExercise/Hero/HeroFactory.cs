@@ -93,21 +93,24 @@
 
         userInterface = new UserInterfaceDummy(initialLife, initialMaxLife, initialMana, initialMaxMana, 0);
 
+
         ILightRadius lihgtRadiusManger = new LightRadiusManager(initialLightRadius);
+
+        IResistance resistnaceManger = new ResistanceManager();
 
         switch (flag)
         {
             case "Warrior":
 
-                return new Warrior(heroName, goldManager, experienceManager, healthManger, manaManager, lihgtRadiusManger);
+                return new Warrior(heroName, goldManager, experienceManager, healthManger, manaManager, lihgtRadiusManger, resistnaceManger);
 
             case "Rogue":
 
-                return new Rogue(heroName, goldManager, experienceManager, healthManger, manaManager, lihgtRadiusManger);
+                return new Rogue(heroName, goldManager, experienceManager, healthManger, manaManager, lihgtRadiusManger, resistnaceManger);
 
 
             case "Sorcerer":
-                return new Sorcerer(heroName, goldManager, experienceManager, healthManger, manaManager, lihgtRadiusManger);
+                return new Sorcerer(heroName, goldManager, experienceManager, healthManger, manaManager, lihgtRadiusManger, resistnaceManger);
             default:
                 return null;
         }

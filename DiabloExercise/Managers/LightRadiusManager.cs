@@ -31,22 +31,18 @@
 
     private void ModifyLightRadius(StatsModifier statsModifier)
     {
-        // -60% || -20% || 20% || 40%
-
-        // amount should be 0.6 || 0.8 || 1.2 || 1.4
         float modPercent = statsModifier.LightRadius;
 
-        _radiusModifier += modPercent;
-        Console.WriteLine(this.ToString());
+        if (modPercent != 0) HandleModifier(modPercent);
     }
 
     private void RevertLightRadius(StatsModifier statsModifier)
     {
-        float modPercent = statsModifier.LightRadius * -1;
+        float modPercent = statsModifier.LightRadius;
 
-        HandleModifier(modPercent);
+        if (modPercent != 0) HandleModifier(-1 * modPercent);
     }
-
+    
     private void HandleModifier(float modificationPercent)
     {
         _radiusModifier += modificationPercent;

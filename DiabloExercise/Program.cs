@@ -17,89 +17,116 @@ Console.WriteLine(jovana);
 
 
 
-HeroEvents.InvokeOnDecreaseLife(99);
-HeroEvents.InvokeOnDecreaseMana(99);
+//HeroEvents.InvokeOnDecreaseLife(99);
+//HeroEvents.InvokeOnDecreaseMana(99);
 
-var smallHealing = new SmallHealing();
-Console.WriteLine(smallHealing);
-smallHealing.Consume();
+//var smallHealing = new SmallHealing();
+//Console.WriteLine(smallHealing);
+//smallHealing.Consume();
 
-userInterface.DisplayUI();
-
-
-var fullHealing = new FullHealing();
-Console.WriteLine(fullHealing);
-fullHealing.Consume();
-
-userInterface.DisplayUI();
-
-var smallMana = new SmallMana();
-Console.WriteLine(smallMana);
-smallMana.Consume();
-
-userInterface.DisplayUI();
-
-var fullMana = new FullMana();
-Console.WriteLine(fullMana);
-fullMana.Consume();
-
-userInterface.DisplayUI();
-
-HeroEvents.InvokeOnDecreaseLife(25);
-HeroEvents.InvokeOnDecreaseMana(25);
-
-userInterface.DisplayUI();
+//userInterface.DisplayUI();
 
 
-var smallRejuvenation = new SmallRejuvenation();
-Console.WriteLine(smallRejuvenation);
-smallRejuvenation.Consume();
+//var fullHealing = new FullHealing();
+//Console.WriteLine(fullHealing);
+//fullHealing.Consume();
 
-userInterface.DisplayUI();
+//userInterface.DisplayUI();
 
-var fullRejuvenation = new FullRejuvenation();
-Console.WriteLine(fullRejuvenation);
-fullRejuvenation.Consume();
+//var smallMana = new SmallMana();
+//Console.WriteLine(smallMana);
+//smallMana.Consume();
 
-userInterface.DisplayUI();
+//userInterface.DisplayUI();
+
+//var fullMana = new FullMana();
+//Console.WriteLine(fullMana);
+//fullMana.Consume();
+
+//userInterface.DisplayUI();
+
+//HeroEvents.InvokeOnDecreaseLife(25);
+//HeroEvents.InvokeOnDecreaseMana(25);
+
+//userInterface.DisplayUI();
+
+
+//var smallRejuvenation = new SmallRejuvenation();
+//Console.WriteLine(smallRejuvenation);
+//smallRejuvenation.Consume();
+
+//userInterface.DisplayUI();
+
+//var fullRejuvenation = new FullRejuvenation();
+//Console.WriteLine(fullRejuvenation);
+//fullRejuvenation.Consume();
+
+//userInterface.DisplayUI();
 
 
 
-var modifier = new StatsModifier()
+//var modifier = new StatsModifier()
+//{
+//    LightRadius = 20f
+//};
+
+
+
+//var weapon = new TestWeapon(2, 4, modifier);
+//var weapon2 = new TestWeapon(2, 4, modifier);
+//var weapon3 = new TestWeapon(2, 4, modifier);
+//var weapon4 = new TestWeapon(2, 4, modifier);
+
+
+
+//weapon.OnEquip();
+//weapon2.OnEquip();
+//weapon3.OnEquip();
+//weapon4.OnEquip();
+//weapon.OnUnequip();
+//weapon2.OnUnequip();
+
+//Console.WriteLine(modifier);
+
+
+//Console.WriteLine();
+//Console.WriteLine(jovana);
+
+
+
+Console.WriteLine("--------------------");
+
+var resistanceModifier = new StatsModifier()
 {
-    LightRadius = 20f
+    ResistLightning = 60,
+    ResistFire = 30,
+    ResistMagic = 30
 };
 
-var weapon = new TestWeapon(2, 4, modifier);
-var weapon2 = new TestWeapon(2, 4, modifier);
-var weapon3 = new TestWeapon(2, 4, modifier);
-var weapon4 = new TestWeapon(2, 4, modifier);
+var resistanceModifier2 = new StatsModifier()
+{
+    ResistLightning = 60,
+    ResistFire = 30,
+    ResistMagic = 30
+};
 
+Console.WriteLine("ResistanceManager:");
+Console.WriteLine(resistanceModifier);
 
+Console.WriteLine("WeaponCreated: WeaponOfResistnace");
+var weaponOfResistance = new TestWeapon(2, 4, resistanceModifier);
+var weaponOfResistance2 = new TestWeapon(2, 4, resistanceModifier2);
 
-weapon.OnEquip();
-weapon2.OnEquip();
-weapon3.OnEquip();
-weapon4.OnEquip();
-weapon.OnUnequip();
-weapon2.OnUnequip();
+weaponOfResistance.OnEquip();
+Console.WriteLine(jovana);
 
-Console.WriteLine(modifier);
-
-
-Console.WriteLine();
+weaponOfResistance2.OnEquip();
 Console.WriteLine(jovana);
 
 
-var resistManager = new ResistanceManager();
-Console.WriteLine(resistManager);
+weaponOfResistance.OnUnequip();
 
-//resistManager.Test(50, 25, 101);
-
-Console.WriteLine(resistManager);
-
-//resistManager.Test(150, 0, 99);
-Console.WriteLine(resistManager);
+Console.WriteLine(jovana);
 
 //var goldManager = new GoldManager();
 //var experienceManager = new ExperienceManager();
@@ -289,9 +316,10 @@ public abstract class Hero
     public readonly IResource healthManager;
     public readonly IResource manaManager;
     public readonly ILightRadius lightRadius;
+    public readonly IResistance resistnaceManager;
 
-
-    protected Hero(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius)
+    protected Hero(string name, IGoldManager goldManager, IExperienceManager experienceManager,
+                    IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager)
     {
         _name = name;
         this.goldManager = goldManager;
@@ -299,7 +327,8 @@ public abstract class Hero
         this.healthManager = healthManager;
         this.manaManager = manaManager;
         this.lightRadius = lightRadius;
-    }
+        this.resistnaceManager = resistnaceManager;
+     }
 
 
 
@@ -364,6 +393,8 @@ public abstract class Hero
         //sb.AppendLine($"MaxLife:{healthManager.MaxValue}. CurrentLife: {healthManager.CurrentValue}");
         //sb.AppendLine($"MaxMana:{manaManager.MaxValue}. CurrentMana: {manaManager.CurrentValue}");
         sb.AppendLine(lightRadius.ToString());
+        sb.AppendLine("*** Resistance ***");
+        sb.AppendLine(resistnaceManager.ToString());
         sb.AppendLine();
 
         return sb.ToString();
@@ -373,19 +404,19 @@ public abstract class Hero
 
 public class Warrior : Hero
 {
-    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius)
+    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager)
     {
     }
 }
 public class Rogue : Hero
 {
-    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius)
+    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager)
     {
     }
 }
 public class Sorcerer : Hero
 {
-    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius)
+    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager)
     {
     }
 }
@@ -670,9 +701,9 @@ public class StatsModifier
     public float ChanceToHit { get; init; }
     public float Damage { get; init; }
 
-    public float ResistMagic { get; init; }
-    public float ResistFire { get; init; }
-    public float ResistLighting { get; init; }
+    public int ResistMagic { get; init; }
+    public int ResistFire { get; init; }
+    public int ResistLightning { get; init; }
 
     public float Life { get; init; }
     public float Mana { get; init; }
@@ -696,7 +727,7 @@ public class StatsModifier
 
         if (ResistMagic != 0) sb.AppendLine($"{FormatStat(ResistMagic)}% to Magic Resistance");
         if (ResistFire != 0) sb.AppendLine($"{FormatStat(ResistFire)}% to Fire Resistance");
-        if (ResistLighting != 0) sb.AppendLine($"{FormatStat(ResistLighting)}% to Lightning Resistance");
+        if (ResistLightning != 0) sb.AppendLine($"{FormatStat(ResistLightning)}% to Lightning Resistance");
 
         if (Life != 0) sb.AppendLine($"{FormatStat(Life)} to Life");
         if (Mana != 0) sb.AppendLine($"{FormatStat(Mana)} to Mana");
@@ -706,8 +737,14 @@ public class StatsModifier
 
 }
 
+public interface IResistance
+{
+    public int ResistMagic { get; }
+    public int ResistFire { get; }
+    public int ResistLightning { get; }
+}
 
-public class ResistanceManager :IDisposable
+public class ResistanceManager :IResistance, IDisposable
 {
     int _resistMagic;
     int _resistFire;
@@ -721,8 +758,10 @@ public class ResistanceManager :IDisposable
     public ResistanceManager()
     {
         // subscribe to events
+        EquipementEvents.OnItemEquip += AddModifier;
+        EquipementEvents.OnItemUnequip += RemoveModifier;
     }
-    
+
     //public void Test(int rm, int rf, int rl)
     //{
     //    _resistMagic = rm;
@@ -731,38 +770,32 @@ public class ResistanceManager :IDisposable
     //}
 
     Func<int, int> SwithcSign = (x) => -1 * x;
-    private void AddToFireResistance(int valueToAdd)
+
+    private void AddModifier(StatsModifier statsModifier)
     {
-        _resistFire += valueToAdd;
+        int resistMagicMod = statsModifier.ResistMagic;
+        int resistFireMod = statsModifier.ResistFire;
+        int resistLightningMod = statsModifier.ResistLightning;
+
+        if (resistMagicMod != 0) _resistMagic += resistMagicMod;
+        if (resistFireMod != 0) _resistFire += resistFireMod;
+        if (resistLightningMod != 0) _resistLightning += resistLightningMod;
     }
 
-    private void RemoveFromFireResistance(int valueToRemove)
+    private void RemoveModifier(StatsModifier statsModifier)
     {
-        _resistFire += SwithcSign(valueToRemove);
+        int resistMagicMod = statsModifier.ResistMagic;
+        int resistFireMod = statsModifier.ResistFire;
+        int resistLightningMod = statsModifier.ResistLightning;
+
+        if (resistMagicMod != 0) _resistMagic += SwithcSign(resistMagicMod);
+        if (resistFireMod != 0) _resistFire += SwithcSign(resistFireMod);
+        if (resistLightningMod != 0) _resistLightning += SwithcSign(resistLightningMod);
     }
 
-    private void AddToMagicResistance(int valueToAdd)
-    {
-        _resistMagic += valueToAdd;
-    }
 
-    private void RemoveFromMagicResistance(int valueToRemove)
-    {
-        _resistMagic += SwithcSign(valueToRemove);
-    }
 
-    private void AddToLightningResistance(int valueToAdd)
-    {
-        _resistLightning += valueToAdd;
-    }
 
-    private void RemoveFromLightningResistance(int valueToRemove)
-    {
-        _resistLightning += SwithcSign(valueToRemove);
-    }
-
-    
-    
     Func<int, string> ModifyValueToString = resistancePower => resistancePower.ToString() + "%";
 
     public override string ToString()
@@ -775,13 +808,15 @@ public class ResistanceManager :IDisposable
         string resistLightning = ResistLightning >= 100 ? "Max" : ModifyValueToString(ResistLightning);
 
         sb.AppendLine($"Resist Magic: {resistMagic}");
-        sb.AppendLine($"Resist Magic: {resistFire}");
-        sb.AppendLine($"Resist Magic: {resistLightning}");
+        sb.AppendLine($"Resist Fire: {resistFire}");
+        sb.AppendLine($"Resist Lightning: {resistLightning}");
         return sb.ToString();
     }
 
     public void Dispose()
     {
         // unsubscribe from events
+        EquipementEvents.OnItemEquip -= AddModifier;
+        EquipementEvents.OnItemUnequip -= RemoveModifier;
     }
 }
