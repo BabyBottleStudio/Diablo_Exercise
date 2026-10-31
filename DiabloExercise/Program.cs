@@ -328,7 +328,7 @@ public abstract class Hero
         this.manaManager = manaManager;
         this.lightRadius = lightRadius;
         this.resistnaceManager = resistnaceManager;
-     }
+    }
 
 
 
@@ -692,10 +692,10 @@ public class StatsModifier
 {
     public float LightRadius { get; init; }
 
-    public float Strength { get; init; }
-    public float Magic { get; init; }
-    public float Dexterity { get; init; }
-    public float Vitality { get; init; }
+    public int Strength { get; init; }
+    public int Magic { get; init; }
+    public int Dexterity { get; init; }
+    public int Vitality { get; init; }
 
     public float ArmorClass { get; init; }
     public float ChanceToHit { get; init; }
@@ -744,7 +744,7 @@ public interface IResistance
     public int ResistLightning { get; }
 }
 
-public class ResistanceManager :IResistance, IDisposable
+public class ResistanceManager : IResistance, IDisposable
 {
     int _resistMagic;
     int _resistFire;
@@ -818,5 +818,90 @@ public class ResistanceManager :IResistance, IDisposable
         // unsubscribe from events
         EquipementEvents.OnItemEquip -= AddModifier;
         EquipementEvents.OnItemUnequip -= RemoveModifier;
+    }
+}
+
+public class CharacterAttributes
+{
+
+    int _baseStrength;
+    int _maxStrength;
+    int _strengthModifier;
+
+    public int BaseStrangth => _baseStrength;
+    public int ModifiedStrength => Math.Min(_maxStrength, _baseStrength) + _strengthModifier;
+
+    int _magic;
+    int _maxMagic;
+    int _magicModifier;
+
+    int _dexterity;
+    int _maxDexterity;
+    int _dexterityModifier;
+
+    int _vitality;
+    int _maxVitality;
+    int _vitalityModifier;
+
+
+    private void IncreaseBaseStrength()
+    {
+        if (BaseStrangth >= _maxStrength) return;
+
+        _baseStrength++;
+    }
+
+    // ModifyCharAtributes
+
+    private void AddModifyCharacterAttributes(StatsModifier statsModifier)
+    {
+        int strengthModifier = statsModifier.Strength;
+        int magicModifier = statsModifier.Magic;
+        int dexterityModifer = statsModifier.Dexterity;
+        int vitalityModifier = statsModifier.Vitality;
+
+        if (strengthModifier != 0)
+        {
+            _strengthModifier += strengthModifier;
+        }
+
+        if (magicModifier != 0)
+        {
+            _magicModifier += magicModifier;
+            RecalculateMana();
+        }
+
+        if (dexterityModifer != 0)
+        {
+            _dexterityModifier += dexterityModifer;
+            RecalculateChanceToHit();
+            RecalculateArmor();
+        }
+
+        if (vitalityModifier != 0)
+        {
+            _vitalityModifier += vitalityModifier;
+            RecalculateLife();
+        }
+    }
+
+    private void RecalculateLife()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void RecalculateArmor()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void RecalculateChanceToHit()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void RecalculateMana()
+    {
+        throw new NotImplementedException();
     }
 }

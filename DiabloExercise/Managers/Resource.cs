@@ -14,7 +14,7 @@ public abstract class Resource : IResource, IDisposable
     protected float _maxValue;
     public float MaxValue => _maxValue;
 
-    private const float MAX_VALUE_INCREMENT = 2f; // this should be in the HeroDataRepository
+    private const float MAX_VALUE_INCREMENT = 2f; // this should be in the HeroDataRepository and is different for hero types
 
     private float Modifier { get; init; }
     protected abstract string _resourceName { get; }
