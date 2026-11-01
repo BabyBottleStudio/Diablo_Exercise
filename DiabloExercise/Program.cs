@@ -697,9 +697,9 @@ public class StatsModifier
     public int Dexterity { get; init; }
     public int Vitality { get; init; }
 
-    public float ArmorClass { get; init; }
-    public float ChanceToHit { get; init; }
-    public float Damage { get; init; }
+    public int ArmorClass { get; init; }
+    public int ChanceToHit { get; init; }
+    public int Damage { get; init; }
 
     public int ResistMagic { get; init; }
     public int ResistFire { get; init; }
@@ -821,39 +821,158 @@ public class ResistanceManager : IResistance, IDisposable
     }
 }
 
-public class CharacterAttributes
+public class CharacterAttributes : IDisposable
 {
+    int _characterLevel;
 
     int _baseStrength;
     int _maxStrength;
-    int _strengthModifier;
+    int _strengthEquipmentBonus;
 
-    public int BaseStrangth => _baseStrength;
-    public int ModifiedStrength => Math.Min(_maxStrength, _baseStrength) + _strengthModifier;
+    public int BaseStrength => Math.Min(_maxStrength, _baseStrength);
+    public int CurrentStrength => BaseStrength + _strengthEquipmentBonus;
 
-    int _magic;
+
+    int _baseMagic;
     int _maxMagic;
-    int _magicModifier;
+    int _magicEquipmentBonus;
 
-    int _dexterity;
+    public int BaseMagic => Math.Min(_maxMagic, _baseMagic);
+    public int CurrentMagic => BaseMagic + _magicEquipmentBonus;
+
+
+    int _baseDexterity;
     int _maxDexterity;
-    int _dexterityModifier;
+    int _dexterityEquipmentBonus;
 
-    int _vitality;
+    public int BaseDexterity => Math.Min(_maxDexterity, _baseDexterity);
+    public int CurrentDexterity => BaseDexterity + _dexterityEquipmentBonus;
+
+
+    int _baseVitality;
     int _maxVitality;
-    int _vitalityModifier;
+    int _vitalityEquipmentBonus;
+    public int BaseVitality => Math.Min(_maxVitality,_baseVitality);
+    public int CurrentVitality => BaseMagic + _vitalityEquipmentBonus;
 
+
+    // armor
+
+    int _armorEquipmentBonusPercent = 1; // if equipement modify this by percent ??
+    int _armorEquipmentBonus; // Equipement does not have to be special to add to the armor. Head, torso and shields ads to this as well
+    public int ArmorClass => (CurrentDexterity / 5 + _armorEquipmentBonus) * _armorEquipmentBonusPercent;
+
+
+    /*
+     To Hit %
+        on character screen: 50 + Dex/2 + ToHititems
+        melee: 50 + Dex/2 + ToHititems + clvl + bonus
+        arrow: 50 + Dex + ToHititems + clvl + bonus - distance·distance/2
+
+        magic versus monster: 50 + Mag - 2·mlvl + bonus
+        magic versus player: 50 + Mag - 2·clvltarget + bonus
+    */
+
+    int _chanceToHitBonusFromEquipment;
+    int _chanceToHitBonus; // this bonus is calcualted during the combat and it is different depending on the hero class and weapon (range or melee)
+    // it should be applied in the damage calculator...
+    public int ChanceToHit => 50 + CurrentDexterity / 2 + _chanceToHitBonusFromEquipment;
+
+
+    int _baseDamageMin;
+    int _baseDamageMax;
+
+    int _baseDamageFromEquipmentMin;
+    int _baseDamageFromEquipmentMax;
+
+    int _bonusDamageFromEquipment;
+
+    // in real diablo Hellfire , naked hero has base "fist" damage of min and max = 1 and a hidden bonus of 5. 
+    // when the weapon is equipped, bonus of 5 dissapears and "fist" damage is replaced with damage from equipped weapon
+
+    public int CurrentDamageMin => (CurrentStrength * _characterLevel) / 100 + _baseDamageFromEquipmentMin + _bonusDamageFromEquipment;
+    public int CurrentDamageMax => (CurrentStrength * _characterLevel) / 100 + _baseDamageFromEquipmentMax + _bonusDamageFromEquipment;
+
+
+
+    public CharacterAttributes(int startStrength, int maxStrength, int startMagic, int maxMagic, int startDexterity, int maxDexterity, int startVitality, int maxVitality)
+    {
+        _characterLevel = 1;
+
+        _baseStrength = startStrength;
+        _maxStrength = maxStrength;
+
+        _baseMagic = startMagic;
+        _maxMagic = maxMagic;
+
+        _baseDexterity = startDexterity;
+        _maxDexterity = maxDexterity;
+
+        _baseVitality = startVitality;
+        _maxVitality = maxVitality;
+
+        HeroEvents.OnLevelUp += UpdateCharacterLevel;
+    }
 
     private void IncreaseBaseStrength()
     {
-        if (BaseStrangth >= _maxStrength) return;
+        if (BaseStrength >= _maxStrength) return;
 
         _baseStrength++;
     }
 
     // ModifyCharAtributes
 
-    private void AddModifyCharacterAttributes(StatsModifier statsModifier)
+    private void AddModifiers(StatsModifier statsModifier)
+    {
+        int strengthModifier = statsModifier.Strength;
+        int magicModifier = statsModifier.Magic;
+        int dexterityModifer = statsModifier.Dexterity;
+        int vitalityModifier = statsModifier.Vitality;
+
+
+
+        if (strengthModifier != 0)
+        {
+            _strengthEquipmentBonus += strengthModifier;
+        }
+
+        if (magicModifier != 0)
+        {
+            _magicEquipmentBonus += magicModifier;
+            RecalculateMana();
+        }
+
+        if (dexterityModifer != 0)
+        {
+            _dexterityEquipmentBonus += dexterityModifer;
+            RecalculateChanceToHit();
+            RecalculateArmor();
+        }
+
+        if (vitalityModifier != 0)
+        {
+            _vitalityEquipmentBonus += vitalityModifier;
+            RecalculateLife();
+        }
+
+        int armorModifier = statsModifier.ArmorClass;
+        int chanceToHitModifier = statsModifier.ChanceToHit;
+        int damageModifier = statsModifier.Damage;
+
+        if (armorModifier != 0)
+            _armorEquipmentBonus += armorModifier;
+
+        if (chanceToHitModifier != 0)
+            _chanceToHitBonusFromEquipment += chanceToHitModifier;
+
+        if (_bonusDamageFromEquipment != 0)
+            _bonusDamageFromEquipment += damageModifier;
+    }
+
+    Func<int, int> ChangeSign = (x) => -1 * x;
+
+    private void RemoveModifiers(StatsModifier statsModifier)
     {
         int strengthModifier = statsModifier.Strength;
         int magicModifier = statsModifier.Magic;
@@ -862,33 +981,54 @@ public class CharacterAttributes
 
         if (strengthModifier != 0)
         {
-            _strengthModifier += strengthModifier;
+            _strengthEquipmentBonus += ChangeSign(strengthModifier);
         }
 
         if (magicModifier != 0)
         {
-            _magicModifier += magicModifier;
+            _magicEquipmentBonus += ChangeSign(magicModifier);
             RecalculateMana();
         }
 
         if (dexterityModifer != 0)
         {
-            _dexterityModifier += dexterityModifer;
+            _dexterityEquipmentBonus += ChangeSign(dexterityModifer);
             RecalculateChanceToHit();
             RecalculateArmor();
         }
 
         if (vitalityModifier != 0)
         {
-            _vitalityModifier += vitalityModifier;
+            _vitalityEquipmentBonus += ChangeSign(vitalityModifier);
             RecalculateLife();
         }
+
+        int armorModifier = statsModifier.ArmorClass;
+        int chanceToHitModifier = statsModifier.ChanceToHit;
+        int damageModifier = statsModifier.Damage;
+
+        if (armorModifier != 0)
+            _armorEquipmentBonus += ChangeSign(armorModifier);
+
+        if (chanceToHitModifier != 0)
+            _chanceToHitBonusFromEquipment += ChangeSign(chanceToHitModifier);
+
+        if (_bonusDamageFromEquipment != 0)
+            _bonusDamageFromEquipment += ChangeSign(damageModifier);
     }
+
+    public override string ToString()
+    {
+        throw new NotImplementedException();
+    }
+
 
     private void RecalculateLife()
     {
         throw new NotImplementedException();
     }
+
+
 
     private void RecalculateArmor()
     {
@@ -903,5 +1043,15 @@ public class CharacterAttributes
     private void RecalculateMana()
     {
         throw new NotImplementedException();
+    }
+
+    private void UpdateCharacterLevel()
+    {
+        _characterLevel++;
+    }
+
+    public void Dispose()
+    {
+        HeroEvents.OnLevelUp -= UpdateCharacterLevel;
     }
 }
