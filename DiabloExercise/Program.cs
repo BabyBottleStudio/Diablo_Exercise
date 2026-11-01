@@ -128,6 +128,32 @@ weaponOfResistance.OnUnequip();
 
 Console.WriteLine(jovana);
 
+
+var attributes = new CharacterAttributes(15, 50, 10, 45, 30, 250, 20, 60);
+
+Console.WriteLine(attributes);
+
+var stats10 = new StatsModifier()
+{
+
+    Strength = 5,
+    Magic = 5,
+    Dexterity = -5,
+    Vitality = 5,
+    ArmorClass = 35,
+    ChanceToHit = 5,
+    Damage = 5,
+
+};
+
+var weapon10 = new TestWeapon(15, 50, stats10);
+
+
+weapon10.OnEquip();
+Console.WriteLine(attributes);
+
+weapon10.OnUnequip();
+Console.WriteLine(attributes);
 //var goldManager = new GoldManager();
 //var experienceManager = new ExperienceManager();
 //var healthManger = new HealthResource(100, 100);
@@ -852,8 +878,8 @@ public class CharacterAttributes : IDisposable
     int _baseVitality;
     int _maxVitality;
     int _vitalityEquipmentBonus;
-    public int BaseVitality => Math.Min(_maxVitality,_baseVitality);
-    public int CurrentVitality => BaseMagic + _vitalityEquipmentBonus;
+    public int BaseVitality => Math.Min(_maxVitality, _baseVitality);
+    public int CurrentVitality => BaseVitality + _vitalityEquipmentBonus;
 
 
     // armor
@@ -879,19 +905,39 @@ public class CharacterAttributes : IDisposable
     public int ChanceToHit => 50 + CurrentDexterity / 2 + _chanceToHitBonusFromEquipment;
 
 
-    int _baseDamageMin;
-    int _baseDamageMax;
+    const int _baseFistDamage = 1;
+    const int _fistBonus = 5;
 
-    int _baseDamageFromEquipmentMin;
-    int _baseDamageFromEquipmentMax;
+    int _baseDamageFromEquipmentMin = 4;
+    int _baseDamageFromEquipmentMax = 6;
 
     int _bonusDamageFromEquipment;
 
     // in real diablo Hellfire , naked hero has base "fist" damage of min and max = 1 and a hidden bonus of 5. 
     // when the weapon is equipped, bonus of 5 dissapears and "fist" damage is replaced with damage from equipped weapon
 
-    public int CurrentDamageMin => (CurrentStrength * _characterLevel) / 100 + _baseDamageFromEquipmentMin + _bonusDamageFromEquipment;
-    public int CurrentDamageMax => (CurrentStrength * _characterLevel) / 100 + _baseDamageFromEquipmentMax + _bonusDamageFromEquipment;
+    public int CurrentDamageMin
+    {
+        get
+        {
+            if (_baseDamageFromEquipmentMin <= 0)
+                return (CurrentStrength * _characterLevel) / 100 + _baseFistDamage + _fistBonus;
+            else
+                return (CurrentStrength * _characterLevel) / 100 + _baseDamageFromEquipmentMin + _bonusDamageFromEquipment;
+        }
+    }
+
+    public int CurrentDamageMax
+    {
+        get
+        {
+            if (_baseDamageFromEquipmentMax <= 0)
+                return (CurrentStrength * _characterLevel) / 100 + _baseFistDamage + _fistBonus;
+            else
+                return (CurrentStrength * _characterLevel) / 100 + _baseDamageFromEquipmentMax + _bonusDamageFromEquipment;
+        }
+    }
+
 
 
 
@@ -912,6 +958,9 @@ public class CharacterAttributes : IDisposable
         _maxVitality = maxVitality;
 
         HeroEvents.OnLevelUp += UpdateCharacterLevel;
+
+        EquipementEvents.OnItemEquip += AddModifiers;
+        EquipementEvents.OnItemUnequip += RemoveModifiers;
     }
 
     private void IncreaseBaseStrength()
@@ -946,8 +995,6 @@ public class CharacterAttributes : IDisposable
         if (dexterityModifer != 0)
         {
             _dexterityEquipmentBonus += dexterityModifer;
-            RecalculateChanceToHit();
-            RecalculateArmor();
         }
 
         if (vitalityModifier != 0)
@@ -966,8 +1013,10 @@ public class CharacterAttributes : IDisposable
         if (chanceToHitModifier != 0)
             _chanceToHitBonusFromEquipment += chanceToHitModifier;
 
-        if (_bonusDamageFromEquipment != 0)
+        if (damageModifier != 0)
             _bonusDamageFromEquipment += damageModifier;
+
+        // fali da se doda osnovni damage od oruzja koji uvek ostje 0 za sada.
     }
 
     Func<int, int> ChangeSign = (x) => -1 * x;
@@ -993,8 +1042,6 @@ public class CharacterAttributes : IDisposable
         if (dexterityModifer != 0)
         {
             _dexterityEquipmentBonus += ChangeSign(dexterityModifer);
-            RecalculateChanceToHit();
-            RecalculateArmor();
         }
 
         if (vitalityModifier != 0)
@@ -1013,36 +1060,41 @@ public class CharacterAttributes : IDisposable
         if (chanceToHitModifier != 0)
             _chanceToHitBonusFromEquipment += ChangeSign(chanceToHitModifier);
 
-        if (_bonusDamageFromEquipment != 0)
+        if (damageModifier != 0)
             _bonusDamageFromEquipment += ChangeSign(damageModifier);
     }
 
     public override string ToString()
     {
-        throw new NotImplementedException();
+        StringBuilder sb = new StringBuilder();
+
+        sb.AppendLine("- STRENGTH - ");
+        sb.AppendLine($"Base: {BaseStrength} || Now: {CurrentStrength}");
+        sb.AppendLine("- MAGIC -");
+        sb.AppendLine($"Base: {BaseMagic} || Now: {CurrentMagic}");
+        sb.AppendLine("- DEXTERITY -");
+        sb.AppendLine($"Base: {BaseDexterity} || Now: {CurrentDexterity}");
+        sb.AppendLine("- VITALITY -");
+        sb.AppendLine($"Base: {BaseVitality} || Now: {CurrentVitality}");
+        sb.AppendLine();
+        sb.AppendLine($"ARMOR: {ArmorClass}");
+
+        sb.AppendLine($"ChanceToHit:{ChanceToHit}%");
+        sb.AppendLine($"Damage: {CurrentDamageMin}/{CurrentDamageMax}");
+
+        return sb.ToString();
     }
 
 
     private void RecalculateLife()
     {
-        throw new NotImplementedException();
+        Console.WriteLine("Life should be recalculated. Not implemented yet");
     }
 
-
-
-    private void RecalculateArmor()
-    {
-        throw new NotImplementedException();
-    }
-
-    private void RecalculateChanceToHit()
-    {
-        throw new NotImplementedException();
-    }
 
     private void RecalculateMana()
     {
-        throw new NotImplementedException();
+        Console.WriteLine("Mana should be recalculated. Not implemented yet");
     }
 
     private void UpdateCharacterLevel()
@@ -1053,5 +1105,8 @@ public class CharacterAttributes : IDisposable
     public void Dispose()
     {
         HeroEvents.OnLevelUp -= UpdateCharacterLevel;
+
+        EquipementEvents.OnItemEquip -= AddModifiers;
+        EquipementEvents.OnItemUnequip -= RemoveModifiers;
     }
 }
