@@ -16,7 +16,29 @@ public abstract class Resource : IResource, IDisposable
 
     private const float MAX_VALUE_INCREMENT = 2f; // this should be in the HeroDataRepository and is different for hero types
 
-    private float Modifier { get; init; }
+    protected float _equipmentBonus;
+
+    /*
+Life
+
+Warrior: 2·Vit(character) + 2·Vit(items) + 2·clvl + Life(items) + 18
+
+Rogue: 1·Vit(character) + 1.5·Vit(items) + 2·clvl + Life(items) + 23
+
+Sorcerer: 1·Vit(character) + 1·Vit(items) + 1·clvl + Life(items) + 9
+
+
+Mana
+
+Warrior: 1·Mag(character) + 1·Mag(items) + 1·clvl + Mana(items) - 1
+
+Rogue: 1·Mag(character) + 1.5·Mag(items) + 2·clvl + Mana(items) + 5
+
+Sorcerer: 2·Mag(character) + 2·Mag(items) + 2·clvl + Mana(items) - 2
+
+*/
+
+
     protected abstract string _resourceName { get; }
 
     private Random _random;
@@ -26,7 +48,7 @@ public abstract class Resource : IResource, IDisposable
     private float CalculateIncrease()
     {
         float baseValue = MaxValue / 8;
-        float min = Modifier * baseValue;
+        float min = _equipmentBonus * baseValue;
         float max = 3 * min;
 
         float output = min + _random.NextSingle() * (max - min);
@@ -54,14 +76,14 @@ public abstract class Resource : IResource, IDisposable
             _currentValue = startMaxValue;
 
 
-        Modifier = modifier;
+        _equipmentBonus = modifier;
         //Console.WriteLine($"modifier = {Modifier}");
         
         _random = random;
         HeroEvents.OnLevelUp += OnLevelUp;
 
         PotionEvents.OnFullRejuvenationPotionConsumed += Restore;
-        Modifier = modifier;
+        _equipmentBonus = modifier;
     }
 
 
@@ -161,13 +183,12 @@ public abstract class Resource : IResource, IDisposable
 }
 
 
+
+
 public class HealthResource : Resource
 {
     protected override string _resourceName => "health";
     private bool isHeroDead = false;
-
-
-
 
     public HealthResource(float startValue, float startMaxValue, float modifier, Random random) : base(startValue, startMaxValue, modifier, random)
     {
@@ -180,8 +201,6 @@ public class HealthResource : Resource
     {
         // life
         // ukoliko je amount veci od CurrentValue -> CurrentValue postaje 0 -> heroj umire
-
-
 
         _currentValue = Math.Max(CurrentValue - amount, 0);
 
@@ -216,7 +235,6 @@ public class HealthResource : Resource
 
     protected override void HandleDispose()
     {
-
         PotionEvents.OnFullHealthPotionConsumed -= Restore;
         PotionEvents.OnHealthPotionConsumed -= Increase;
         HeroEvents.OnDecreaseLife -= Decrease;
@@ -252,15 +270,12 @@ public class ManaResource : Resource
         // mana
         // ukoliko je amount veci od CurrentValue -> CurrenValue ostaje koliki jeste -> mana se ne trosi i spell se ne ostvaruje
 
-
         if (amount > CurrentValue)
         { // if amount is larger than current mana available
 
             Console.WriteLine("Not enough mana");
             return;
         }
-
-
 
         _currentValue -= amount;
 

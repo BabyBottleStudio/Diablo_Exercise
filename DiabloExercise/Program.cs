@@ -675,7 +675,7 @@ public class TestWeapon : Item, IEquipable, IDamage, IDurable
         }
 
 
-        if (minDamage < MaxDamage)
+        if (minDamage < maxDamage)
         {
             this.MinDamage = minDamage;
             this.MaxDamage = maxDamage;

@@ -88,8 +88,9 @@
                 break;
         }
 
-        var healthManger = new HealthResource(initialLife, initialMaxLife, healthModifier, new Random());
-        var manaManager = new ManaResource(initialMana, initialMaxMana, manaModifier, new Random());
+        var random = new Random();
+        var healthManger = new HealthResource(initialLife, initialMaxLife, healthModifier, random);
+        var manaManager = new ManaResource(initialMana, initialMaxMana, manaModifier, random);
 
         userInterface = new UserInterfaceDummy(initialLife, initialMaxLife, initialMana, initialMaxMana, 0);
 
