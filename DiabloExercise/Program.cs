@@ -507,6 +507,7 @@ public class ExperienceManager : IExperienceManager
         //PrintProgressList();
     }
 
+
     private void PrintProgressList()
     {
         for (int i = 0; i < nextLevelThreshold.Length; i++)
@@ -847,6 +848,8 @@ public class ResistanceManager : IResistance, IDisposable
     }
 }
 
+
+
 public class CharacterAttributes : IDisposable
 {
     int _characterLevel;
@@ -884,9 +887,9 @@ public class CharacterAttributes : IDisposable
 
     // armor
 
-    int _armorEquipmentBonusPercent = 1; // if equipement modify this by percent ??
+    //int _armorEquipmentBonusPercent = 100; // if equipement modify this by percent ??
     int _armorEquipmentBonus; // Equipement does not have to be special to add to the armor. Head, torso and shields ads to this as well
-    public int ArmorClass => (CurrentDexterity / 5 + _armorEquipmentBonus) * _armorEquipmentBonusPercent;
+    public int ArmorClass => (CurrentDexterity / 5 + _armorEquipmentBonus); // * (_armorEquipmentBonusPercent/100);
 
 
     /*
@@ -908,8 +911,8 @@ public class CharacterAttributes : IDisposable
     const int _baseFistDamage = 1;
     const int _fistBonus = 5;
 
-    int _baseDamageFromEquipmentMin = 4;
-    int _baseDamageFromEquipmentMax = 6;
+    int _baseDamageFromEquipmentMin;
+    int _baseDamageFromEquipmentMax;
 
     int _bonusDamageFromEquipment;
 
@@ -939,8 +942,17 @@ public class CharacterAttributes : IDisposable
     }
 
 
-
-
+    /// <summary>
+    /// Constructor for the CharacterAttributes class.<br/> Parameters serve as a starting point for the hero stats.
+    /// </summary>
+    /// <param name="startStrength"></param>
+    /// <param name="maxStrength"></param>
+    /// <param name="startMagic"></param>
+    /// <param name="maxMagic"></param>
+    /// <param name="startDexterity"></param>
+    /// <param name="maxDexterity"></param>
+    /// <param name="startVitality"></param>
+    /// <param name="maxVitality"></param>
     public CharacterAttributes(int startStrength, int maxStrength, int startMagic, int maxMagic, int startDexterity, int maxDexterity, int startVitality, int maxVitality)
     {
         _characterLevel = 1;
@@ -1110,3 +1122,64 @@ public class CharacterAttributes : IDisposable
         EquipementEvents.OnItemUnequip -= RemoveModifiers;
     }
 }
+
+public class SecondaryAttributesCalculator
+{
+
+    public int IncreaseHeroLevel(int currentLevel)
+    {
+        return currentLevel + 1;
+    }
+
+    public float CalcualteMaxLife(int heroLevel, float vitality, float lifeEquipementBonus)
+    {
+        return 1 * vitality + heroLevel + lifeEquipementBonus; // rogue
+
+    }
+}
+
+
+public interface ILevel
+{
+    int Level { get; }
+}
+public class HeroLevel : ILevel
+{
+    private const int MAX_LEVEL = 50;
+    public int Level { get; private set; }
+
+    private void IncreaseLevel()
+    {
+        if (Level < MAX_LEVEL)
+        {
+            Level += 1;
+        }
+    }
+
+    public override string ToString()
+    {
+        return $"Hero is at {Level} level!";
+    }
+}
+
+/*
+    Life
+
+    Warrior: 2·Vit(character) + 2·Vit(items) + 2·clvl + Life(items) + 18
+
+    Rogue: 1·Vit(character) + 1.5·Vit(items) + 2·clvl + Life(items) + 23
+
+    Sorcerer: 1·Vit(character) + 1·Vit(items) + 1·clvl + Life(items) + 9
+*/
+
+/*
+
+Mana
+
+Warrior: 1·Mag(character) + 1·Mag(items) + 1·clvl + Mana(items) - 1
+
+Rogue: 1·Mag(character) + 1.5·Mag(items) + 2·clvl + Mana(items) + 5
+
+Sorcerer: 2·Mag(character) + 2·Mag(items) + 2·clvl + Mana(items) - 2
+
+*/
