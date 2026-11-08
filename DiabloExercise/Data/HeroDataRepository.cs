@@ -4,6 +4,17 @@
     // index 0 -> lifeModifier
     // index 1 -> manaModifier
 
+    /*
+    float vitalityMultiplier; //        warrior = 2;    rogue = 1;      Sorcerer = 1
+    float vitalityItemsMultiplier; //   war = 2;        rogue = 1.5;    sorc = 1
+    float heroLevelMultiplierLife; //   W = 2 ;         R = 2;          S = 1
+    float lifeFixedBonus; //            W = 18;         R = 23;         S = 9
+
+    float magicMultilplier; //          W = 1;          R = 1;          S = 2
+    float magicItemsMultiplier; //      W = 1;          R = 1.5;        S = 2;
+    float heroLevelMultiplierMana; //   W = 1;          R = 2;          S = 2
+    float magicFixedBonus; //           W = -1;         R = 5;          S = -2
+    */
     public readonly Dictionary<string, Dictionary<string, float>> HeroData
         = new Dictionary<string, Dictionary<string, float>>() {
 
@@ -13,13 +24,24 @@
                 new Dictionary<string, float>()
                 {
                     { "LightRadius", 100f},
-                    { "LifeModifier", 2.0f },
-                    { "ManaModifier", 1.0f },
+                    //{ "LifeModifier", 2.0f },
+                    //{ "ManaModifier", 1.0f },
                     { "InitialLife", 100f},
                     { "InitialMaxLife", 100f},
                     { "InitialMana", 100f},
                     { "InitialMaxMana", 100f},
-                    { "InitialGold", 0f}
+                    { "InitialGold", 0f},
+                    // custom numbers to calculate life
+                    { "VitalityMultiplier", 2f},
+                    { "VitalityItemsMultiplier", 2f},
+                    { "HeroLevelMultiplierLife", 2},
+                    { "LifeFixedBonus", 18},
+                    // custom numbers to calculate mana
+                    { "MagicMultiplier", 1 },
+                    { "MagicItemsMultiplier", 1 },
+                    { "HeroLevelMultiplierMana", 1},
+                    { "MagicFixedBonus", 1}
+
                 } // Warrior value end
              },
 
@@ -28,13 +50,23 @@
                 new Dictionary<string, float>() // value
                 {
                     { "LightRadius", 100f},
-                    { "LifeModifier", 2.0f },
-                    { "ManaModifier", 1.0f },
+                    //{ "LifeModifier", 2.0f },
+                    //{ "ManaModifier", 1.0f },
                     { "InitialLife", 100f},
                     { "InitialMaxLife", 100f},
                     { "InitialMana", 100f},
                     { "InitialMaxMana", 100f},
-                    { "InitialGold", 0f}
+                    { "InitialGold", 0f},
+                    // custom numbers to calculate life
+                    { "VitalityMultiplier", 1f},
+                    { "VitalityItemsMultiplier", 1.5f},
+                    { "HeroLevelMultiplierLife", 2f},
+                    { "LifeFixedBonus", 23f},
+                    // custom numbers to calculate mana
+                    { "MagicMultiplier", 1f },
+                    { "MagicItemsMultiplier", 1.5f },
+                    { "HeroLevelMultiplierMana", 2f},
+                    { "MagicFixedBonus", 5f}
                 } // rogue value end
             },
 
@@ -43,13 +75,24 @@
                 new Dictionary<string, float>() // value
                 {
                     { "LightRadius", 100f},
-                    { "LifeModifier", 1.0f },
-                    { "ManaModifier", 2.0f },
+                    //{ "LifeModifier", 1.0f },
+                    //{ "ManaModifier", 2.0f },
                     { "InitialLife", 100f},
                     { "InitialMaxLife", 100f},
                     { "InitialMana", 100f},
                     { "InitialMaxMana", 100f},
-                    { "InitialGold", 0f}
+                    { "InitialGold", 0f},
+
+                     // custom numbers to calculate life
+                    { "VitalityMultiplier", 1f},
+                    { "VitalityItemsMultiplier", 1f},
+                    { "HeroLevelMultiplierLife", 1f},
+                    { "LifeFixedBonus", 9f},
+                    // custom numbers to calculate mana
+                    { "MagicMultiplier", 2f },
+                    { "MagicItemsMultiplier", 2f },
+                    { "HeroLevelMultiplierMana", 2f},
+                    { "MagicFixedBonus", -2f}
                 } // sorcerer value end
              }
         };
@@ -125,7 +168,7 @@
 // metoda -> consume
 
 
-// hero equipment - IEquipable (equip, unequip)
+// hero Items - IEquipable (equip, unequip)
 // - Weapons - deals damage to the enemies
 //      - OneHand weapon
 //          - Sword

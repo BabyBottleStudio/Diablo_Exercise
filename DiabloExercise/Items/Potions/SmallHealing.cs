@@ -28,7 +28,7 @@ public class SmallHealing : Potion
 // metoda -> consume
 
 
-// hero equipment - IEquipable (equip, unequip)
+// hero Items - IEquipable (equip, unequip)
 // - Weapons - deals damage to the enemies
 //      - OneHand weapon
 //          - Sword

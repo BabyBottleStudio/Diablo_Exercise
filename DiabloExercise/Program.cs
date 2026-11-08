@@ -6,327 +6,30 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+var heroCalc = new HeroLevelingCalculator(50);
 
-HeroDataRepository heroData = new HeroDataRepository();
+heroCalc.PrintProgressList();
+Console.WriteLine(heroCalc.GetExpirienceThreshold(13));
+Console.WriteLine(heroCalc.GetExpirienceThreshold(49));
+Console.WriteLine(heroCalc.GetExpirienceThreshold(50));
+Console.WriteLine(heroCalc.GetExpirienceThreshold(53));
+Console.WriteLine(heroCalc.GetExpirienceThreshold(0));
+Console.WriteLine(heroCalc.GetExpirienceThreshold(-3));
 
-HeroFactory heroFactory = new HeroFactory(heroData);
-
-var jovana = heroFactory.Instantiate("Rogue", "Jovana", out IUserInterface userInterface); // hm
-
-Console.WriteLine(jovana);
-
-
-
-//HeroEvents.InvokeOnDecreaseLife(99);
-//HeroEvents.InvokeOnDecreaseMana(99);
-
-//var smallHealing = new SmallHealing();
-//Console.WriteLine(smallHealing);
-//smallHealing.Consume();
-
-//userInterface.DisplayUI();
+var heroData = new HeroDataRepository();
 
 
-//var fullHealing = new FullHealing();
-//Console.WriteLine(fullHealing);
-//fullHealing.Consume();
+var heroFactory = new HeroFactory(heroData);
 
-//userInterface.DisplayUI();
+IUserInterface userInterface;
 
-//var smallMana = new SmallMana();
-//Console.WriteLine(smallMana);
-//smallMana.Consume();
-
-//userInterface.DisplayUI();
-
-//var fullMana = new FullMana();
-//Console.WriteLine(fullMana);
-//fullMana.Consume();
-
-//userInterface.DisplayUI();
-
-//HeroEvents.InvokeOnDecreaseLife(25);
-//HeroEvents.InvokeOnDecreaseMana(25);
-
-//userInterface.DisplayUI();
-
-
-//var smallRejuvenation = new SmallRejuvenation();
-//Console.WriteLine(smallRejuvenation);
-//smallRejuvenation.Consume();
-
-//userInterface.DisplayUI();
-
-//var fullRejuvenation = new FullRejuvenation();
-//Console.WriteLine(fullRejuvenation);
-//fullRejuvenation.Consume();
-
-//userInterface.DisplayUI();
-
-
-
-//var modifier = new StatsModifier()
-//{
-//    LightRadius = 20f
-//};
-
-
-
-//var weapon = new TestWeapon(2, 4, modifier);
-//var weapon2 = new TestWeapon(2, 4, modifier);
-//var weapon3 = new TestWeapon(2, 4, modifier);
-//var weapon4 = new TestWeapon(2, 4, modifier);
-
-
-
-//weapon.OnEquip();
-//weapon2.OnEquip();
-//weapon3.OnEquip();
-//weapon4.OnEquip();
-//weapon.OnUnequip();
-//weapon2.OnUnequip();
-
-//Console.WriteLine(modifier);
-
-
-//Console.WriteLine();
-//Console.WriteLine(jovana);
-
-
-
-Console.WriteLine("--------------------");
-
-var resistanceModifier = new StatsModifier()
-{
-    ResistLightning = 60,
-    ResistFire = 30,
-    ResistMagic = 30
-};
-
-var resistanceModifier2 = new StatsModifier()
-{
-    ResistLightning = 60,
-    ResistFire = 30,
-    ResistMagic = 30
-};
-
-Console.WriteLine("ResistanceManager:");
-Console.WriteLine(resistanceModifier);
-
-Console.WriteLine("WeaponCreated: WeaponOfResistnace");
-var weaponOfResistance = new TestWeapon(2, 4, resistanceModifier);
-var weaponOfResistance2 = new TestWeapon(2, 4, resistanceModifier2);
-
-weaponOfResistance.OnEquip();
-Console.WriteLine(jovana);
-
-weaponOfResistance2.OnEquip();
-Console.WriteLine(jovana);
-
-
-weaponOfResistance.OnUnequip();
+var jovana = heroFactory.Instantiate("Rogue", "Jovana", out userInterface);
 
 Console.WriteLine(jovana);
 
 
-var attributes = new CharacterAttributes(15, 50, 10, 45, 30, 250, 20, 60);
-
-Console.WriteLine(attributes);
-
-var stats10 = new StatsModifier()
-{
-
-    Strength = 5,
-    Magic = 5,
-    Dexterity = -5,
-    Vitality = 5,
-    ArmorClass = 35,
-    ChanceToHit = 5,
-    Damage = 5,
-
-};
-
-var weapon10 = new TestWeapon(15, 50, stats10);
-
-
-weapon10.OnEquip();
-Console.WriteLine(attributes);
-
-weapon10.OnUnequip();
-Console.WriteLine(attributes);
-//var goldManager = new GoldManager();
-//var experienceManager = new ExperienceManager();
-//var healthManger = new HealthResource(100, 100);
-//var manaManager = new ManaResource(100, 100);
-
-
-//var jovana = new Rogue(
-//    "Jovana",
-//    goldManager,
-//    experienceManager,
-//    healthManger,
-//    manaManager
-//    );
-
-
-
-
-
-//var petar = new Warrior("Petar", new GoldManager(), new ExperienceManager());
-//petar.goldManager.AddGold(50);
-
-//Console.WriteLine("MANA TESTING");
-
-
-//manaManager.Increase(50); // should return 100. Mana is on the maximum
-//Console.WriteLine(manaManager.CurrentValue);
-
-//userInterface.DisplayUI();
-
-//manaManager.Decrease(50); // should sucseed and return 100
-//Console.WriteLine(manaManager.CurrentValue);
-//userInterface.DisplayUI();
-
-//manaManager.Increase(1); // should return 51.
-//Console.WriteLine(manaManager.CurrentValue);
-//userInterface.DisplayUI();
-
-//manaManager.Decrease(100); // should return 51. Not enough mana!
-//Console.WriteLine(manaManager.CurrentValue);
-//userInterface.DisplayUI();
-
-//manaManager.Decrease(51); // should return 0.
-//Console.WriteLine(manaManager.CurrentValue);
-//userInterface.DisplayUI();
-
-//manaManager.Increase(1); // should return 1.
-//Console.WriteLine(manaManager.CurrentValue);
-//userInterface.DisplayUI();
-
-//manaManager.IncreaseMaxValue(50); // max should be 150
-//manaManager.Increase(120); // should increase and return 121
-//Console.WriteLine(manaManager.CurrentValue); // should write 121
-//userInterface.DisplayUI();
-
-//manaManager.Increase(120); // should increase and return 150
-//Console.WriteLine(manaManager.CurrentValue); // should write 150
-//userInterface.DisplayUI();
-
-
-//Console.WriteLine("HEALTH TESTING");
-
-//healthManger.Increase(50); // should not increase. Life is full
-//Console.WriteLine(healthManger.CurrentValue);
-//userInterface.DisplayUI();
-
-//healthManger.Decrease(99); // should return 1
-//Console.WriteLine(healthManger.CurrentValue);
-//userInterface.DisplayUI();
-
-//healthManger.IncreaseMaxValue(50);// max life should be 150
-//userInterface.DisplayUI();
-
-//healthManger.Increase(250); // should be 150.
-//userInterface.DisplayUI();
-
-//healthManger.Decrease(100); // should be 50
-//userInterface.DisplayUI();
-
-//healthManger.Decrease(500); // should be 0 and death of hero message should be displayed
-//userInterface.DisplayUI();
-
-
-
-//Console.WriteLine("Gold TESTING");
-
-
-
-//goldManager.AddGold(500); // should be 500
-//userInterface.DisplayUI();
-
-//goldManager.AddGold(1); // 501
-//userInterface.DisplayUI();
-
-//goldManager.Remove(500); // 1
-//userInterface.DisplayUI();
-
-
-//goldManager.Remove(2); // should return 1 - not enough gold
-//userInterface.DisplayUI();
-
-//goldManager.Remove(1); // 0
-//userInterface.DisplayUI();
-
-
-
-//HeroEvents.InvokeOnGoldReceived(1500);
-//HeroEvents.InvokeOnGoldRemoved(1000);
-
-//Console.WriteLine(jovana.ToString());
-
-//HeroEvents.InvokeOnExpirienceReceived(1079);
-
-//Console.WriteLine(jovana.ToString());
-
-//HeroEvents.InvokeOnExpirienceReceived(1);
-//Console.WriteLine(jovana.ToString());
-
-//HeroEvents.InvokeOnExpirienceReceived(22200);
-//Console.WriteLine(jovana.ToString());
-
-
-//goldManager.AddGold(1200);
-//goldManager.Remove(1300);
-//goldManager.Remove(328);
-//goldManager.Remove(432);
-//goldManager.AddGold(732);
-
-//healthManger.Decrease(50);
-//healthManger.Decrease(2);
-
-//manaManger.Decrease(25);
-//manaManger.Increase(50);
-//manaManger.Increase(2);
-//manaManger.Decrease(500);
-//manaManger.Decrease(1);
-//manaManger.Increase(789);
-
-//Console.WriteLine(jovana.ToString());
-
-//userInterface.DisplayUI();
-
-
-
-//HeroEvents.InvokeOnExpirienceReceived(1307);
-//HeroEvents.InvokeOnExpirienceReceived(1214);
-//HeroEvents.InvokeOnExpirienceReceived(1258);
-//HeroEvents.InvokeOnExpirienceReceived(124);
-
-//Console.WriteLine(jovana.ToString());
-
-//HeroEvents.InvokeOnExpirienceReceived(654);
-//HeroEvents.InvokeOnExpirienceReceived(368);
-//HeroEvents.InvokeOnExpirienceReceived(248);
-
-//Console.WriteLine(jovana.ToString());
-
-//HeroEvents.InvokeOnExpirienceReceived(202);
-//HeroEvents.InvokeOnExpirienceReceived(365);
-//HeroEvents.InvokeOnExpirienceReceived(637);
-
-//Console.WriteLine(jovana.ToString());
-
-//HeroEvents.InvokeOnExpirienceReceived(10200);
-
-
-////petar.goldManager.Remove(300);
-////petar.goldManager.Remove(25);
-
-
-//Console.WriteLine(jovana.ToString());
-//Console.WriteLine(petar.ToString());
-
-
+/*
+*/
 
 public abstract class Hero
 {
@@ -336,34 +39,131 @@ public abstract class Hero
 
     public virtual string HeroClass => GetType().Name;
 
-
+    //public readonly ILevel heroLevel;
     public readonly IExperienceManager experienceManager;
+
     public readonly IGoldManager goldManager;
-    public readonly IResource healthManager;
+    public readonly IResource lifeManager;
     public readonly IResource manaManager;
     public readonly ILightRadius lightRadius;
     public readonly IResistance resistnaceManager;
+    public readonly ICharacterAttributes characterAttributes;
+    public readonly IDerivedAttributes derivedAttributes;
+    public readonly ResourcesCalculator resourcesCalculator;
 
-    protected Hero(string name, IGoldManager goldManager, IExperienceManager experienceManager,
-                    IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager)
+    //public readonly ItemsBonusManager ItemsBonusManager;
+    public readonly DerivedAttributesCalculator derivedAttributesCalculator = new DerivedAttributesCalculator(); // INJECT IT LATER
+
+    protected Hero(
+                        string name,
+                        //ILevel heroLevel,
+                        IGoldManager goldManager,
+                        IExperienceManager experienceManager,
+                        IResource healthManager,
+                        IResource manaManager,
+                        ILightRadius lightRadius,
+                        IResistance resistnaceManager,
+                        ICharacterAttributes characterAttributes,
+                        IDerivedAttributes derivedAttributes,
+                        ResourcesCalculator resourcesCalculator
+                 )
     {
         _name = name;
+        //this.heroLevel = heroLevel;
         this.goldManager = goldManager;
         this.experienceManager = experienceManager;
-        this.healthManager = healthManager;
+        this.lifeManager = healthManager;
         this.manaManager = manaManager;
         this.lightRadius = lightRadius;
         this.resistnaceManager = resistnaceManager;
+        this.characterAttributes = characterAttributes;
+        this.derivedAttributes = derivedAttributes;
+        this.resourcesCalculator = resourcesCalculator;
+        //this.ItemsBonusManager = ItemsBonusManager;
+
+        UpdateMaxLife();
+        UpdateMaxMana();
+
+        UpdateDerivedAttributes();
     }
 
 
+
+
+    public void UpdateDerivedAttributes()
+    {
+        // update armor
+        // 
+        var currentArmorClass = derivedAttributesCalculator.CalculateArmorClass(characterAttributes.CurrentDexterity, derivedAttributes.ArmorClassBaseItems, derivedAttributes.ArmorClassItemsBonus);
+        derivedAttributes.SetCurrentArmorClass(currentArmorClass);
+
+        // uptate chance to hit
+        var chanceToHit = derivedAttributesCalculator.CalculateChanceToHit(characterAttributes.CurrentDexterity, derivedAttributes.ChanceToHitItemsBonus);
+        derivedAttributes.SetChanceToHit(chanceToHit);
+
+        // update damage
+        var damage = derivedAttributesCalculator.CalculateDamageRange
+            (
+                characterAttributes.CurrentStrength,
+                experienceManager.Level,
+                derivedAttributes.BaseDamageItemsMin,
+                derivedAttributes.BaseDamageItemsMax,
+                derivedAttributes.BonusDamageFromItems
+            );
+        derivedAttributes.SetCurrentDamage(damage.min, damage.max);
+    }
+
+    /*
+       Life
+       Warrior: 2·Vit(character) + 2·Vit(items) + 2·clvl + Life(items) + 18
+       Rogue: 1·Vit(character) + 1.5·Vit(items) + 2·clvl + Life(items) + 23
+       Sorcerer: 1·Vit(character) + 1·Vit(items) + 1·clvl + Life(items) + 9
+
+       Mana
+       Warrior: 1·Mag(character) + 1·Mag(items) + 1·clvl + Mana(items) - 1
+       Rogue: 1·Mag(character) + 1.5·Mag(items) + 2·clvl + Mana(items) + 5
+       Sorcerer: 2·Mag(character) + 2·Mag(items) + 2·clvl + Mana(items) - 2
+   */
+
+
+    public void UpdateMaxLife()
+    {
+        var value = resourcesCalculator.CalculateMaxLife(
+            experienceManager.Level,
+            characterAttributes.BaseVitality,
+            characterAttributes.VitalityItemsBonus,
+            manaManager.ItemsBonus
+            );
+
+        lifeManager.UpdateBaseMaxValue(value);
+    }
+
+    public void UpdateMaxMana()
+    {
+        var value = resourcesCalculator.CalculateMaxMana(
+            experienceManager.Level,
+            characterAttributes.BaseMagic,
+            characterAttributes.MagicItemsBonus,
+            manaManager.ItemsBonus
+            );
+
+        manaManager.UpdateBaseMaxValue(value);
+    }
+
+    public void MetodaKojaBiTrebaloDaUradi_OnEquip()
+    {
+
+    }
+
+    public void MetodaKojaBiTrebaloDaUradi_OnUnquip()
+    {
+
+    }
 
     public void GainExpirience(long incrementAmount)
     {
         experienceManager.Increase(incrementAmount);
     }
-
-
 
     public void AddGold(int amountToAdd)
     {
@@ -389,7 +189,7 @@ public abstract class Hero
 
     public void GetDamage(float lifePointsToLose)
     {
-        healthManager.Decrease(lifePointsToLose);
+        lifeManager.Decrease(lifePointsToLose);
     }
 
     public void SpendMana(float manaToSpend)
@@ -414,10 +214,10 @@ public abstract class Hero
         //sb.AppendLine($"Experience:{experienceManager.Experience}. XPforNextLevel:{experienceManager.NextLevelExperience}");
 
         sb.AppendLine(goldManager.ToString());
-        sb.AppendLine(healthManager.ToString());
+        sb.AppendLine(lifeManager.ToString());
         sb.AppendLine(manaManager.ToString());
-        //sb.AppendLine($"MaxLife:{healthManager.MaxValue}. CurrentLife: {healthManager.CurrentValue}");
-        //sb.AppendLine($"MaxMana:{manaManager.MaxValue}. CurrentMana: {manaManager.CurrentValue}");
+        sb.AppendLine($"MaxLife:{lifeManager.CurrentMaxValue}. CurrentLife: {lifeManager.CurrentValue}");
+        sb.AppendLine($"MaxMana:{manaManager.CurrentMaxValue}. CurrentMana: {manaManager.CurrentValue}");
         sb.AppendLine(lightRadius.ToString());
         sb.AppendLine("*** Resistance ***");
         sb.AppendLine(resistnaceManager.ToString());
@@ -427,22 +227,54 @@ public abstract class Hero
     }
 }
 
+public class DerivedAttributesCalculator
+{
+    const int FIST_DAMAGE = 1;
+    const int FIST_BONUS = 5;
+
+    public int CalculateArmorClass(int currentDexterity, int armorBasicItems, int armorItemsBonus)
+    {
+        return currentDexterity / 5 + armorBasicItems + armorItemsBonus; // * (_armorItemsBonusPercent/100);
+    }
+
+    public int CalculateChanceToHit(int currentDexterity, int chanceToHitItemsBonus)
+    {
+        return 50 + currentDexterity / 2 + chanceToHitItemsBonus;
+    }
+
+
+    public (int min, int max) CalculateDamageRange(int currentStrength, int characterLevel, int baseDamageItemsMin, int baseDamageItemsMax, int bonusDamageItems)
+    {
+        int basicDamage = currentStrength * characterLevel / 100;
+
+        if (baseDamageItemsMin <= 0 && baseDamageItemsMax <= 0)
+        {
+            int fistDamage = basicDamage + FIST_DAMAGE + FIST_BONUS;
+            return (fistDamage, fistDamage);
+        }
+
+        int minDamage = basicDamage + baseDamageItemsMin + bonusDamageItems;
+        int maxDamage = basicDamage + baseDamageItemsMax + bonusDamageItems;
+
+        return (minDamage, maxDamage);
+    }
+}
 
 public class Warrior : Hero
 {
-    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager)
+    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager, ICharacterAttributes characterAttributes, IDerivedAttributes derivedAttributes, ResourcesCalculator attributesCalculator) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager, characterAttributes, derivedAttributes, attributesCalculator)
     {
     }
 }
 public class Rogue : Hero
 {
-    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager)
+    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager, ICharacterAttributes characterAttributes, IDerivedAttributes derivedAttributes, ResourcesCalculator attributesCalculator) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager, characterAttributes, derivedAttributes, attributesCalculator)
     {
     }
 }
 public class Sorcerer : Hero
 {
-    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager)
+    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager, ICharacterAttributes characterAttributes, IDerivedAttributes derivedAttributes, ResourcesCalculator attributesCalculator) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager, characterAttributes, derivedAttributes, attributesCalculator)
     {
     }
 }
@@ -453,40 +285,45 @@ public interface IExperienceManager
 {
     int Level { get; }
     long Experience { get; }
-    long NextLevelExperience { get; }
+    //long NextLevelExperience { get; }
 
     void Increase(long xpPointsToAdd);
     //void LevelUp();
 }
-public class ExperienceManager : IExperienceManager
-{
-    private const int MAX_LEVEL = 50;
-    private int _level;
-    public int Level => _level;
 
-    private long _experience;
-    public long Experience => _experience;
-    public long NextLevelExperience => _level < MAX_LEVEL ? nextLevelThreshold[_level + 1] : 0;
+public class HeroLevelingCalculator
+{
+    //public long NextLevelExperience => heroLevel.Level < heroLevel.MaxLevel ? nextLevelThreshold[heroLevel.Level + 1] : 0;
 
     private long[] nextLevelThreshold;
 
-    //private double _nextLevelAt;
-    //public double NextLevelAt => _nextLevelAt;
 
-    // event for leveling up
-
-
-    public ExperienceManager()
+    public HeroLevelingCalculator(int heroMaxLevel)
     {
-        _level = 1;
-        _experience = 0;
-
-        nextLevelThreshold = new long[MAX_LEVEL + 1];
-
+        nextLevelThreshold = new long[heroMaxLevel + 1];
         InitializeNextLevelTresholds();
-
-        //HeroEvents.OnExperienceReceived += GainExperience;
     }
+
+
+    public long GetExpirienceThreshold(int targetLevel)
+    {
+        if (targetLevel <= 0)
+        {
+            //debug
+            Console.WriteLine($"Invalid hero level. It should be in the range of 1 to {nextLevelThreshold.Length - 1}");
+            return 0;
+        }
+
+        if (targetLevel < nextLevelThreshold.Length)
+        {
+            return nextLevelThreshold[targetLevel];
+        }
+
+        // Debug
+        Console.WriteLine("Hero reached the maximum level");
+        return 0;
+    }
+
 
     private void InitializeNextLevelTresholds()
     {
@@ -501,31 +338,53 @@ public class ExperienceManager : IExperienceManager
             nextLevelThreshold[i] = level == 0
                 ? 0
                 : (long)Math.Floor(baseXP * Math.Pow(level, power) * Math.Pow(growth, level));
-
         }
-
-        //PrintProgressList();
     }
 
-
-    private void PrintProgressList()
+    public void PrintProgressList()
     {
         for (int i = 0; i < nextLevelThreshold.Length; i++)
         {
-
-            Console.WriteLine($"Level{i} - {nextLevelThreshold[i]}");
+            Console.WriteLine($"Level{i:D2} - {nextLevelThreshold[i]}");
         }
+    }
+}
+
+
+public class ExperienceManager : IExperienceManager
+{
+    private readonly ILevel heroLevel;
+    private readonly HeroLevelingCalculator heroLvlCalc;
+    //private readonly DerivedCharacterAttributesCalculator resourcesCalculator;
+
+    private long _experience;
+    public long Experience => _experience;
+    public int Level => heroLevel.Level;
+    //public int MaxLevel => heroLevel.MaxLevel;
+
+    //private double _nextLevelAt;
+    //public double NextLevelAt => _nextLevelAt;
+
+    // event for leveling up
+
+
+    public ExperienceManager(ILevel heroLevel, HeroLevelingCalculator heroLevelingCalculator)
+    {
+        this.heroLevel = heroLevel;
+        heroLvlCalc = heroLevelingCalculator;
+        _experience = 0;
+
     }
 
     public void Increase(long xpPointsToAdd)
     {
-        if (_level == MAX_LEVEL) return;
+        if (heroLevel.Level == heroLevel.MaxLevel) return;
 
         if (xpPointsToAdd < 0) return;
 
         _experience += xpPointsToAdd;
 
-        while (_level < MAX_LEVEL && _experience >= nextLevelThreshold[_level + 1])
+        while (heroLevel.Level < heroLevel.MaxLevel && _experience >= heroLvlCalc.GetExpirienceThreshold(heroLevel.Level + 1))
         {
             LevelUp();
         }
@@ -536,24 +395,22 @@ public class ExperienceManager : IExperienceManager
 
     private void LevelUp()
     {
-        if (_level == MAX_LEVEL)
+        if (heroLevel.Level == heroLevel.MaxLevel)
         {
             Console.WriteLine("Hero is already on the maximum level.");
             return;
         }
 
-        _level++;
-
-
+        heroLevel.IncreaseLevel();
 
         // printing message
         string nextLevelXP = "Hero reached the maximum level!";
 
-        if (_level < MAX_LEVEL)
+        if (heroLevel.Level < heroLevel.MaxLevel)
         {
-            nextLevelXP = $"{nextLevelThreshold[_level + 1]}";
+            nextLevelXP = $"{heroLvlCalc.GetExpirienceThreshold(heroLevel.Level + 1)}";
         }
-        Console.WriteLine($"Level:{_level}; XP:{_experience}; XPtNextLevel: {nextLevelXP}");
+        Console.WriteLine($"Level:{heroLevel.Level}; XP:{_experience}; XPtNextLevel: {nextLevelXP}");
 
 
         HeroEvents.InvokeOnLevelUp();
@@ -563,69 +420,11 @@ public class ExperienceManager : IExperienceManager
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.AppendLine($"Level: {Level}");
-        sb.AppendLine($"Experience:{Experience}. XPforNextLevel:{NextLevelExperience}");
+        sb.AppendLine($"Level: {heroLevel.Level}");
+        sb.AppendLine($"Experience:{Experience}. XPforNextLevel:{heroLvlCalc.GetExpirienceThreshold(heroLevel.Level + 1)}");
 
         return sb.ToString().TrimEnd();
     }
-}
-
-
-
-
-public interface IGoldManager
-{
-    int GoldCount { get; }
-
-    void Add(int amountToAdd);
-    bool Decrease(int amount);
-}
-public class GoldManager : IGoldManager
-{
-    private int _goldCount;
-
-    public int GoldCount => _goldCount;
-
-
-
-    public void Add(int amountToAdd)
-    {
-        if (amountToAdd < 0) return;
-
-        _goldCount += amountToAdd;
-
-        HeroEvents.InvokeOnGoldCountChanged(_goldCount);
-        // gold is added when:
-        // player picks up the gold item in the dungeon
-        // player sells the items in the shop
-
-        // this should be subscribed to an event
-
-    }
-
-    public bool Decrease(int amountToDecrease)
-    {
-        // gold is removed when:
-        // player drops it from the inventory
-        // player buys items in the shop
-        if (amountToDecrease < 0) return false;
-
-        int difference = _goldCount - amountToDecrease;
-
-        if (difference < 0)
-            return false;
-
-
-        _goldCount = difference;
-
-        HeroEvents.InvokeOnGoldCountChanged(_goldCount);
-
-        return true;
-    }
-
-
-    public override string ToString() => $"Gold: {GoldCount}";
-
 }
 
 
@@ -635,7 +434,7 @@ public interface IEquipable
     void OnUnequip();
 }
 
-public interface IDamage
+public interface IDealDamage
 {
     float MinDamage { get; init; }
     float MaxDamage { get; init; }
@@ -648,7 +447,7 @@ public interface IDurable
     float CurrentDurability { get; }
 }
 
-public class TestWeapon : Item, IEquipable, IDamage, IDurable
+public class TestWeapon : Item, IEquipable, IDealDamage, IDurable
 {
     bool isEquipped = false;
     public float MinDamage { get; init; }
@@ -715,440 +514,27 @@ public class TestWeapon : Item, IEquipable, IDamage, IDurable
     }
 }
 
-public class StatsModifier
-{
-    public float LightRadius { get; init; }
 
-    public int Strength { get; init; }
-    public int Magic { get; init; }
-    public int Dexterity { get; init; }
-    public int Vitality { get; init; }
-
-    public int ArmorClass { get; init; }
-    public int ChanceToHit { get; init; }
-    public int Damage { get; init; }
-
-    public int ResistMagic { get; init; }
-    public int ResistFire { get; init; }
-    public int ResistLightning { get; init; }
-
-    public float Life { get; init; }
-    public float Mana { get; init; }
-
-    public override string ToString()
-    {
-        StringBuilder sb = new StringBuilder();
-
-        // Pomoćna lokalna funkcija za lepši RPG format (+5 umesto 5)
-        string FormatStat(float value) => value > 0 ? $"+{value}" : value.ToString();
-
-        if (LightRadius != 0) sb.AppendLine($"{FormatStat(LightRadius)} to Light Radius.");
-        if (Strength != 0) sb.AppendLine($"{FormatStat(Strength)} to Strength");
-        if (Magic != 0) sb.AppendLine($"{FormatStat(Magic)} to Magic");
-        if (Dexterity != 0) sb.AppendLine($"{FormatStat(Dexterity)} to Dexterity");
-        if (Vitality != 0) sb.AppendLine($"{FormatStat(Vitality)} to Vitality");
-
-        if (ArmorClass != 0) sb.AppendLine($"{FormatStat(ArmorClass)} to Armor");
-        if (ChanceToHit != 0) sb.AppendLine($"{FormatStat(ChanceToHit)}% to Chance to hit"); // % je čest kod šanse za pogodak
-        if (Damage != 0) sb.AppendLine($"{FormatStat(Damage)} to Damage");
-
-        if (ResistMagic != 0) sb.AppendLine($"{FormatStat(ResistMagic)}% to Magic Resistance");
-        if (ResistFire != 0) sb.AppendLine($"{FormatStat(ResistFire)}% to Fire Resistance");
-        if (ResistLightning != 0) sb.AppendLine($"{FormatStat(ResistLightning)}% to Lightning Resistance");
-
-        if (Life != 0) sb.AppendLine($"{FormatStat(Life)} to Life");
-        if (Mana != 0) sb.AppendLine($"{FormatStat(Mana)} to Mana");
-
-        return sb.ToString().TrimEnd(); // TrimEnd uklanja poslednji prazan red koji AppendLine napravi
-    }
-
-}
-
-public interface IResistance
-{
-    public int ResistMagic { get; }
-    public int ResistFire { get; }
-    public int ResistLightning { get; }
-}
-
-public class ResistanceManager : IResistance, IDisposable
-{
-    int _resistMagic;
-    int _resistFire;
-    int _resistLightning;
-
-    // max je 100% i treba da bude capovan na to
-    public int ResistMagic => Math.Clamp(_resistMagic, 0, 100);
-    public int ResistFire => Math.Clamp(_resistFire, 0, 100);
-    public int ResistLightning => Math.Clamp(_resistLightning, 0, 100);
-
-    public ResistanceManager()
-    {
-        // subscribe to events
-        EquipementEvents.OnItemEquip += AddModifier;
-        EquipementEvents.OnItemUnequip += RemoveModifier;
-    }
-
-    //public void Test(int rm, int rf, int rl)
-    //{
-    //    _resistMagic = rm;
-    //    _resistFire = rf;
-    //    _resistLightning = rl;
-    //}
-
-    Func<int, int> SwithcSign = (x) => -1 * x;
-
-    private void AddModifier(StatsModifier statsModifier)
-    {
-        int resistMagicMod = statsModifier.ResistMagic;
-        int resistFireMod = statsModifier.ResistFire;
-        int resistLightningMod = statsModifier.ResistLightning;
-
-        if (resistMagicMod != 0) _resistMagic += resistMagicMod;
-        if (resistFireMod != 0) _resistFire += resistFireMod;
-        if (resistLightningMod != 0) _resistLightning += resistLightningMod;
-    }
-
-    private void RemoveModifier(StatsModifier statsModifier)
-    {
-        int resistMagicMod = statsModifier.ResistMagic;
-        int resistFireMod = statsModifier.ResistFire;
-        int resistLightningMod = statsModifier.ResistLightning;
-
-        if (resistMagicMod != 0) _resistMagic += SwithcSign(resistMagicMod);
-        if (resistFireMod != 0) _resistFire += SwithcSign(resistFireMod);
-        if (resistLightningMod != 0) _resistLightning += SwithcSign(resistLightningMod);
-    }
-
-
-
-
-    Func<int, string> ModifyValueToString = resistancePower => resistancePower.ToString() + "%";
-
-    public override string ToString()
-    {
-        StringBuilder sb = new StringBuilder();
-
-
-        string resistMagic = ResistMagic >= 100 ? "Max" : ModifyValueToString(ResistMagic);
-        string resistFire = ResistFire >= 100 ? "Max" : ModifyValueToString(ResistFire);
-        string resistLightning = ResistLightning >= 100 ? "Max" : ModifyValueToString(ResistLightning);
-
-        sb.AppendLine($"Resist Magic: {resistMagic}");
-        sb.AppendLine($"Resist Fire: {resistFire}");
-        sb.AppendLine($"Resist Lightning: {resistLightning}");
-        return sb.ToString();
-    }
-
-    public void Dispose()
-    {
-        // unsubscribe from events
-        EquipementEvents.OnItemEquip -= AddModifier;
-        EquipementEvents.OnItemUnequip -= RemoveModifier;
-    }
-}
-
-
-
-public class CharacterAttributes : IDisposable
-{
-    int _characterLevel;
-
-    int _baseStrength;
-    int _maxStrength;
-    int _strengthEquipmentBonus;
-
-    public int BaseStrength => Math.Min(_maxStrength, _baseStrength);
-    public int CurrentStrength => BaseStrength + _strengthEquipmentBonus;
-
-
-    int _baseMagic;
-    int _maxMagic;
-    int _magicEquipmentBonus;
-
-    public int BaseMagic => Math.Min(_maxMagic, _baseMagic);
-    public int CurrentMagic => BaseMagic + _magicEquipmentBonus;
-
-
-    int _baseDexterity;
-    int _maxDexterity;
-    int _dexterityEquipmentBonus;
-
-    public int BaseDexterity => Math.Min(_maxDexterity, _baseDexterity);
-    public int CurrentDexterity => BaseDexterity + _dexterityEquipmentBonus;
-
-
-    int _baseVitality;
-    int _maxVitality;
-    int _vitalityEquipmentBonus;
-    public int BaseVitality => Math.Min(_maxVitality, _baseVitality);
-    public int CurrentVitality => BaseVitality + _vitalityEquipmentBonus;
-
-
-    // armor
-
-    //int _armorEquipmentBonusPercent = 100; // if equipement modify this by percent ??
-    int _armorEquipmentBonus; // Equipement does not have to be special to add to the armor. Head, torso and shields ads to this as well
-    public int ArmorClass => (CurrentDexterity / 5 + _armorEquipmentBonus); // * (_armorEquipmentBonusPercent/100);
-
-
-    /*
-     To Hit %
-        on character screen: 50 + Dex/2 + ToHititems
-        melee: 50 + Dex/2 + ToHititems + clvl + bonus
-        arrow: 50 + Dex + ToHititems + clvl + bonus - distance·distance/2
-
-        magic versus monster: 50 + Mag - 2·mlvl + bonus
-        magic versus player: 50 + Mag - 2·clvltarget + bonus
-    */
-
-    int _chanceToHitBonusFromEquipment;
-    int _chanceToHitBonus; // this bonus is calcualted during the combat and it is different depending on the hero class and weapon (range or melee)
-    // it should be applied in the damage calculator...
-    public int ChanceToHit => 50 + CurrentDexterity / 2 + _chanceToHitBonusFromEquipment;
-
-
-    const int _baseFistDamage = 1;
-    const int _fistBonus = 5;
-
-    int _baseDamageFromEquipmentMin;
-    int _baseDamageFromEquipmentMax;
-
-    int _bonusDamageFromEquipment;
-
-    // in real diablo Hellfire , naked hero has base "fist" damage of min and max = 1 and a hidden bonus of 5. 
-    // when the weapon is equipped, bonus of 5 dissapears and "fist" damage is replaced with damage from equipped weapon
-
-    public int CurrentDamageMin
-    {
-        get
-        {
-            if (_baseDamageFromEquipmentMin <= 0)
-                return (CurrentStrength * _characterLevel) / 100 + _baseFistDamage + _fistBonus;
-            else
-                return (CurrentStrength * _characterLevel) / 100 + _baseDamageFromEquipmentMin + _bonusDamageFromEquipment;
-        }
-    }
-
-    public int CurrentDamageMax
-    {
-        get
-        {
-            if (_baseDamageFromEquipmentMax <= 0)
-                return (CurrentStrength * _characterLevel) / 100 + _baseFistDamage + _fistBonus;
-            else
-                return (CurrentStrength * _characterLevel) / 100 + _baseDamageFromEquipmentMax + _bonusDamageFromEquipment;
-        }
-    }
-
-
-    /// <summary>
-    /// Constructor for the CharacterAttributes class.<br/> Parameters serve as a starting point for the hero stats.
-    /// </summary>
-    /// <param name="startStrength"></param>
-    /// <param name="maxStrength"></param>
-    /// <param name="startMagic"></param>
-    /// <param name="maxMagic"></param>
-    /// <param name="startDexterity"></param>
-    /// <param name="maxDexterity"></param>
-    /// <param name="startVitality"></param>
-    /// <param name="maxVitality"></param>
-    public CharacterAttributes(int startStrength, int maxStrength, int startMagic, int maxMagic, int startDexterity, int maxDexterity, int startVitality, int maxVitality)
-    {
-        _characterLevel = 1;
-
-        _baseStrength = startStrength;
-        _maxStrength = maxStrength;
-
-        _baseMagic = startMagic;
-        _maxMagic = maxMagic;
-
-        _baseDexterity = startDexterity;
-        _maxDexterity = maxDexterity;
-
-        _baseVitality = startVitality;
-        _maxVitality = maxVitality;
-
-        HeroEvents.OnLevelUp += UpdateCharacterLevel;
-
-        EquipementEvents.OnItemEquip += AddModifiers;
-        EquipementEvents.OnItemUnequip += RemoveModifiers;
-    }
-
-    private void IncreaseBaseStrength()
-    {
-        if (BaseStrength >= _maxStrength) return;
-
-        _baseStrength++;
-    }
-
-    // ModifyCharAtributes
-
-    private void AddModifiers(StatsModifier statsModifier)
-    {
-        int strengthModifier = statsModifier.Strength;
-        int magicModifier = statsModifier.Magic;
-        int dexterityModifer = statsModifier.Dexterity;
-        int vitalityModifier = statsModifier.Vitality;
-
-
-
-        if (strengthModifier != 0)
-        {
-            _strengthEquipmentBonus += strengthModifier;
-        }
-
-        if (magicModifier != 0)
-        {
-            _magicEquipmentBonus += magicModifier;
-            RecalculateMana();
-        }
-
-        if (dexterityModifer != 0)
-        {
-            _dexterityEquipmentBonus += dexterityModifer;
-        }
-
-        if (vitalityModifier != 0)
-        {
-            _vitalityEquipmentBonus += vitalityModifier;
-            RecalculateLife();
-        }
-
-        int armorModifier = statsModifier.ArmorClass;
-        int chanceToHitModifier = statsModifier.ChanceToHit;
-        int damageModifier = statsModifier.Damage;
-
-        if (armorModifier != 0)
-            _armorEquipmentBonus += armorModifier;
-
-        if (chanceToHitModifier != 0)
-            _chanceToHitBonusFromEquipment += chanceToHitModifier;
-
-        if (damageModifier != 0)
-            _bonusDamageFromEquipment += damageModifier;
-
-        // fali da se doda osnovni damage od oruzja koji uvek ostje 0 za sada.
-    }
-
-    Func<int, int> ChangeSign = (x) => -1 * x;
-
-    private void RemoveModifiers(StatsModifier statsModifier)
-    {
-        int strengthModifier = statsModifier.Strength;
-        int magicModifier = statsModifier.Magic;
-        int dexterityModifer = statsModifier.Dexterity;
-        int vitalityModifier = statsModifier.Vitality;
-
-        if (strengthModifier != 0)
-        {
-            _strengthEquipmentBonus += ChangeSign(strengthModifier);
-        }
-
-        if (magicModifier != 0)
-        {
-            _magicEquipmentBonus += ChangeSign(magicModifier);
-            RecalculateMana();
-        }
-
-        if (dexterityModifer != 0)
-        {
-            _dexterityEquipmentBonus += ChangeSign(dexterityModifer);
-        }
-
-        if (vitalityModifier != 0)
-        {
-            _vitalityEquipmentBonus += ChangeSign(vitalityModifier);
-            RecalculateLife();
-        }
-
-        int armorModifier = statsModifier.ArmorClass;
-        int chanceToHitModifier = statsModifier.ChanceToHit;
-        int damageModifier = statsModifier.Damage;
-
-        if (armorModifier != 0)
-            _armorEquipmentBonus += ChangeSign(armorModifier);
-
-        if (chanceToHitModifier != 0)
-            _chanceToHitBonusFromEquipment += ChangeSign(chanceToHitModifier);
-
-        if (damageModifier != 0)
-            _bonusDamageFromEquipment += ChangeSign(damageModifier);
-    }
-
-    public override string ToString()
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.AppendLine("- STRENGTH - ");
-        sb.AppendLine($"Base: {BaseStrength} || Now: {CurrentStrength}");
-        sb.AppendLine("- MAGIC -");
-        sb.AppendLine($"Base: {BaseMagic} || Now: {CurrentMagic}");
-        sb.AppendLine("- DEXTERITY -");
-        sb.AppendLine($"Base: {BaseDexterity} || Now: {CurrentDexterity}");
-        sb.AppendLine("- VITALITY -");
-        sb.AppendLine($"Base: {BaseVitality} || Now: {CurrentVitality}");
-        sb.AppendLine();
-        sb.AppendLine($"ARMOR: {ArmorClass}");
-
-        sb.AppendLine($"ChanceToHit:{ChanceToHit}%");
-        sb.AppendLine($"Damage: {CurrentDamageMin}/{CurrentDamageMax}");
-
-        return sb.ToString();
-    }
-
-
-    private void RecalculateLife()
-    {
-        Console.WriteLine("Life should be recalculated. Not implemented yet");
-    }
-
-
-    private void RecalculateMana()
-    {
-        Console.WriteLine("Mana should be recalculated. Not implemented yet");
-    }
-
-    private void UpdateCharacterLevel()
-    {
-        _characterLevel++;
-    }
-
-    public void Dispose()
-    {
-        HeroEvents.OnLevelUp -= UpdateCharacterLevel;
-
-        EquipementEvents.OnItemEquip -= AddModifiers;
-        EquipementEvents.OnItemUnequip -= RemoveModifiers;
-    }
-}
-
-public class SecondaryAttributesCalculator
-{
-
-    public int IncreaseHeroLevel(int currentLevel)
-    {
-        return currentLevel + 1;
-    }
-
-    public float CalcualteMaxLife(int heroLevel, float vitality, float lifeEquipementBonus)
-    {
-        return 1 * vitality + heroLevel + lifeEquipementBonus; // rogue
-
-    }
-}
 
 
 public interface ILevel
 {
     int Level { get; }
+    int MaxLevel { get; }
+    void IncreaseLevel();
 }
+
 public class HeroLevel : ILevel
 {
     private const int MAX_LEVEL = 50;
     public int Level { get; private set; }
+    public int MaxLevel => MAX_LEVEL;
 
-    private void IncreaseLevel()
+    public HeroLevel()
+    {
+        Level = 1;
+    }
+    public void IncreaseLevel()
     {
         if (Level < MAX_LEVEL)
         {
@@ -1162,24 +548,57 @@ public class HeroLevel : ILevel
     }
 }
 
-/*
-    Life
+public class ResourcesCalculator
+{
 
-    Warrior: 2·Vit(character) + 2·Vit(items) + 2·clvl + Life(items) + 18
+    float vitalityMultiplier; // warrior = 2; rogue = 1; Sorcerer = 1
+    float vitalityItemsMultiplier; // war = 2; rogue = 1.5; sorc = 1
+    float heroLevelMultiplierLife; // W = 2 ; R = 2; S = 1
+    float lifeFixedBonus; //W = 18; R = 23; S = 9
 
-    Rogue: 1·Vit(character) + 1.5·Vit(items) + 2·clvl + Life(items) + 23
+    float magicMultilplier; //W =1; R = 1; S = 2
+    float magicItemsMultiplier; // W = 1; R = 1.5; S = 2;
+    float heroLevelMultiplierMana; //W = 1; R = 2; S = 2
+    float magicFixedBonus; // W=-1; R = 5; S = -2
 
-    Sorcerer: 1·Vit(character) + 1·Vit(items) + 1·clvl + Life(items) + 9
-*/
+    public ResourcesCalculator(float vitalityMultiplier, float vitalityItemsMultiplier, float characterLevelMultiplierLife, float lifeFixedBonus,
+        float magicMultilplier, float magicItemsMultiplier, float characterLevelMultiplierMana, float magicFixedBonus)
+    {
+        this.vitalityMultiplier = vitalityMultiplier;
+        this.vitalityItemsMultiplier = vitalityItemsMultiplier;
+        this.heroLevelMultiplierLife = characterLevelMultiplierLife;
+        this.lifeFixedBonus = lifeFixedBonus;
 
-/*
+        this.magicMultilplier = magicMultilplier;
+        this.magicItemsMultiplier = magicItemsMultiplier;
+        this.heroLevelMultiplierMana = characterLevelMultiplierMana;
+        this.magicFixedBonus = magicFixedBonus;
+    }
 
-Mana
+    public float CalculateMaxLife(int characterLevel, float baseVitality, float vitalityItemsBonus, float lifeItemsBonus)
+    {
+        var outVitality = baseVitality * vitalityMultiplier;
+        var outVitalityItemsBonus = vitalityItemsBonus * vitalityItemsMultiplier;
+        var outCharLevel = characterLevel * heroLevelMultiplierLife;
 
-Warrior: 1·Mag(character) + 1·Mag(items) + 1·clvl + Mana(items) - 1
+        return outVitality + outVitalityItemsBonus + outCharLevel + lifeItemsBonus + lifeFixedBonus;
 
-Rogue: 1·Mag(character) + 1.5·Mag(items) + 2·clvl + Mana(items) + 5
+        //Warrior: 2·Vit(character) + 2·Vit(items) + 2·clvl + Life(items) + 18
+        //Rogue: 1·Vit(character) + 1.5·Vit(items) + 2·clvl + Life(items) + 23
+        //Sorcerer: 1·Vit(character) + 1·Vit(items) + 1·clvl + Life(items) + 9
+    }
 
-Sorcerer: 2·Mag(character) + 2·Mag(items) + 2·clvl + Mana(items) - 2
+    public float CalculateMaxMana(int characterLevel, float baseMagic, float magicItemsBonus, float manaExuipmentBonus)
+    {
+        var outMagic = baseMagic * magicMultilplier;
+        var outMagicItemsBonus = magicItemsBonus * magicItemsMultiplier;
+        var outCharLevel = characterLevel * heroLevelMultiplierMana;
 
-*/
+        return outMagic + outMagicItemsBonus + outCharLevel + manaExuipmentBonus + magicFixedBonus;
+
+        //Warrior: 1·Mag(character) + 1·Mag(items) + 1·clvl + Mana(items) - 1
+        //Rogue: 1·Mag(character) + 1.5·Mag(items) + 2·clvl + Mana(items) + 5
+        //Sorcerer: 2·Mag(character) + 2·Mag(items) + 2·clvl + Mana(items) - 2
+    }
+}
+
