@@ -66,7 +66,7 @@ public class ResistanceManager : IResistance, IDisposable
         sb.AppendLine($"Resist Magic: {resistMagic}");
         sb.AppendLine($"Resist Fire: {resistFire}");
         sb.AppendLine($"Resist Lightning: {resistLightning}");
-        return sb.ToString();
+        return sb.ToString().Trim();
     }
 
     public void Dispose()

@@ -85,6 +85,8 @@ public abstract class Hero
         UpdateMaxMana();
 
         UpdateDerivedAttributes();
+        PotionEvents.InvokeOnFullRejuvenationPotionConsumed(); // this basicly heals the player with the potion :) and yet it works :)
+
     }
 
 
@@ -216,8 +218,10 @@ public abstract class Hero
         sb.AppendLine(goldManager.ToString());
         sb.AppendLine(lifeManager.ToString());
         sb.AppendLine(manaManager.ToString());
-        sb.AppendLine($"MaxLife:{lifeManager.CurrentMaxValue}. CurrentLife: {lifeManager.CurrentValue}");
-        sb.AppendLine($"MaxMana:{manaManager.CurrentMaxValue}. CurrentMana: {manaManager.CurrentValue}");
+        sb.AppendLine(characterAttributes.ToString());
+        sb.AppendLine(derivedAttributes.ToString());
+        //sb.AppendLine($"MaxLife:{lifeManager.CurrentMaxValue}. CurrentLife: {lifeManager.CurrentValue}");
+        //sb.AppendLine($"MaxMana:{manaManager.CurrentMaxValue}. CurrentMana: {manaManager.CurrentValue}");
         sb.AppendLine(lightRadius.ToString());
         sb.AppendLine("*** Resistance ***");
         sb.AppendLine(resistnaceManager.ToString());

@@ -23,13 +23,22 @@
                 // value
                 new Dictionary<string, float>()
                 {
+                    { "StartBaseStrength", 30f},
+                    { "MaxStrength", 250f},
+                    { "StartBaseMagic", 10f},
+                    { "MaxMagic", 50f},
+                    { "StartBaseDexterity", 20f},
+                    { "MaxDexterity", 60f},
+                    { "StartBaseVitality", 25f},
+                    { "MaxVitality", 100f},
+
                     { "LightRadius", 100f},
                     //{ "LifeModifier", 2.0f },
                     //{ "ManaModifier", 1.0f },
-                    { "InitialLife", 100f},
-                    { "InitialMaxLife", 100f},
-                    { "InitialMana", 100f},
-                    { "InitialMaxMana", 100f},
+                    //{ "InitialLife", 100f},
+                    //{ "InitialMaxLife", 100f},
+                    //{ "InitialMana", 100f},
+                    //{ "InitialMaxMana", 100f},
                     { "InitialGold", 0f},
                     // custom numbers to calculate life
                     { "VitalityMultiplier", 2f},
@@ -49,13 +58,22 @@
                        
                 new Dictionary<string, float>() // value
                 {
+                    { "StartBaseStrength", 20f},
+                    { "MaxStrength", 55f},
+                    { "StartBaseMagic", 15f},
+                    { "MaxMagic", 70f},
+                    { "StartBaseDexterity", 30f},
+                    { "MaxDexterity", 250f},
+                    { "StartBaseVitality", 20f},
+                    { "MaxVitality", 80f},
+
                     { "LightRadius", 100f},
                     //{ "LifeModifier", 2.0f },
                     //{ "ManaModifier", 1.0f },
-                    { "InitialLife", 100f},
-                    { "InitialMaxLife", 100f},
-                    { "InitialMana", 100f},
-                    { "InitialMaxMana", 100f},
+                    //{ "InitialLife", 100f},
+                    //{ "InitialMaxLife", 100f},
+                    //{ "InitialMana", 100f},
+                    //{ "InitialMaxMana", 100f},
                     { "InitialGold", 0f},
                     // custom numbers to calculate life
                     { "VitalityMultiplier", 1f},
@@ -74,13 +92,22 @@
                           
                 new Dictionary<string, float>() // value
                 {
+                    { "StartBaseStrength", 15f},
+                    { "MaxStrength", 45f},
+                    { "StartBaseMagic", 35f},
+                    { "MaxMagic", 250f},
+                    { "StartBaseDexterity", 15f},
+                    { "MaxDexterity", 85f},
+                    { "StartBaseVitality", 20f},
+                    { "MaxVitality", 80f},
+
                     { "LightRadius", 100f},
                     //{ "LifeModifier", 1.0f },
                     //{ "ManaModifier", 2.0f },
-                    { "InitialLife", 100f},
-                    { "InitialMaxLife", 100f},
-                    { "InitialMana", 100f},
-                    { "InitialMaxMana", 100f},
+                    //{ "InitialLife", 100f},
+                    //{ "InitialMaxLife", 100f},
+                    //{ "InitialMana", 100f},
+                    //{ "InitialMaxMana", 100f},
                     { "InitialGold", 0f},
 
                      // custom numbers to calculate life

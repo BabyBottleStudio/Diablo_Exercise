@@ -31,7 +31,6 @@ public abstract class Resource : IResource, IDisposable
 
 
     protected ResourcesCalculator resourcesCalculator;
-    protected ILevel heroLevel;
 
     protected Func<float, float, float> currentValueToPercent = (currentValue, maxValue) => maxValue != 0 ? (currentValue * 100) / maxValue : 0;
     protected Func<float, float, float> percentToCurrentValue = (currentMaxValue, valueInPercents) => currentMaxValue * valueInPercents / 100;
@@ -67,14 +66,8 @@ public abstract class Resource : IResource, IDisposable
         return MathF.Round(output, 2);
     }
 
-    public Resource(float startValue, float startMaxValue, ResourcesCalculator resourcesCalculator, Random random)
+    public Resource(ResourcesCalculator resourcesCalculator, Random random)
     {
-        if (startValue <= 0 || startMaxValue <= 0)
-        {
-            throw new ArgumentException("Constructor receives only positive numbers as parameters!");
-        }
-
-
         if (resourcesCalculator is null || random is null)
         {
             throw new ArgumentNullException("Null argument error");
@@ -82,14 +75,12 @@ public abstract class Resource : IResource, IDisposable
 
         this.resourcesCalculator = resourcesCalculator;
 
-        _baseMaxValue = startMaxValue;
+        //_baseMaxValue = startMaxValue;
 
-        if (startValue <= startMaxValue)
-            _currentValue = startValue;
-        else
-            _currentValue = startMaxValue;
-
-
+        //if (startValue <= startMaxValue)
+        //    _currentValue = startValue;
+        //else
+        //    _currentValue = startMaxValue;
 
         //Console.WriteLine($"modifier = {Modifier}");
 
@@ -206,12 +197,12 @@ public abstract class Resource : IResource, IDisposable
 
 public class HealthResource : Resource
 {
-    protected override string _resourceName => "health";
+    protected override string _resourceName => "life";
     private bool isHeroDead = false;
 
 
 
-    public HealthResource(float startValue, float startMaxValue, ResourcesCalculator resourcesCalculator, Random random) : base(startValue, startMaxValue, resourcesCalculator, random)
+    public HealthResource(ResourcesCalculator resourcesCalculator, Random random) : base(resourcesCalculator, random)
     {
         PotionEvents.OnFullHealthPotionConsumed += Restore;
         PotionEvents.OnHealthPotionConsumed += Increase;
@@ -290,7 +281,7 @@ public class ManaResource : Resource
     protected override string _resourceName => "mana";
 
 
-    public ManaResource(float startValue, float startMaxValue, ResourcesCalculator resourcesCalculator, Random random) : base(startValue, startMaxValue, resourcesCalculator, random)
+    public ManaResource(ResourcesCalculator resourcesCalculator, Random random) : base(resourcesCalculator, random)
     {
         PotionEvents.OnFullManaPotionConsumed += Restore;
         PotionEvents.OnManaPotionConsumed += Increase;

@@ -68,21 +68,21 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
     public int CurrentVitality => BaseVitality + VitalityItemsBonus;
     public int VitalityItemsBonus => _vitalityItemsBonus;
 
-    public CharacterAttributes() // int startStrength, int maxStrength, int startMagic, int maxMagic, int startDexterity, int maxDexterity, int startVitality, int maxVitality)
+    public CharacterAttributes(int startStrength, int maxStrength, int startMagic, int maxMagic, int startDexterity, int maxDexterity, int startVitality, int maxVitality)
     {
         // _characterLevel = 1;
 
-        //_baseStrength = startStrength;
-        //_maxStrength = maxStrength;
+        _baseStrength = startStrength;
+        _maxStrength = maxStrength;
 
-        //_baseMagic = startMagic;
-        //_maxMagic = maxMagic;
+        _baseMagic = startMagic;
+        _maxMagic = maxMagic;
 
-        //_baseDexterity = startDexterity;
-        //_maxDexterity = maxDexterity;
+        _baseDexterity = startDexterity;
+        _maxDexterity = maxDexterity;
 
-        //_baseVitality = startVitality;
-        //_maxVitality = maxVitality;
+        _baseVitality = startVitality;
+        _maxVitality = maxVitality;
 
         EquipementEvents.OnItemEquip += AddModifiers;
         EquipementEvents.OnItemUnequip += RemoveModifiers;
@@ -176,7 +176,7 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
         sb.AppendLine("- VITALITY -");
         sb.AppendLine($"Base: {BaseVitality} || Now: {CurrentVitality}");
 
-        return sb.ToString();
+        return sb.ToString().Trim();
     }
 
 
@@ -202,7 +202,7 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
 
 public interface IArmor
 {
-    int ArmorClassBase { get; }
+    int CurrentArmorClass { get; }
     int ArmorClassBaseItems { get; }
     int ArmorClassItemsBonus { get; }
     void SetCurrentArmorClass(int value);
@@ -233,14 +233,14 @@ public interface IDerivedAttributes : IArmor, IChanceToHit, IDamage
 {
 }
 
-public class DerivedAttributes : IDerivedAttributes
+public class DerivedAttributes : IDerivedAttributes, IDisposable
 {
     // armor
-    private int _baseArmorClass; // calculated by dexterity (dex / 5)
+    //private int _baseArmorClass; // calculated by dexterity (dex / 5)
     private int _armorClassBaseItems; // armor derived from basic equipment like mails, shields and helmets
     int _armorClassItemsBonus; // bonus derived from special items
 
-    public int ArmorClassBase => _baseArmorClass;
+    //public int ArmorClassBase => _baseArmorClass;
     public int ArmorClassBaseItems => _armorClassBaseItems;
     public int ArmorClassItemsBonus => _armorClassItemsBonus;
 
@@ -289,6 +289,16 @@ public class DerivedAttributes : IDerivedAttributes
     public int BaseDamageItemsMin { get; private set; }// basic damage derived from weapon
     public int BaseDamageItemsMax { get; private set; }
 
+
+
+    public DerivedAttributes()
+    {
+        EquipementEvents.OnItemEquip += AddModifiers;
+        EquipementEvents.OnItemUnequip += RemoveModifiers;
+    }
+
+
+
     public void SetCurrentDamage(int minDamage, int maxDamage)
     {
         CurrentDamageMin = minDamage;
@@ -316,6 +326,8 @@ public class DerivedAttributes : IDerivedAttributes
             _baseDamageMax = (currentStrength * characterLevel) / 100 + _baseDamageFromItemsMax + _bonusDamageFromItems;
 
     }*/
+
+
 
 
 
@@ -359,15 +371,19 @@ public class DerivedAttributes : IDerivedAttributes
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.AppendLine();
-        sb.AppendLine($"ARMOR: {ArmorClassBase}");
+        sb.AppendLine($"ARMOR: {CurrentArmorClass}");
 
         sb.AppendLine($"ChanceToHit:{ChanceToHit}%");
         sb.AppendLine($"Damage: {CurrentDamageMin}/{CurrentDamageMax}");
 
-        return sb.ToString();
+        return sb.ToString().Trim();
     }
 
+    public void Dispose()
+    {
+        EquipementEvents.OnItemEquip -= AddModifiers;
+        EquipementEvents.OnItemUnequip -= RemoveModifiers;
+    }
 }
 
 
