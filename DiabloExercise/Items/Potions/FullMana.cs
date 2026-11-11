@@ -1,8 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿
 public class FullMana : Potion
 {
+
     public override string Name => $"{_namePrefix} Full Mana";
     public override string Description => "Fully Recover Mana";
+    public FullMana(string name) : base(name)
+    {
+    }
 
     public override void Consume()
     {

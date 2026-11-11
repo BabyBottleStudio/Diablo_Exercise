@@ -1,8 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
 public class SmallHealing : Potion
 {
+
+
     public override string Name => $"{_namePrefix} Healing";
     public override string Description => "Recover Partial Life";
+    public SmallHealing(string name) : base(name)
+    {
+    }
 
 
     public override void Consume()

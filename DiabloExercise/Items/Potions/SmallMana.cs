@@ -1,8 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
 public class SmallMana : Potion
 {
+
+
     public override string Name => $"{_namePrefix} Mana";
     public override string Description => "Recover Mana";
+    public SmallMana(string name) : base(name)
+    {
+    }
 
     public override void Consume()
     {

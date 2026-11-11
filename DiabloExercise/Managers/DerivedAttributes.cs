@@ -1,11 +1,4 @@
 ﻿using System.Text;
-public interface IArmor
-{
-    int CurrentArmorClass { get; }
-    int ArmorClassBaseItems { get; }
-    int ArmorClassItemsBonus { get; }
-    void SetCurrentArmorClass(int value);
-}
 
 public interface IChanceToHit
 {
@@ -28,6 +21,17 @@ public interface IDamage
     public void SetBaseWeaponDamage(int minValue, int maxValue);
 }
 
+public interface IArmor
+{
+    int CurrentArmorClass { get; }
+    int ArmorClassBaseItems { get; }
+    int ArmorClassItemsBonus { get; }
+    void SetCurrentArmor(int value);
+    void AddArmorBasicItems(int value);
+    void RemoveArmorBasicItems(int value);
+
+}
+
 public interface IDerivedAttributes : IArmor, IChanceToHit, IDamage
 {
 }
@@ -36,18 +40,27 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
 {
     // armor
     //private int _baseArmorClass; // calculated by dexterity (dex / 5)
-    private int _armorClassBaseItems; // armor derived from basic equipment like mails, shields and helmets
-    int _armorClassItemsBonus; // bonus derived from special items
+    //private int _armorClassBaseItems; // armor derived from basic equipment like mails, shields and helmets
+    //int _armorClassItemsBonus; // bonus derived from special items
 
     //public int ArmorClassBase => _baseArmorClass;
-    public int ArmorClassBaseItems => _armorClassBaseItems;
-    public int ArmorClassItemsBonus => _armorClassItemsBonus;
+    public int ArmorClassBaseItems { get; set; } //=> _armorClassBaseItems;
+    public int ArmorClassItemsBonus { get; set; } //=> _armorClassItemsBonus;
 
     public int CurrentArmorClass { get; private set; }
 
-    public void SetCurrentArmorClass(int value)
+    public void SetCurrentArmor(int value)
     {
         CurrentArmorClass = value;
+    }
+    public void AddArmorBasicItems(int value)
+    {
+        ArmorClassBaseItems += value;
+    }
+
+    public void RemoveArmorBasicItems(int value)
+    {
+        ArmorClassBaseItems -= value;
     }
 
     /*
@@ -137,7 +150,7 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
         int damageModifier = statsModifier.Damage;
 
         if (armorModifier != 0)
-            _armorClassItemsBonus += armorModifier;
+            ArmorClassItemsBonus += armorModifier;
 
         if (chanceToHitModifier != 0)
             ChanceToHitItemsBonus += chanceToHitModifier;
@@ -157,7 +170,7 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
         int damageModifier = statsModifier.Damage;
 
         if (armorModifier != 0)
-            _armorClassItemsBonus += ChangeSign(armorModifier);
+            ArmorClassItemsBonus += ChangeSign(armorModifier);
 
         if (chanceToHitModifier != 0)
             ChanceToHitItemsBonus += ChangeSign(chanceToHitModifier);

@@ -11,6 +11,9 @@ public class FullRejuvenation : Potion
 
         DisplayConsumeMessage();
     }
+    public FullRejuvenation(string name) : base(name)
+    {
+    }
 }
 
 

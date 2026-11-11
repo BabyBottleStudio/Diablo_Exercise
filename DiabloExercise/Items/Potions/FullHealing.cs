@@ -1,8 +1,12 @@
 ﻿// See https://aka.ms/new-console-template for more information
 public class FullHealing : Potion
 {
+
     public override string Name => $"{_namePrefix} Full Healing";
     public override string Description => "Fully Recover Life";
+    public FullHealing(string name) : base(name)
+    {
+    }
 
     public override void Consume()
     {

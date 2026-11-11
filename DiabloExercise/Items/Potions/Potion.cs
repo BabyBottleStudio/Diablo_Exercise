@@ -8,10 +8,15 @@ public abstract class Potion : Item
     // "Potion of Healing"
     // "Potion of Full Mana"
     protected const string _namePrefix = "Potion of";
-    public abstract string Name { get; }
+    //public abstract string Name { get; }
     public abstract string Description { get; }
 
     protected const string _instruction = "Right click to use";
+
+    protected Potion(string name) : base(name)
+    {
+    }
+
     public string Instruction => _instruction;
     public abstract void Consume();
 

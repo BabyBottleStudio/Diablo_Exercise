@@ -118,7 +118,7 @@
 
         ICharacterAttributes characterAttributes = new CharacterAttributes(startStrength, maxStrength, startMagic, maxMagic, startDexterity, maxDexterity, startVitality, maxVitality);
         IDerivedAttributes derivedAttributes = new DerivedAttributes();
-
+        EquipmentManager equipmentManager = new EquipmentManager();
 
 
         switch (flag)
@@ -137,7 +137,8 @@
                         resistnaceManger,
                         characterAttributes,
                         derivedAttributes,
-                        attributesCalculator
+                        attributesCalculator,
+                        equipmentManager
                     );
 
             case "Rogue":
@@ -154,7 +155,8 @@
                         resistnaceManger,
                         characterAttributes,
                         derivedAttributes,
-                        attributesCalculator
+                        attributesCalculator,
+                        equipmentManager
                     );
 
 
@@ -171,7 +173,8 @@
                         resistnaceManger,
                         characterAttributes,
                         derivedAttributes,
-                        attributesCalculator
+                        attributesCalculator,
+                        equipmentManager
                     );
             default:
                 return null;

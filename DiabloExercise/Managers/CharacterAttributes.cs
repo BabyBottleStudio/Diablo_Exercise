@@ -200,38 +200,6 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
 }
 
 
-public interface IArmor
-{
-    int CurrentArmorClass { get; }
-    int ArmorClassBaseItems { get; }
-    int ArmorClassItemsBonus { get; }
-    void SetCurrentArmorClass(int value);
-}
-
-public interface IChanceToHit
-{
-    int ChanceToHit { get; }
-    int ChanceToHitItemsBonus { get; }
-    void SetChanceToHit(int value);
-}
-
-public interface IDamage
-{
-    int CurrentDamageMin { get; }
-    int CurrentDamageMax { get; }
-
-    int BaseDamageItemsMin { get; } // basic damage derived from weapon
-    int BaseDamageItemsMax { get; }
-    public int BonusDamageFromItems { get; } // bonus damage derived from special items
-
-    public void SetCurrentDamage(int minDamage, int maxDamage);
-
-    public void SetBaseWeaponDamage(int minValue, int maxValue);
-}
-
-public interface IDerivedAttributes : IArmor, IChanceToHit, IDamage
-{
-}
 
 
 

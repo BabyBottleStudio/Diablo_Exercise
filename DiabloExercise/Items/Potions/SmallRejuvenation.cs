@@ -1,8 +1,12 @@
 ﻿// See https://aka.ms/new-console-template for more information
 public class SmallRejuvenation : Potion
 {
+
     public override string Name => $"{_namePrefix} Rejuvenation";
     public override string Description => "Recover Life and Mana";
+    public SmallRejuvenation(string name) : base(name)
+    {
+    }
 
     public override void Consume()
     {
@@ -11,6 +15,8 @@ public class SmallRejuvenation : Potion
 
         DisplayConsumeMessage();
     }
+
+
 }
 
 

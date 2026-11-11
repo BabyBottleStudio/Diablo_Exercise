@@ -21,6 +21,7 @@ public abstract class Hero
     public readonly ICharacterAttributes characterAttributes;
     public readonly IDerivedAttributes derivedAttributes;
     public readonly ResourcesCalculator resourcesCalculator;
+    public readonly EquipmentManager equipmentManager;
 
     //public readonly ItemsBonusManager ItemsBonusManager;
     public readonly DerivedAttributesCalculator derivedAttributesCalculator = new DerivedAttributesCalculator(); // INJECT IT LATER
@@ -36,7 +37,8 @@ public abstract class Hero
                         IResistance resistnaceManager,
                         ICharacterAttributes characterAttributes,
                         IDerivedAttributes derivedAttributes,
-                        ResourcesCalculator resourcesCalculator
+                        ResourcesCalculator resourcesCalculator,
+                        EquipmentManager equipmentManager
                  )
     {
         _name = name;
@@ -50,6 +52,7 @@ public abstract class Hero
         this.characterAttributes = characterAttributes;
         this.derivedAttributes = derivedAttributes;
         this.resourcesCalculator = resourcesCalculator;
+        this.equipmentManager = equipmentManager;
         //this.ItemsBonusManager = ItemsBonusManager;
 
         UpdateMaxLife();
@@ -66,15 +69,33 @@ public abstract class Hero
     public void UpdateDerivedAttributes()
     {
         // update armor
-        // 
-        var currentArmorClass = derivedAttributesCalculator.CalculateArmorClass(characterAttributes.CurrentDexterity, derivedAttributes.ArmorClassBaseItems, derivedAttributes.ArmorClassItemsBonus);
-        derivedAttributes.SetCurrentArmorClass(currentArmorClass);
+        UpdateCurrentArmor();
 
         // uptate chance to hit
-        var chanceToHit = derivedAttributesCalculator.CalculateChanceToHit(characterAttributes.CurrentDexterity, derivedAttributes.ChanceToHitItemsBonus);
-        derivedAttributes.SetChanceToHit(chanceToHit);
+        UpdateChanceToHit();
 
         // update damage
+        UpdateDamage();
+    }
+
+
+    private void UpdateCurrentArmor()
+    {
+        var currentArmorClass = derivedAttributesCalculator.CalculateArmorClass
+            (
+                characterAttributes.CurrentDexterity,
+                derivedAttributes.ArmorClassBaseItems,
+                derivedAttributes.ArmorClassItemsBonus
+            );
+        derivedAttributes.SetCurrentArmor(currentArmorClass);
+    }
+    private void UpdateChanceToHit()
+    {
+        var chanceToHit = derivedAttributesCalculator.CalculateChanceToHit(characterAttributes.CurrentDexterity, derivedAttributes.ChanceToHitItemsBonus);
+        derivedAttributes.SetChanceToHit(chanceToHit);
+    }
+    private void UpdateDamage()
+    {
         var damage = derivedAttributesCalculator.CalculateDamageRange
             (
                 characterAttributes.CurrentStrength,
@@ -85,7 +106,6 @@ public abstract class Hero
             );
         derivedAttributes.SetCurrentDamage(damage.min, damage.max);
     }
-
     /*
        Life
        Warrior: 2·Vit(character) + 2·Vit(items) + 2·clvl + Life(items) + 18
@@ -123,9 +143,34 @@ public abstract class Hero
         manaManager.UpdateBaseMaxValue(value);
     }
 
-    public void MetodaKojaBiTrebaloDaUradi_OnEquip()
+    public void EquipHeadArmor(HeadArmor headArmor)
     {
+        if (headArmor == null) return;
 
+        if (headArmor.Requirement > characterAttributes.CurrentStrength)
+        {
+            Console.WriteLine($"Requirements for this item are not met");
+            return;
+        }
+
+        derivedAttributes.AddArmorBasicItems(headArmor.Armor);
+
+        // recalculate armor
+        UpdateCurrentArmor();
+
+    }
+
+    public void UnequipHeadArmor()
+    {
+        if (equipmentManager.HeadArmor == null) return;
+
+        derivedAttributes.RemoveArmorBasicItems(equipmentManager.HeadArmor.Armor);
+
+        equipmentManager.RemoveHeadArmor();
+
+
+        // recalculate armor
+        UpdateCurrentArmor();
     }
 
     public void MetodaKojaBiTrebaloDaUradi_OnUnquip()
@@ -204,19 +249,61 @@ public abstract class Hero
 
 public class Warrior : Hero
 {
-    public Warrior(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager, ICharacterAttributes characterAttributes, IDerivedAttributes derivedAttributes, ResourcesCalculator attributesCalculator) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager, characterAttributes, derivedAttributes, attributesCalculator)
+    public Warrior
+        (
+            string name,
+            IGoldManager goldManager,
+            IExperienceManager experienceManager,
+            IResource healthManager,
+            IResource manaManager,
+            ILightRadius lightRadius,
+            IResistance resistnaceManager,
+            ICharacterAttributes characterAttributes,
+            IDerivedAttributes derivedAttributes,
+            ResourcesCalculator attributesCalculator,
+            EquipmentManager equipmentManager
+        )
+        : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager, characterAttributes, derivedAttributes, attributesCalculator, equipmentManager)
     {
     }
 }
 public class Rogue : Hero
 {
-    public Rogue(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager, ICharacterAttributes characterAttributes, IDerivedAttributes derivedAttributes, ResourcesCalculator attributesCalculator) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager, characterAttributes, derivedAttributes, attributesCalculator)
+    public Rogue
+        (
+            string name,
+            IGoldManager goldManager,
+            IExperienceManager experienceManager,
+            IResource healthManager,
+            IResource manaManager,
+            ILightRadius lightRadius,
+            IResistance resistnaceManager,
+            ICharacterAttributes characterAttributes,
+            IDerivedAttributes derivedAttributes,
+            ResourcesCalculator attributesCalculator,
+            EquipmentManager equipmentManager
+        )
+        : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager, characterAttributes, derivedAttributes, attributesCalculator, equipmentManager)
     {
     }
 }
 public class Sorcerer : Hero
 {
-    public Sorcerer(string name, IGoldManager goldManager, IExperienceManager experienceManager, IResource healthManager, IResource manaManager, ILightRadius lightRadius, IResistance resistnaceManager, ICharacterAttributes characterAttributes, IDerivedAttributes derivedAttributes, ResourcesCalculator attributesCalculator) : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager, characterAttributes, derivedAttributes, attributesCalculator)
+    public Sorcerer
+        (
+            string name,
+            IGoldManager goldManager,
+            IExperienceManager experienceManager,
+            IResource healthManager,
+            IResource manaManager,
+            ILightRadius lightRadius,
+            IResistance resistnaceManager,
+            ICharacterAttributes characterAttributes,
+            IDerivedAttributes derivedAttributes,
+            ResourcesCalculator attributesCalculator,
+            EquipmentManager equipmentManager
+        )
+        : base(name, goldManager, experienceManager, healthManager, manaManager, lightRadius, resistnaceManager, characterAttributes, derivedAttributes, attributesCalculator, equipmentManager)
     {
     }
 }
