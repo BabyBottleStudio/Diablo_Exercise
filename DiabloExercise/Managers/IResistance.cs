@@ -1,8 +1,13 @@
 ﻿public interface IResistance
 {
-    public int ResistMagic { get; }
-    public int ResistFire { get; }
-    public int ResistLightning { get; }
+    int ResistMagic { get; }
+    int ResistFire { get; }
+    int ResistLightning { get; }
+
+    void ModifyMagicResistance(int value);
+    void ModifyFireResistance(int value);
+    void ModifyLightningResistance(int value);
+
 }
 
 /*

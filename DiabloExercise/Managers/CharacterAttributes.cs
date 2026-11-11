@@ -4,6 +4,7 @@ public interface IStrength
 {
     int BaseStrength { get; }
     int CurrentStrength { get; }
+
 }
 
 public interface IMagical
@@ -28,11 +29,14 @@ public interface IVitality
 
 public interface ICharacterAttributes : IStrength, IMagical, IDexterity, IVitality
 {
-
+    public void ModifyStrengthItemBonus(int value);
+    public void ModifyMagicItemBonus(int value);
+    public void ModifyDexterityItemBonus(int value);
+    public void ModifyVitalityItemBonus(int value);
 }
 
 
-public class CharacterAttributes : ICharacterAttributes, IDisposable
+public class CharacterAttributes : ICharacterAttributes //, IDisposable
 {
     //int _characterLevel;
 
@@ -42,6 +46,7 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
 
     public int BaseStrength => Math.Min(_maxStrength, _baseStrength); // it is capped differently depending on the hero class
     public int CurrentStrength => BaseStrength + _strengthItemsBonus;
+
 
 
     int _baseMagic;
@@ -84,8 +89,8 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
         _baseVitality = startVitality;
         _maxVitality = maxVitality;
 
-        EquipementEvents.OnItemEquip += AddModifiers;
-        EquipementEvents.OnItemUnequip += RemoveModifiers;
+        //EquipementEvents.OnItemEquip += AddModifiers;
+        //EquipementEvents.OnItemUnequip += RemoveModifiers;
     }
 
     private void IncreaseBaseStrength()
@@ -96,9 +101,30 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
     }
 
 
+    public void ModifyStrengthItemBonus(int value)
+    {
+        _strengthItemsBonus += value;
+    }
+
+    public void ModifyMagicItemBonus(int value)
+    {
+        _magicItemsBonus += value;
+    }
+
+    public void ModifyDexterityItemBonus(int value)
+    {
+        _dexterityItemsBonus += value;
+    }
+
+    public void ModifyVitalityItemBonus(int value)
+    {
+        _vitalityItemsBonus += value;
+    }
+
 
     // ModifyCharAtributes
 
+    /*
     private void AddModifiers(StatsModifier statsModifier)
     {
         int strengthModifier = statsModifier.Strength;
@@ -129,10 +155,11 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
             _vitalityItemsBonus += vitalityModifier;
             RecalculateLife();
         }
-    }
+    }*/
 
-    Func<int, int> ChangeSign = (x) => -1 * x; // ovo se ponavlja trebalo bi da se ubaci negde gde moze da se uvek pozove
+     // ovo se ponavlja trebalo bi da se ubaci negde gde moze da se uvek pozove
 
+    /*
     private void RemoveModifiers(StatsModifier statsModifier)
     {
         int strengthModifier = statsModifier.Strength;
@@ -161,7 +188,7 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
             _vitalityItemsBonus += ChangeSign(vitalityModifier);
             RecalculateLife();
         }
-    }
+    } */
 
     public override string ToString()
     {
@@ -179,24 +206,13 @@ public class CharacterAttributes : ICharacterAttributes, IDisposable
         return sb.ToString().Trim();
     }
 
+    //public void Dispose()
+    //{
+    //    EquipementEvents.OnItemEquip -= AddModifiers;
+    //    EquipementEvents.OnItemUnequip -= RemoveModifiers;
+    //}
 
-    private void RecalculateLife()
-    {
-        Console.WriteLine("Life should be recalculated. Not implemented yet");
-    }
-
-
-    private void RecalculateMana()
-    {
-        Console.WriteLine("Mana should be recalculated. Not implemented yet");
-    }
-
-
-    public void Dispose()
-    {
-        EquipementEvents.OnItemEquip -= AddModifiers;
-        EquipementEvents.OnItemUnequip -= RemoveModifiers;
-    }
+   
 }
 
 

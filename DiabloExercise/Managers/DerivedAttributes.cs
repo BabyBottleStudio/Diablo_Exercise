@@ -3,8 +3,9 @@
 public interface IChanceToHit
 {
     int ChanceToHit { get; }
-    int ChanceToHitItemsBonus { get; }
+    int ChanceToHitSpecialItemsBonus { get; }
     void SetChanceToHit(int value);
+    void ModifyChanceToHitSpecialItemsBonus(int value);
 }
 
 public interface IDamage
@@ -14,21 +15,23 @@ public interface IDamage
 
     int BaseDamageItemsMin { get; } // basic damage derived from weapon
     int BaseDamageItemsMax { get; }
-    public int BonusDamageFromItems { get; } // bonus damage derived from special items
+    public int DamageSpecialtemsBonus { get; } // bonus damage derived from special items
 
     public void SetCurrentDamage(int minDamage, int maxDamage);
 
     public void SetBaseWeaponDamage(int minValue, int maxValue);
+    void ModifyDamageSpecialItemsBonus(int value);
 }
 
 public interface IArmor
 {
     int CurrentArmorClass { get; }
-    int ArmorClassBaseItems { get; }
-    int ArmorClassItemsBonus { get; }
+    int ArmorClassBasicItems { get; }
+    int ArmorClassSpecialItems { get; }
     void SetCurrentArmor(int value);
-    void AddArmorBasicItems(int value);
-    void RemoveArmorBasicItems(int value);
+    void ModifyArmorBasicItems(int value);
+    //void RemoveArmorBasicItems(int value);
+    void ModifyArmorSpecialItemsBonus(int value);
 
 }
 
@@ -36,16 +39,16 @@ public interface IDerivedAttributes : IArmor, IChanceToHit, IDamage
 {
 }
 
-public class DerivedAttributes : IDerivedAttributes, IDisposable
+public class DerivedAttributes : IDerivedAttributes
 {
     // armor
-    //private int _baseArmorClass; // calculated by dexterity (dex / 5)
-    //private int _armorClassBaseItems; // armor derived from basic equipment like mails, shields and helmets
-    //int _armorClassItemsBonus; // bonus derived from special items
+    //int _baseArmorClass; // calculated by dexterity (dex / 5)
+    //int _armorClassBaseItems; // armor derived from basic equipment like mails, shields and helmets
+    //int _armorClassSpecialItems; // bonus derived from special items
 
     //public int ArmorClassBase => _baseArmorClass;
-    public int ArmorClassBaseItems { get; set; } //=> _armorClassBaseItems;
-    public int ArmorClassItemsBonus { get; set; } //=> _armorClassItemsBonus;
+    public int ArmorClassBasicItems { get; private set; } // => _armorClassBaseItems;
+    public int ArmorClassSpecialItems { get; private set; } // => _armorClassSpecialItems;
 
     public int CurrentArmorClass { get; private set; }
 
@@ -53,15 +56,18 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
     {
         CurrentArmorClass = value;
     }
-    public void AddArmorBasicItems(int value)
+    public void ModifyArmorBasicItems(int value)
     {
-        ArmorClassBaseItems += value;
+        ArmorClassBasicItems += value;
     }
-
-    public void RemoveArmorBasicItems(int value)
+    public void ModifyArmorSpecialItemsBonus(int value)
     {
-        ArmorClassBaseItems -= value;
+        ArmorClassSpecialItems += value;
     }
+    //public void RemoveArmorBasicItems(int value)
+    //{
+    //    _armorClassBaseItems -= value;
+    //}
 
     /*
      To Hit %
@@ -78,19 +84,22 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
     //int _chanceToHitBonus; // this bonus is calcualted during the combat and it is different depending on the hero class and weapon (range or melee)
     // it should be applied in the damage calculator...
     public int ChanceToHit { get; private set; }
-    public int ChanceToHitItemsBonus { get; private set; }
+    public int ChanceToHitSpecialItemsBonus { get; private set; }
 
     public void SetChanceToHit(int value)
     {
         ChanceToHit = value;
     }
 
-
+    public void ModifyChanceToHitSpecialItemsBonus(int value)
+    {
+        ChanceToHitSpecialItemsBonus += value;
+    }
 
     //int _baseDamageFromItemsMin; 
     //int _baseDamageFromItemsMax;
 
-    public int BonusDamageFromItems { get; private set; } // bonus from special items
+    public int DamageSpecialtemsBonus { get; private set; } // bonus from special items
 
     // in real diablo Hellfire , naked hero has base "fist" damage of min and max = 1 and a hidden bonus of 5. 
     // when the weapon is equipped, bonus of 5 dissapears and "fist" damage is replaced with damage from equipped weapon
@@ -103,12 +112,12 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
 
 
 
+    /*
     public DerivedAttributes()
     {
         EquipementEvents.OnItemEquip += AddModifiers;
         EquipementEvents.OnItemUnequip += RemoveModifiers;
-    }
-
+    }*/
 
 
     public void SetCurrentDamage(int minDamage, int maxDamage)
@@ -122,6 +131,13 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
         BaseDamageItemsMin = minValue;
         BaseDamageItemsMax = maxValue;
     }
+
+    public void ModifyDamageSpecialItemsBonus(int value)
+    {
+        DamageSpecialtemsBonus += value;
+    }
+
+    
 
     /*
     public void UpdateDamage(int currentStrength, int characterLevel)
@@ -142,7 +158,7 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
 
 
 
-
+    /*
     private void AddModifiers(StatsModifier statsModifier)
     {
         int armorModifier = statsModifier.ArmorClass;
@@ -150,10 +166,10 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
         int damageModifier = statsModifier.Damage;
 
         if (armorModifier != 0)
-            ArmorClassItemsBonus += armorModifier;
+            ArmorClassSpecialItems += armorModifier;
 
         if (chanceToHitModifier != 0)
-            ChanceToHitItemsBonus += chanceToHitModifier;
+            ChanceToHitSpecialItemsBonus += chanceToHitModifier;
 
         if (damageModifier != 0)
             BonusDamageFromItems += damageModifier;
@@ -170,14 +186,15 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
         int damageModifier = statsModifier.Damage;
 
         if (armorModifier != 0)
-            ArmorClassItemsBonus += ChangeSign(armorModifier);
+            ArmorClassSpecialItems += ChangeSign(armorModifier);
 
         if (chanceToHitModifier != 0)
-            ChanceToHitItemsBonus += ChangeSign(chanceToHitModifier);
+            ChanceToHitSpecialItemsBonus += ChangeSign(chanceToHitModifier);
 
         if (damageModifier != 0)
             BonusDamageFromItems += ChangeSign(damageModifier);
-    }
+    } 
+    */
 
     public override string ToString()
     {
@@ -191,11 +208,11 @@ public class DerivedAttributes : IDerivedAttributes, IDisposable
         return sb.ToString().Trim();
     }
 
-    public void Dispose()
-    {
-        EquipementEvents.OnItemEquip -= AddModifiers;
-        EquipementEvents.OnItemUnequip -= RemoveModifiers;
-    }
+    //public void Dispose()
+    //{
+    //    EquipementEvents.OnItemEquip -= AddModifiers;
+    //    EquipementEvents.OnItemUnequip -= RemoveModifiers;
+    //}
 }
 
 

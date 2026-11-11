@@ -9,7 +9,7 @@
         this.heroData = heroData;
     }
 
-    public Hero? Instantiate(string flag, string heroName, out IUserInterface userInterface)
+    public Hero? Instantiate(string flag, string heroName) //, out IUserInterface userInterface)
     {
         if (string.IsNullOrEmpty(flag))
         {
@@ -105,14 +105,14 @@
 
         var random = new Random();
         //var healthManger = new HealthResource(initialLife, initialMaxLife, attributesCalculator, random); // sve ove vrednosti se kasnije preracunavaju na osnovu osnovnih staova
-        var healthManger = new HealthResource(attributesCalculator, random); // sve ove vrednosti se kasnije preracunavaju na osnovu osnovnih staova
+        var healthManger = new Life(attributesCalculator, random); // sve ove vrednosti se kasnije preracunavaju na osnovu osnovnih staova
         //var manaManager = new ManaResource(initialMana, initialMaxMana, attributesCalculator, random); // sve ove vrednosti se kasnije preracunavaju na osnovu osnovnih staova
-        var manaManager = new ManaResource(attributesCalculator, random); // sve ove vrednosti se kasnije preracunavaju na osnovu osnovnih staova
+        var manaManager = new Mana(attributesCalculator, random); // sve ove vrednosti se kasnije preracunavaju na osnovu osnovnih staova
 
-        userInterface = new UserInterfaceDummy(100, 100, 100, 100, 0); // sve ove vrednosti se kasnije preracunavaju na osnovu osnovnih staova
+        //userInterface = new UserInterfaceDummy(100, 100, 100, 100, 0); // sve ove vrednosti se kasnije preracunavaju na osnovu osnovnih staova
 
 
-        ILightRadius lihgtRadiusManger = new LightRadiusManager(initialLightRadius);
+        ILightRadius lihgtRadiusManger = new LightRadius(initialLightRadius);
 
         IResistance resistnaceManger = new ResistanceManager();
 

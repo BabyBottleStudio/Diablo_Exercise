@@ -13,9 +13,9 @@ public class StatsModifier
     public int ChanceToHit { get; init; }
     public int Damage { get; init; }
 
-    public int ResistMagic { get; init; }
-    public int ResistFire { get; init; }
-    public int ResistLightning { get; init; }
+    public int MagicResistance { get; init; }
+    public int FireResistance { get; init; }
+    public int LightningResistance { get; init; }
 
     public float Life { get; init; }
     public float Mana { get; init; }
@@ -37,9 +37,9 @@ public class StatsModifier
         if (ChanceToHit != 0) sb.AppendLine($"{FormatStat(ChanceToHit)}% to Chance to hit"); // % je čest kod šanse za pogodak
         if (Damage != 0) sb.AppendLine($"{FormatStat(Damage)} to Damage");
 
-        if (ResistMagic != 0) sb.AppendLine($"{FormatStat(ResistMagic)}% to Magic Resistance");
-        if (ResistFire != 0) sb.AppendLine($"{FormatStat(ResistFire)}% to Fire Resistance");
-        if (ResistLightning != 0) sb.AppendLine($"{FormatStat(ResistLightning)}% to Lightning Resistance");
+        if (MagicResistance != 0) sb.AppendLine($"{FormatStat(MagicResistance)}% to Magic Resistance");
+        if (FireResistance != 0) sb.AppendLine($"{FormatStat(FireResistance)}% to Fire Resistance");
+        if (LightningResistance != 0) sb.AppendLine($"{FormatStat(LightningResistance)}% to Lightning Resistance");
 
         if (Life != 0) sb.AppendLine($"{FormatStat(Life)} to Life");
         if (Mana != 0) sb.AppendLine($"{FormatStat(Mana)} to Mana");

@@ -20,13 +20,29 @@ var heroData = new HeroDataRepository();
 
 var heroFactory = new HeroFactory(heroData);
 
-IUserInterface userInterface;
+//IUserInterface userInterface;
 
-var jovana = heroFactory.Instantiate("Rogue", "Jovana", out userInterface);
+var jovana = heroFactory.Instantiate("Rogue", "Jovana"); //, out userInterface);
 
 Console.WriteLine(jovana);
 
 
+var helmetModifier = new StatsModifier()
+{
+    MagicResistance = 30,
+    FireResistance = 25,
+    LightningResistance = 15
+
+};
+
+var helmet = new HeadArmor("Helmet", 5, 25, 14, 5, helmetModifier);
+
+jovana.EquipHeadArmor(helmet);
+
+Console.WriteLine(jovana);
+
+jovana.RemoveHeadArmor();
+Console.WriteLine(jovana);
 
 public class EquipmentManager
 {
@@ -43,7 +59,8 @@ public class EquipmentManager
     //public Ring LeftRing { get; private set; }
     //public Ring RightRing { get; private set; }
 
-    public EquipmentManager() {
+    public EquipmentManager()
+    {
 
         HeadArmor = null;
     }
@@ -69,10 +86,10 @@ public class EquipmentManager
         // 
 
         HeadArmor = headArmor;
-    //    HeadArmor.OnEquip();
+        //    HeadArmor.OnEquip();
     }
 
-    public void UnequipHeadArmor()
+    public void RemoveHeadArmor()
     {
         HeadArmor = null;
     }
@@ -85,7 +102,7 @@ public abstract class Item
 
     public virtual string Name { get; set; }
 
-    public Item(string name )
+    public Item(string name)
     {
         Name = name;
     }
@@ -100,7 +117,7 @@ public interface IHand
 public abstract class ArmorEquipment : Item
 {
     //bool _isEquipped;
-    
+
     public int Armor { get; private set; }
     public int MaxDuration { get; private set; }
 
@@ -109,11 +126,11 @@ public abstract class ArmorEquipment : Item
 
     public int Requirement { get; init; }
 
-    public StatsModifier? StatsModifier { get; init; } 
+    public StatsModifier? StatsModifier { get; init; }
 
-    public ArmorEquipment(string name, int armor, int maxDuration, int currentDurration, int requirement, StatsModifier? statsModifier) :base(name)
+    public ArmorEquipment(string name, int armor, int maxDuration, int currentDurration, int requirement, StatsModifier? statsModifier) : base(name)
     {
-       
+
         Armor = armor;
         MaxDuration = maxDuration;
         CurrentDurration = currentDurration;
@@ -147,7 +164,11 @@ public abstract class ArmorEquipment : Item
 
 public class HeadArmor : ArmorEquipment
 {
-    public HeadArmor(string name, int armor, int maxDuration, int currentDurration, int require) : base(name, armor, maxDuration, currentDurration, require)
+    public HeadArmor(string name, int armor, int maxDuration, int currentDurration, int requirement) : base(name, armor, maxDuration, currentDurration, requirement)
+    {
+    }
+
+    public HeadArmor(string name, int armor, int maxDuration, int currentDurration, int requirement, StatsModifier? statsModifier) : base(name, armor, maxDuration, currentDurration, requirement, statsModifier)
     {
     }
 }

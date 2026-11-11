@@ -2,6 +2,12 @@
 /*
 */
 
+public enum ItemAction
+{
+    Equip,
+    Remove
+}
+
 public abstract class Hero
 {
     // Name - created once at the begining of the game. Not changable.
@@ -25,6 +31,8 @@ public abstract class Hero
 
     //public readonly ItemsBonusManager ItemsBonusManager;
     public readonly DerivedAttributesCalculator derivedAttributesCalculator = new DerivedAttributesCalculator(); // INJECT IT LATER
+
+    Func<int, int> ChangeSign = (x) => -1 * x;
 
     protected Hero(
                         string name,
@@ -84,14 +92,14 @@ public abstract class Hero
         var currentArmorClass = derivedAttributesCalculator.CalculateArmorClass
             (
                 characterAttributes.CurrentDexterity,
-                derivedAttributes.ArmorClassBaseItems,
-                derivedAttributes.ArmorClassItemsBonus
+                derivedAttributes.ArmorClassBasicItems,
+                derivedAttributes.ArmorClassSpecialItems
             );
         derivedAttributes.SetCurrentArmor(currentArmorClass);
     }
     private void UpdateChanceToHit()
     {
-        var chanceToHit = derivedAttributesCalculator.CalculateChanceToHit(characterAttributes.CurrentDexterity, derivedAttributes.ChanceToHitItemsBonus);
+        var chanceToHit = derivedAttributesCalculator.CalculateChanceToHit(characterAttributes.CurrentDexterity, derivedAttributes.ChanceToHitSpecialItemsBonus);
         derivedAttributes.SetChanceToHit(chanceToHit);
     }
     private void UpdateDamage()
@@ -102,7 +110,7 @@ public abstract class Hero
                 experienceManager.Level,
                 derivedAttributes.BaseDamageItemsMin,
                 derivedAttributes.BaseDamageItemsMax,
-                derivedAttributes.BonusDamageFromItems
+                derivedAttributes.DamageSpecialtemsBonus
             );
         derivedAttributes.SetCurrentDamage(damage.min, damage.max);
     }
@@ -153,30 +161,139 @@ public abstract class Hero
             return;
         }
 
-        derivedAttributes.AddArmorBasicItems(headArmor.Armor);
-
         // recalculate armor
+        derivedAttributes.ModifyArmorBasicItems(headArmor.Armor);
+
         UpdateCurrentArmor();
 
+        if (headArmor.StatsModifier is not null)
+        {
+            AddSpecialItemModifiers(headArmor.StatsModifier, ItemAction.Equip);
+
+            UpdateDerivedAttributes();
+        }
+
+        equipmentManager.EquipHeadArmor(headArmor);
     }
 
-    public void UnequipHeadArmor()
-    {
-        if (equipmentManager.HeadArmor == null) return;
 
-        derivedAttributes.RemoveArmorBasicItems(equipmentManager.HeadArmor.Armor);
+    public void RemoveHeadArmor()
+    {
+        HeadArmor? headArmor = equipmentManager.HeadArmor;
+
+        if (headArmor is null) return;
+
+        // recalculate armor
+        derivedAttributes.ModifyArmorBasicItems(ChangeSign(headArmor.Armor));
+
+        UpdateCurrentArmor();
+
+        if (headArmor.StatsModifier is not null)
+        {
+            AddSpecialItemModifiers(headArmor.StatsModifier, ItemAction.Remove);
+
+            UpdateDerivedAttributes();
+        }
 
         equipmentManager.RemoveHeadArmor();
-
-
-        // recalculate armor
-        UpdateCurrentArmor();
     }
 
-    public void MetodaKojaBiTrebaloDaUradi_OnUnquip()
+
+
+    private float GetSignFromItemAction(float value, ItemAction itemAction)
     {
+        if (itemAction == ItemAction.Remove)
+        {
+            return -1 * value;
+        }
+
+        return value;
+    }
+
+    public void AddSpecialItemModifiers(StatsModifier? statsModifier, ItemAction itemAction)
+    {
+        if (statsModifier is null) return;
+
+        //light
+        var lightModifier = statsModifier.LightRadius;
+        lightModifier = GetSignFromItemAction(lightModifier, itemAction);
+
+        lightRadius.ModifyLightRadiusItemsBonus(lightModifier);
+
+        // life
+        var lifeModifier = statsModifier.Life;
+        lifeModifier = GetSignFromItemAction(lifeModifier, itemAction);
+
+        if (lifeModifier != 0) lifeManager.AddItemsBonus(lifeModifier);
+
+        // mana
+        var manaModifier = statsModifier.Mana;
+        manaModifier = GetSignFromItemAction(manaModifier, itemAction);
+
+        if (manaModifier != 0) lifeManager.AddItemsBonus(manaModifier);
+
+        // strength
+        var strengthModifier = statsModifier.Strength;
+        strengthModifier = (int)GetSignFromItemAction(strengthModifier, itemAction);
+
+        if (strengthModifier != 0) characterAttributes.ModifyStrengthItemBonus(strengthModifier);
+
+        // magic
+        var magicModifier = statsModifier.Magic;
+        magicModifier = (int)GetSignFromItemAction(magicModifier, itemAction);
+
+        if (magicModifier != 0) characterAttributes.ModifyMagicItemBonus(magicModifier);
+
+        // dexterity
+        var dexterityModifier = statsModifier.Dexterity;
+        dexterityModifier = (int)GetSignFromItemAction(dexterityModifier, itemAction);
+
+        if (dexterityModifier != 0) characterAttributes.ModifyDexterityItemBonus(dexterityModifier);
+
+        // vitality
+        var vitalityModifier = statsModifier.Vitality;
+        vitalityModifier = (int)GetSignFromItemAction(vitalityModifier, itemAction);
+
+        if (vitalityModifier != 0) characterAttributes.ModifyVitalityItemBonus(vitalityModifier);
+
+        // armor
+        var armorModifier = statsModifier.ArmorClass;
+        armorModifier = (int)GetSignFromItemAction(armorModifier, itemAction);
+
+        if (armorModifier != 0) derivedAttributes.ModifyArmorSpecialItemsBonus(armorModifier);
+
+        // chanceToHit
+        var chanceToHitModifier = statsModifier.ChanceToHit;
+        chanceToHitModifier = (int)GetSignFromItemAction(chanceToHitModifier, itemAction);
+
+        if (chanceToHitModifier != 0) derivedAttributes.ModifyChanceToHitSpecialItemsBonus(chanceToHitModifier);
+
+        // damage
+        var damageModifier = statsModifier.Damage;
+        damageModifier = (int)GetSignFromItemAction(damageModifier, itemAction);
+
+        if (damageModifier != 0) derivedAttributes.ModifyDamageSpecialItemsBonus(damageModifier);
+
+        // magic resistance
+        var magicResistance = statsModifier.MagicResistance;
+        magicResistance = (int)GetSignFromItemAction(magicResistance, itemAction);
+
+        if (magicResistance != 0) resistnaceManager.ModifyMagicResistance(magicResistance);
+
+        // fire resistance
+        var fireResistance = statsModifier.FireResistance;
+        fireResistance = (int)GetSignFromItemAction(fireResistance, itemAction);
+
+        if (fireResistance != 0) resistnaceManager.ModifyFireResistance(fireResistance);
+
+        // lightning resistance
+        var lightningResistance = statsModifier.LightningResistance;
+        lightningResistance = (int)GetSignFromItemAction(lightningResistance, itemAction);
+
+        if (lightningResistance != 0) resistnaceManager.ModifyLightningResistance(lightningResistance);
 
     }
+
 
     public void GainExpirience(long incrementAmount)
     {
@@ -216,7 +333,7 @@ public abstract class Hero
     }
 
 
-    public float GetLightRadius() => lightRadius.ModifiedRadius;
+    public float GetLightRadius() => lightRadius.CurrentLightRadius;
     public float GetBaseLightRadius() => lightRadius.BaseLightRadius;
 
     public override string ToString()

@@ -5,6 +5,9 @@
     public float ItemsBonus { get; }
     public void Decrease(float value);
     void UpdateBaseMaxValue(float value);
+    void AddItemsBonus(float value);
+    void RemoveItemsBonus(float value);
+    
 }
 
 public abstract class Resource : IResource, IDisposable
@@ -53,8 +56,10 @@ public abstract class Resource : IResource, IDisposable
     private Random _random;
 
     // bonus · maxlife/8 to bonus · 3·maxlife/8
-    protected abstract void AddItemsBonus(StatsModifier statsModifier);
-    protected abstract void RemoveItemsBonus(StatsModifier statsModifier);
+    //public abstract void AddItemsBonus(StatsModifier statsModifier);
+    //public abstract void AddItemsBonus(float value);
+    //public abstract void RemoveItemsBonus(StatsModifier statsModifier);
+    //public abstract void RemoveItemsBonus(float value);
     private float CalculateIncrease()
     {
         float baseValue = CurrentMaxValue / 8;
@@ -89,8 +94,8 @@ public abstract class Resource : IResource, IDisposable
 
         PotionEvents.OnFullRejuvenationPotionConsumed += Restore;
 
-        EquipementEvents.OnItemEquip += AddItemsBonus;
-        EquipementEvents.OnItemUnequip += RemoveItemsBonus;
+        //EquipementEvents.OnItemEquip += AddItemsBonus;
+        //EquipementEvents.OnItemUnequip += RemoveItemsBonus;
     }
 
 
@@ -174,7 +179,30 @@ public abstract class Resource : IResource, IDisposable
         Console.WriteLine($"Hero had {originalValue} {_resourceName}, and after decrease of {decreaseAmount} has {_currentValue} {_resourceName}.");
     }
 
+
+    public void AddItemsBonus(float lifeBonus)
+    {
+        float currentValuePercent = currentValueToPercent(_currentValue, CurrentMaxValue);
+        _itemsBonus += lifeBonus;
+        _currentValue = percentToCurrentValue(CurrentMaxValue, currentValuePercent);
+    }
+
+    public void RemoveItemsBonus(float lifeBonus)
+    {
+        float currentValuePercent = currentValueToPercent(_currentValue, CurrentMaxValue);
+        _itemsBonus += -1 * lifeBonus;
+        _currentValue = percentToCurrentValue(CurrentMaxValue, currentValuePercent);
+    }
+
+
+
     protected abstract void HandleDecrease(float amountBeforeDecrease, float amount);
+    
+    
+    
+    
+    
+    
     protected virtual void HandleDispose() { }
 
     public void Dispose()
@@ -182,8 +210,8 @@ public abstract class Resource : IResource, IDisposable
         HeroEvents.OnLevelUp -= OnLevelUp;
         PotionEvents.OnFullRejuvenationPotionConsumed -= Restore;
 
-        EquipementEvents.OnItemEquip += AddItemsBonus;
-        EquipementEvents.OnItemUnequip += RemoveItemsBonus;
+        //EquipementEvents.OnItemEquip += AddItemsBonus;
+        //EquipementEvents.OnItemUnequip += RemoveItemsBonus;
 
         HandleDispose();
     }
@@ -195,14 +223,14 @@ public abstract class Resource : IResource, IDisposable
 
 
 
-public class HealthResource : Resource
+public class Life : Resource
 {
     protected override string _resourceName => "life";
     private bool isHeroDead = false;
 
 
 
-    public HealthResource(ResourcesCalculator resourcesCalculator, Random random) : base(resourcesCalculator, random)
+    public Life(ResourcesCalculator resourcesCalculator, Random random) : base(resourcesCalculator, random)
     {
         PotionEvents.OnFullHealthPotionConsumed += Restore;
         PotionEvents.OnHealthPotionConsumed += Increase;
@@ -244,7 +272,8 @@ public class HealthResource : Resource
             HeroEvents.InvokeOnHeroDeath();
         }
     }
-    protected override void AddItemsBonus(StatsModifier statsModifier)
+    /*
+    public override void AddItemsBonus(StatsModifier statsModifier)
     {
         var lifeBonus = statsModifier.Life;
         if (lifeBonus! > 0)
@@ -255,7 +284,7 @@ public class HealthResource : Resource
         }
     }
 
-    protected override void RemoveItemsBonus(StatsModifier statsModifier)
+    public override void RemoveItemsBonus(StatsModifier statsModifier)
     {
         var lifeBonus = statsModifier.Life;
         if (lifeBonus! > 0)
@@ -266,7 +295,8 @@ public class HealthResource : Resource
         }
 
         // vitality
-    }
+    }*/
+
     protected override void HandleDispose()
     {
         PotionEvents.OnFullHealthPotionConsumed -= Restore;
@@ -276,12 +306,12 @@ public class HealthResource : Resource
 }
 
 
-public class ManaResource : Resource
+public class Mana : Resource
 {
     protected override string _resourceName => "mana";
 
 
-    public ManaResource(ResourcesCalculator resourcesCalculator, Random random) : base(resourcesCalculator, random)
+    public Mana(ResourcesCalculator resourcesCalculator, Random random) : base(resourcesCalculator, random)
     {
         PotionEvents.OnFullManaPotionConsumed += Restore;
         PotionEvents.OnManaPotionConsumed += Increase;
@@ -316,7 +346,8 @@ public class ManaResource : Resource
 
         DisplayDecreaseMessage(amountBeforeDecrease, amount);
     }
-    protected override void AddItemsBonus(StatsModifier statsModifier)
+    /*
+    public override void AddItemsBonus(StatsModifier statsModifier)
     {
         var manaBonus = statsModifier.Mana;
         if (manaBonus! > 0)
@@ -326,11 +357,26 @@ public class ManaResource : Resource
             _currentValue = percentToCurrentValue(CurrentMaxValue, currentValuePercent);
 
         }
-
         // kako se resava vitality kad se promeni?
-    }
+    }*/
 
-    protected override void RemoveItemsBonus(StatsModifier statsModifier)
+
+    //public void AddItemsBonus(float manaBonus)
+    //{
+    //    float currentValuePercent = currentValueToPercent(_currentValue, CurrentMaxValue);
+    //    _itemsBonus += manaBonus;
+    //    _currentValue = percentToCurrentValue(CurrentMaxValue, currentValuePercent);
+    //}
+
+    //public void RemoveItemsBonus(float manaBonus)
+    //{
+    //    float currentValuePercent = currentValueToPercent(_currentValue, CurrentMaxValue);
+    //    _itemsBonus += -1 * manaBonus;
+    //    _currentValue = percentToCurrentValue(CurrentMaxValue, currentValuePercent);
+    //}
+
+    /*
+    public override void RemoveItemsBonus(StatsModifier statsModifier)
     {
         var manaBonus = statsModifier.Mana;
         if (manaBonus! > 0)
@@ -342,6 +388,7 @@ public class ManaResource : Resource
 
         // vitality
     }
+    */
     protected override void HandleDispose()
     {
         PotionEvents.OnFullManaPotionConsumed -= Restore;

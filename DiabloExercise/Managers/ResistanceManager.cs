@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-public class ResistanceManager : IResistance, IDisposable
+public class ResistanceManager : IResistance //, IDisposable
 {
     int _resistMagic;
     int _resistFire;
@@ -11,46 +11,21 @@ public class ResistanceManager : IResistance, IDisposable
     public int ResistFire => Math.Clamp(_resistFire, 0, 100);
     public int ResistLightning => Math.Clamp(_resistLightning, 0, 100);
 
-    public ResistanceManager()
+
+    public void ModifyMagicResistance(int value)
     {
-        // subscribe to events
-        EquipementEvents.OnItemEquip += AddModifier;
-        EquipementEvents.OnItemUnequip += RemoveModifier;
+        _resistMagic += value;
     }
 
-    //public void Test(int rm, int rf, int rl)
-    //{
-    //    _resistMagic = rm;
-    //    _resistFire = rf;
-    //    _resistLightning = rl;
-    //}
-
-    Func<int, int> SwithcSign = (x) => -1 * x;
-
-    private void AddModifier(StatsModifier statsModifier)
+    public void ModifyFireResistance(int value)
     {
-        int resistMagicMod = statsModifier.ResistMagic;
-        int resistFireMod = statsModifier.ResistFire;
-        int resistLightningMod = statsModifier.ResistLightning;
-
-        if (resistMagicMod != 0) _resistMagic += resistMagicMod;
-        if (resistFireMod != 0) _resistFire += resistFireMod;
-        if (resistLightningMod != 0) _resistLightning += resistLightningMod;
+        _resistFire += value;
     }
 
-    private void RemoveModifier(StatsModifier statsModifier)
+    public void ModifyLightningResistance(int value)
     {
-        int resistMagicMod = statsModifier.ResistMagic;
-        int resistFireMod = statsModifier.ResistFire;
-        int resistLightningMod = statsModifier.ResistLightning;
-
-        if (resistMagicMod != 0) _resistMagic += SwithcSign(resistMagicMod);
-        if (resistFireMod != 0) _resistFire += SwithcSign(resistFireMod);
-        if (resistLightningMod != 0) _resistLightning += SwithcSign(resistLightningMod);
+        _resistLightning += value;
     }
-
-
-
 
     Func<int, string> ModifyValueToString = resistancePower => resistancePower.ToString() + "%";
 
@@ -69,32 +44,4 @@ public class ResistanceManager : IResistance, IDisposable
         return sb.ToString().Trim();
     }
 
-    public void Dispose()
-    {
-        // unsubscribe from events
-        EquipementEvents.OnItemEquip -= AddModifier;
-        EquipementEvents.OnItemUnequip -= RemoveModifier;
-    }
 }
-
-/*
-    Life
-
-    Warrior: 2·Vit(character) + 2·Vit(items) + 2·clvl + Life(items) + 18
-
-    Rogue: 1·Vit(character) + 1.5·Vit(items) + 2·clvl + Life(items) + 23
-
-    Sorcerer: 1·Vit(character) + 1·Vit(items) + 1·clvl + Life(items) + 9
-*/
-
-/*
-
-Mana
-
-Warrior: 1·Mag(character) + 1·Mag(items) + 1·clvl + Mana(items) - 1
-
-Rogue: 1·Mag(character) + 1.5·Mag(items) + 2·clvl + Mana(items) + 5
-
-Sorcerer: 2·Mag(character) + 2·Mag(items) + 2·clvl + Mana(items) - 2
-
-*/
