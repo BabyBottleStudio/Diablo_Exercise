@@ -25,16 +25,16 @@ namespace DiabloExercise.Tests
         {
 
             // act arrange assert
-            var strength = warrior.characterAttributes.CurrentStrength;
-            //var magic = warrior.characterAttributes.CurrentMagic;
+            var strength = warrior.CharacterAttributes.CurrentStrength;
+            var magic = warrior.CharacterAttributes.CurrentMagic;
             Assert.That(30, Is.EqualTo(strength));
-            //Assert.AreEqual(15, magic);
+            Assert.That(10, Is.EqualTo(magic));
         }
 
         [Test]
         public void Rogue_InitialAttributesValue_Strength()
         {
-            var strength = rogue.characterAttributes.CurrentStrength;
+            var strength = rogue.CharacterAttributes.CurrentStrength;
 
             Assert.That(20, Is.EqualTo(strength));
         }
@@ -42,7 +42,7 @@ namespace DiabloExercise.Tests
         [Test]
         public void Sorcerer_InitialAttributesValue_Strength()
         {
-            var strength = sorcerer.characterAttributes.CurrentStrength;
+            var strength = sorcerer.CharacterAttributes.CurrentStrength;
 
             Assert.That(15, Is.EqualTo(strength));
         }
