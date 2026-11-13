@@ -9,21 +9,21 @@
         this.heroData = heroData;
     }
 
-    public Hero? Instantiate(string flag, string heroName) //, out IUserInterface userInterface)
+    public Hero? Instantiate(string classFlag, string heroName) //, out IUserInterface userInterface)
     {
-        if (string.IsNullOrEmpty(flag))
+        if (string.IsNullOrEmpty(classFlag))
         {
             throw new ArgumentNullException($"{GetType().Name} - Instantiate method: flag is null");
         }
 
-        if (!flags.Contains(flag))
+        if (!flags.Contains(classFlag))
         {
             throw new ArgumentException("Flag not recognized");
         }
 
         if (string.IsNullOrEmpty(heroName))
         {
-            heroName = $"Some {flag}";
+            heroName = $"Some {classFlag}";
         }
 
 
@@ -52,7 +52,7 @@
         //switch (flag)
         //{
         //  case "Warrior":
-        float initialLightRadius = heroData.GetValue(flag, "LightRadius");
+        float initialLightRadius = heroData.GetValue(classFlag, "LightRadius");
         //healthModifier = heroData.GetValue(flag, "LifeModifier");
 
         //manaModifier = heroData.GetValue(flag, "ManaModifier");
@@ -61,26 +61,26 @@
         //initialMaxLife = heroData.GetValue(flag, "InitialMaxLife");
         //initialMana = heroData.GetValue(flag, "InitialMana");
         //initialMaxMana = heroData.GetValue(flag, "InitialMaxMana");
-        int startStrength = (int)heroData.GetValue(flag, "StartBaseStrength");
-        int maxStrength = (int)heroData.GetValue(flag, "MaxStrength");
-        int startMagic = (int)heroData.GetValue(flag, "StartBaseMagic");
-        int maxMagic = (int)heroData.GetValue(flag, "MaxMagic");
-        int startDexterity = (int)heroData.GetValue(flag, "StartBaseDexterity");
-        int maxDexterity = (int)heroData.GetValue(flag, "MaxDexterity");
-        int startVitality = (int)heroData.GetValue(flag, "StartBaseVitality");
-        int maxVitality = (int)heroData.GetValue(flag, "MaxVitality");
+        int startStrength = (int)heroData.GetValue(classFlag, "StartBaseStrength");
+        int maxStrength = (int)heroData.GetValue(classFlag, "MaxStrength");
+        int startMagic = (int)heroData.GetValue(classFlag, "StartBaseMagic");
+        int maxMagic = (int)heroData.GetValue(classFlag, "MaxMagic");
+        int startDexterity = (int)heroData.GetValue(classFlag, "StartBaseDexterity");
+        int maxDexterity = (int)heroData.GetValue(classFlag, "MaxDexterity");
+        int startVitality = (int)heroData.GetValue(classFlag, "StartBaseVitality");
+        int maxVitality = (int)heroData.GetValue(classFlag, "MaxVitality");
 
 
 
-        float vitalityMultiplier = heroData.GetValue(flag, "VitalityMultiplier");
-        float vitalityItemsMultiplier = heroData.GetValue(flag, "VitalityItemsMultiplier");
-        float heroLevelMultiplierLife = heroData.GetValue(flag, "HeroLevelMultiplierLife");
-        float lifeFixedBonus = heroData.GetValue(flag, "LifeFixedBonus");
+        float vitalityMultiplier = heroData.GetValue(classFlag, "VitalityMultiplier");
+        float vitalityItemsMultiplier = heroData.GetValue(classFlag, "VitalityItemsMultiplier");
+        float heroLevelMultiplierLife = heroData.GetValue(classFlag, "HeroLevelMultiplierLife");
+        float lifeFixedBonus = heroData.GetValue(classFlag, "LifeFixedBonus");
 
-        float magicMultilplier = heroData.GetValue(flag, "MagicMultiplier");
-        float magicItemsMultiplier = heroData.GetValue(flag, "MagicItemsMultiplier");
-        float heroLevelMultiplierMana = heroData.GetValue(flag, "HeroLevelMultiplierMana");
-        float magicFixedBonus = heroData.GetValue(flag, "MagicFixedBonus");
+        float magicMultilplier = heroData.GetValue(classFlag, "MagicMultiplier");
+        float magicItemsMultiplier = heroData.GetValue(classFlag, "MagicItemsMultiplier");
+        float heroLevelMultiplierMana = heroData.GetValue(classFlag, "HeroLevelMultiplierMana");
+        float magicFixedBonus = heroData.GetValue(classFlag, "MagicFixedBonus");
 
 
 
@@ -121,7 +121,7 @@
         EquipmentManager equipmentManager = new EquipmentManager();
 
 
-        switch (flag)
+        switch (classFlag)
         {
             case "Warrior":
 
