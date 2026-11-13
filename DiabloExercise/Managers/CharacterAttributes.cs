@@ -39,13 +39,15 @@ public interface ICharacterAttributes : IStrength, IMagical, IDexterity, IVitali
 public class CharacterAttributes : ICharacterAttributes //, IDisposable
 {
     //int _characterLevel;
+    const int MIN_VALUE = 0;
 
     int _baseStrength;
     int _maxStrength;
     int _strengthItemsBonus;
 
-    public int BaseStrength => Math.Min(_maxStrength, _baseStrength); // it is capped differently depending on the hero class
-    public int CurrentStrength => BaseStrength + _strengthItemsBonus;
+    // treba da vrati minimum da bude 0 ili 1 treba videti da li 0 jebava matematiku
+    public int BaseStrength => Math.Clamp(_baseStrength, MIN_VALUE, _maxStrength); // it is capped differently depending on the hero class
+    public int CurrentStrength => Math.Max(BaseStrength + _strengthItemsBonus, MIN_VALUE); // zar ovo ne racuna i ubelezava kalkulator
 
 
 
@@ -53,8 +55,8 @@ public class CharacterAttributes : ICharacterAttributes //, IDisposable
     int _maxMagic;
     int _magicItemsBonus;
 
-    public int BaseMagic => Math.Min(_maxMagic, _baseMagic); // it is capped differently depending on the hero class
-    public int CurrentMagic => BaseMagic + MagicItemsBonus;
+    public int BaseMagic => Math.Clamp(_baseMagic,MIN_VALUE, _maxMagic); // it is capped differently depending on the hero class
+    public int CurrentMagic => Math.Max(BaseMagic + MagicItemsBonus, MIN_VALUE);
     public int MagicItemsBonus => _magicItemsBonus;
 
 
@@ -62,15 +64,15 @@ public class CharacterAttributes : ICharacterAttributes //, IDisposable
     int _maxDexterity;
     int _dexterityItemsBonus;
 
-    public int BaseDexterity => Math.Min(_maxDexterity, _baseDexterity); // it is capped differently depending on the hero class
-    public int CurrentDexterity => BaseDexterity + _dexterityItemsBonus;
+    public int BaseDexterity => Math.Clamp(_baseDexterity, MIN_VALUE, _maxDexterity); // it is capped differently depending on the hero class
+    public int CurrentDexterity => Math.Max(BaseDexterity + _dexterityItemsBonus, MIN_VALUE);
 
 
     int _baseVitality;
     int _maxVitality;
     int _vitalityItemsBonus;
-    public int BaseVitality => Math.Min(_maxVitality, _baseVitality); // it is capped differently depending on the hero class
-    public int CurrentVitality => BaseVitality + VitalityItemsBonus;
+    public int BaseVitality => Math.Clamp(_baseVitality, MIN_VALUE, _maxVitality); // it is capped differently depending on the hero class
+    public int CurrentVitality => Math.Max(BaseVitality + VitalityItemsBonus, MIN_VALUE);
     public int VitalityItemsBonus => _vitalityItemsBonus;
 
     public CharacterAttributes(int startStrength, int maxStrength, int startMagic, int maxMagic, int startDexterity, int maxDexterity, int startVitality, int maxVitality)
