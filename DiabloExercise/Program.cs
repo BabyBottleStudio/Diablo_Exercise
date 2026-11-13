@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Net.WebSockets;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 var heroCalc = new HeroLevelingCalculator(50);
 
@@ -22,7 +23,7 @@ var heroFactory = new HeroFactory(heroData);
 
 //IUserInterface userInterface;
 
-var jovana = heroFactory.Instantiate("Rogue", "Jovana"); //, out userInterface);
+var jovana = heroFactory.Instantiate("Warrior", "Jovana"); //, out userInterface);
 
 Console.WriteLine(jovana);
 
@@ -34,15 +35,30 @@ var helmetModifier = new StatsModifier()
     LightningResistance = 15
 
 };
-
+var equippedHelmet = new HeadArmor("CurrentHelmet", armor: 1, maxDuration: 50, currentDurration: 23, requirement: 0);
 var helmet = new HeadArmor("Helmet", 5, 25, 14, 5, helmetModifier);
 
-jovana.EquipHeadArmor(helmet);
+
+Console.WriteLine(equippedHelmet);
+Console.WriteLine(helmet);
+
+Console.WriteLine();
+helmet.Identify();
+Console.WriteLine(helmet);
+
+
+jovana.EquipHeadArmor(equippedHelmet);
 
 Console.WriteLine(jovana);
 
 jovana.RemoveHeadArmor();
 Console.WriteLine(jovana);
+
+Console.WriteLine(
+    heroFactory.Instantiate("Warrior", "Milisav")
+
+    );
+
 
 public class EquipmentManager
 {
@@ -113,11 +129,24 @@ public interface IHand
 
 }
 
-
-public abstract class ArmorEquipment : Item
+public interface IIdentifiable
+{
+    public bool IsIdentified { get; }
+    public StatsModifier? StatsModifier { get; }
+    public void Identify();
+}
+public interface IReparable
+{
+    public void Repare();
+}
+public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
 {
     //bool _isEquipped;
 
+    // name system with prefix and suffix 
+
+
+    public bool IsIdentified { get; private set; }
     public int Armor { get; private set; }
     public int MaxDuration { get; private set; }
 
@@ -130,22 +159,24 @@ public abstract class ArmorEquipment : Item
 
     public ArmorEquipment(string name, int armor, int maxDuration, int currentDurration, int requirement, StatsModifier? statsModifier) : base(name)
     {
-
         Armor = armor;
         MaxDuration = maxDuration;
         CurrentDurration = currentDurration;
         Requirement = requirement;
         StatsModifier = statsModifier;
+        IsIdentified = StatsModifier is null;
     }
 
     public ArmorEquipment(string name, int armor, int maxDuration, int currentDurration, int requirement) : this(name, armor, maxDuration, currentDurration, requirement, null)
     {
 
-        Armor = armor;
-        MaxDuration = maxDuration;
-        CurrentDurration = currentDurration;
-        Requirement = requirement;
-        StatsModifier = null;
+    }
+    public void Identify()
+    {
+        if (IsIdentified) return;
+
+        IsIdentified = true;
+
     }
 
     public void Damage()
@@ -154,11 +185,50 @@ public abstract class ArmorEquipment : Item
         // code for damage goes here
         // damage absorbed from the battle
     }
-    public void Repair()
+    public void Repare()
     {
         if (!_isIndistructible) return;
 
         CurrentDurration = MaxDuration;
+    }
+
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.AppendLine($"** {Name} **"); // still has to work on prefix/suffix system
+        sb.AppendLine($"Armor:{Armor}");
+
+        if (!_isIndistructible)
+        {
+            sb.AppendLine($"Durability:{CurrentDurration}/{MaxDuration}");
+        }
+        else
+        {
+            sb.AppendLine("Indistructible");
+        }
+
+        if (Requirement > 0)
+        {
+            sb.AppendLine($"Requires:{Requirement}");
+        }
+        else
+        {
+            sb.AppendLine($"No special requirements");
+        }
+
+
+        if (!IsIdentified)
+        {
+            sb.AppendLine("Not identified");
+            return sb.ToString();
+        }
+        if (StatsModifier is not null)
+        {
+            sb.AppendLine(StatsModifier.ToString());
+        }
+
+        return sb.ToString();
     }
 }
 
