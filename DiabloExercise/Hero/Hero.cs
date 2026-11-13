@@ -14,7 +14,7 @@ public abstract class Hero
     private string _name;
     public string Name => _name;
 
-    public virtual string HeroClass => GetType().Name;
+    public virtual string Class => GetType().Name;
 
     //public readonly ILevel heroLevel;
     public readonly IExperienceManager experienceManager;
@@ -24,10 +24,10 @@ public abstract class Hero
     public readonly IResource manaManager;
     public readonly ILightRadius lightRadius;
     public readonly IResistance resistnaceManager;
-    public readonly ICharacterAttributes characterAttributes;
+    public readonly ICharacterAttributes CharacterAttributes;
     public readonly IDerivedAttributes derivedAttributes;
     public readonly ResourcesCalculator resourcesCalculator;
-    public readonly EquipmentManager equipmentManager;
+    public readonly EquipmentManager EquipmentManager;
 
     //public readonly ItemsBonusManager ItemsBonusManager;
     public readonly DerivedAttributesCalculator derivedAttributesCalculator = new DerivedAttributesCalculator(); // INJECT IT LATER
@@ -57,10 +57,10 @@ public abstract class Hero
         this.manaManager = manaManager;
         this.lightRadius = lightRadius;
         this.resistnaceManager = resistnaceManager;
-        this.characterAttributes = characterAttributes;
+        this.CharacterAttributes = characterAttributes;
         this.derivedAttributes = derivedAttributes;
         this.resourcesCalculator = resourcesCalculator;
-        this.equipmentManager = equipmentManager;
+        this.EquipmentManager = equipmentManager;
         //this.ItemsBonusManager = ItemsBonusManager;
 
         UpdateMaxLife();
@@ -91,7 +91,7 @@ public abstract class Hero
     {
         var currentArmorClass = derivedAttributesCalculator.CalculateArmorClass
             (
-                characterAttributes.CurrentDexterity,
+                CharacterAttributes.CurrentDexterity,
                 derivedAttributes.ArmorClassBasicItems,
                 derivedAttributes.ArmorClassSpecialItems
             );
@@ -99,14 +99,14 @@ public abstract class Hero
     }
     private void UpdateChanceToHit()
     {
-        var chanceToHit = derivedAttributesCalculator.CalculateChanceToHit(characterAttributes.CurrentDexterity, derivedAttributes.ChanceToHitSpecialItemsBonus);
+        var chanceToHit = derivedAttributesCalculator.CalculateChanceToHit(CharacterAttributes.CurrentDexterity, derivedAttributes.ChanceToHitSpecialItemsBonus);
         derivedAttributes.SetChanceToHit(chanceToHit);
     }
     private void UpdateDamage()
     {
         var damage = derivedAttributesCalculator.CalculateDamageRange
             (
-                characterAttributes.CurrentStrength,
+                CharacterAttributes.CurrentStrength,
                 experienceManager.Level,
                 derivedAttributes.BaseDamageItemsMin,
                 derivedAttributes.BaseDamageItemsMax,
@@ -131,8 +131,8 @@ public abstract class Hero
     {
         var value = resourcesCalculator.CalculateMaxLife(
             experienceManager.Level,
-            characterAttributes.BaseVitality,
-            characterAttributes.VitalityItemsBonus,
+            CharacterAttributes.BaseVitality,
+            CharacterAttributes.VitalityItemsBonus,
             manaManager.ItemsBonus
             );
 
@@ -143,8 +143,8 @@ public abstract class Hero
     {
         var value = resourcesCalculator.CalculateMaxMana(
             experienceManager.Level,
-            characterAttributes.BaseMagic,
-            characterAttributes.MagicItemsBonus,
+            CharacterAttributes.BaseMagic,
+            CharacterAttributes.MagicItemsBonus,
             manaManager.ItemsBonus
             );
 
@@ -155,31 +155,40 @@ public abstract class Hero
     {
         if (headArmor == null) return;
 
-        if (headArmor.Requirement > characterAttributes.CurrentStrength)
+        if (headArmor.Requirement > CharacterAttributes.CurrentStrength)
         {
             Console.WriteLine($"Requirements for this item are not met");
             return;
         }
+
+        HeadArmor? oldHeadArmor = EquipmentManager.HeadArmor; // is there anything on the head
+
+        // if there is an object, remove it and calculate removal
+        if (oldHeadArmor != null)
+        {
+            RemoveHeadArmor();
+        }
+
 
         // recalculate armor
         derivedAttributes.ModifyArmorBasicItems(headArmor.Armor);
 
         UpdateCurrentArmor();
 
-        if (headArmor.StatsModifier is not null)
+        if (headArmor.IsIdentified && headArmor.StatsModifier is not null)
         {
             AddSpecialItemModifiers(headArmor.StatsModifier, ItemAction.Equip);
 
             UpdateDerivedAttributes();
         }
 
-        equipmentManager.EquipHeadArmor(headArmor);
+        EquipmentManager.EquipHeadArmor(headArmor);
     }
 
 
     public void RemoveHeadArmor()
     {
-        HeadArmor? headArmor = equipmentManager.HeadArmor;
+        HeadArmor? headArmor = EquipmentManager.HeadArmor;
 
         if (headArmor is null) return;
 
@@ -188,17 +197,31 @@ public abstract class Hero
 
         UpdateCurrentArmor();
 
-        if (headArmor.StatsModifier is not null)
+        if (headArmor.IsIdentified && headArmor.StatsModifier is not null)
         {
             AddSpecialItemModifiers(headArmor.StatsModifier, ItemAction.Remove);
 
             UpdateDerivedAttributes();
         }
 
-        equipmentManager.RemoveHeadArmor();
+        EquipmentManager.RemoveHeadArmor();
     }
 
 
+    public void IdentifyItem(IIdentifiable itemToIdentify)
+    {
+        itemToIdentify.Identify();
+
+
+        if (itemToIdentify.IsIdentified && itemToIdentify.StatsModifier is not null)
+        {
+            AddSpecialItemModifiers(itemToIdentify.StatsModifier, ItemAction.Equip);
+
+            UpdateDerivedAttributes();
+        }
+
+
+    }
 
     private float GetSignFromItemAction(float value, ItemAction itemAction)
     {
@@ -236,25 +259,25 @@ public abstract class Hero
         var strengthModifier = statsModifier.Strength;
         strengthModifier = (int)GetSignFromItemAction(strengthModifier, itemAction);
 
-        if (strengthModifier != 0) characterAttributes.ModifyStrengthItemBonus(strengthModifier);
+        if (strengthModifier != 0) CharacterAttributes.ModifyStrengthItemBonus(strengthModifier);
 
         // magic
         var magicModifier = statsModifier.Magic;
         magicModifier = (int)GetSignFromItemAction(magicModifier, itemAction);
 
-        if (magicModifier != 0) characterAttributes.ModifyMagicItemBonus(magicModifier);
+        if (magicModifier != 0) CharacterAttributes.ModifyMagicItemBonus(magicModifier);
 
         // dexterity
         var dexterityModifier = statsModifier.Dexterity;
         dexterityModifier = (int)GetSignFromItemAction(dexterityModifier, itemAction);
 
-        if (dexterityModifier != 0) characterAttributes.ModifyDexterityItemBonus(dexterityModifier);
+        if (dexterityModifier != 0) CharacterAttributes.ModifyDexterityItemBonus(dexterityModifier);
 
         // vitality
         var vitalityModifier = statsModifier.Vitality;
         vitalityModifier = (int)GetSignFromItemAction(vitalityModifier, itemAction);
 
-        if (vitalityModifier != 0) characterAttributes.ModifyVitalityItemBonus(vitalityModifier);
+        if (vitalityModifier != 0) CharacterAttributes.ModifyVitalityItemBonus(vitalityModifier);
 
         // armor
         var armorModifier = statsModifier.ArmorClass;
@@ -342,7 +365,7 @@ public abstract class Hero
         sb.AppendLine();
         sb.AppendLine("****** Hero Table ******");
         sb.AppendLine($"Name: {Name}");
-        sb.AppendLine($"Class: {HeroClass}");
+        sb.AppendLine($"Class: {Class}");
 
         sb.AppendLine(experienceManager.ToString());
         //sb.AppendLine($"Level: {experienceManager.Level}");
@@ -351,7 +374,7 @@ public abstract class Hero
         sb.AppendLine(goldManager.ToString());
         sb.AppendLine(lifeManager.ToString());
         sb.AppendLine(manaManager.ToString());
-        sb.AppendLine(characterAttributes.ToString());
+        sb.AppendLine(CharacterAttributes.ToString());
         sb.AppendLine(derivedAttributes.ToString());
         //sb.AppendLine($"MaxLife:{lifeManager.CurrentMaxValue}. CurrentLife: {lifeManager.CurrentValue}");
         //sb.AppendLine($"MaxMana:{manaManager.CurrentMaxValue}. CurrentMana: {manaManager.CurrentValue}");
