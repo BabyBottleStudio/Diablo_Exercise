@@ -25,7 +25,7 @@ public abstract class Hero
     public readonly ILightRadius lightRadius;
     public readonly IResistance resistnaceManager;
     public readonly ICharacterAttributes CharacterAttributes;
-    public readonly IDerivedAttributes derivedAttributes;
+    public readonly IDerivedAttributes DerivedAttributes;
     public readonly ResourcesCalculator resourcesCalculator;
     public readonly EquipmentManager EquipmentManager;
 
@@ -58,7 +58,7 @@ public abstract class Hero
         this.lightRadius = lightRadius;
         this.resistnaceManager = resistnaceManager;
         this.CharacterAttributes = characterAttributes;
-        this.derivedAttributes = derivedAttributes;
+        this.DerivedAttributes = derivedAttributes;
         this.resourcesCalculator = resourcesCalculator;
         this.EquipmentManager = equipmentManager;
         //this.ItemsBonusManager = ItemsBonusManager;
@@ -92,15 +92,15 @@ public abstract class Hero
         var currentArmorClass = derivedAttributesCalculator.CalculateArmorClass
             (
                 CharacterAttributes.CurrentDexterity,
-                derivedAttributes.ArmorClassBasicItems,
-                derivedAttributes.ArmorClassSpecialItems
+                DerivedAttributes.ArmorClassBasicItems,
+                DerivedAttributes.ArmorClassSpecialItems
             );
-        derivedAttributes.SetCurrentArmor(currentArmorClass);
+        DerivedAttributes.SetCurrentArmor(currentArmorClass);
     }
     private void UpdateChanceToHit()
     {
-        var chanceToHit = derivedAttributesCalculator.CalculateChanceToHit(CharacterAttributes.CurrentDexterity, derivedAttributes.ChanceToHitSpecialItemsBonus);
-        derivedAttributes.SetChanceToHit(chanceToHit);
+        var chanceToHit = derivedAttributesCalculator.CalculateChanceToHit(CharacterAttributes.CurrentDexterity, DerivedAttributes.ChanceToHitSpecialItemsBonus);
+        DerivedAttributes.SetChanceToHit(chanceToHit);
     }
     private void UpdateDamage()
     {
@@ -108,11 +108,11 @@ public abstract class Hero
             (
                 CharacterAttributes.CurrentStrength,
                 experienceManager.Level,
-                derivedAttributes.BaseDamageItemsMin,
-                derivedAttributes.BaseDamageItemsMax,
-                derivedAttributes.DamageSpecialtemsBonus
+                DerivedAttributes.BaseDamageItemsMin,
+                DerivedAttributes.BaseDamageItemsMax,
+                DerivedAttributes.DamageSpecialtemsBonus
             );
-        derivedAttributes.SetCurrentDamage(damage.min, damage.max);
+        DerivedAttributes.SetCurrentDamage(damage.min, damage.max);
     }
     /*
        Life
@@ -155,7 +155,7 @@ public abstract class Hero
     {
         if (headArmor == null) return;
 
-        if (headArmor.Requirement > CharacterAttributes.CurrentStrength)
+        if (!headArmor.CanEquip(CharacterAttributes.CurrentStrength))
         {
             Console.WriteLine($"Requirements for this item are not met");
             return;
@@ -171,13 +171,16 @@ public abstract class Hero
 
 
         // recalculate armor
-        derivedAttributes.ModifyArmorBasicItems(headArmor.Armor);
+        DerivedAttributes.ModifyArmorBasicItems(headArmor.Armor);
 
         UpdateCurrentArmor();
 
-        if (headArmor.IsIdentified && headArmor.StatsModifier is not null)
+
+        var statsModifier = headArmor.GetActiveStatsModifier();
+
+        if (statsModifier is not null)
         {
-            AddSpecialItemModifiers(headArmor.StatsModifier, ItemAction.Equip);
+            AddSpecialItemModifiers(statsModifier, ItemAction.Equip);
 
             UpdateDerivedAttributes();
         }
@@ -193,13 +196,15 @@ public abstract class Hero
         if (headArmor is null) return;
 
         // recalculate armor
-        derivedAttributes.ModifyArmorBasicItems(ChangeSign(headArmor.Armor));
+        DerivedAttributes.ModifyArmorBasicItems(ChangeSign(headArmor.Armor));
 
         UpdateCurrentArmor();
 
-        if (headArmor.IsIdentified && headArmor.StatsModifier is not null)
+        var statsModifier = headArmor.GetActiveStatsModifier();
+
+        if (statsModifier is not null)
         {
-            AddSpecialItemModifiers(headArmor.StatsModifier, ItemAction.Remove);
+            AddSpecialItemModifiers(statsModifier, ItemAction.Remove);
 
             UpdateDerivedAttributes();
         }
@@ -213,15 +218,18 @@ public abstract class Hero
         itemToIdentify.Identify();
 
 
-        if (itemToIdentify.IsIdentified && itemToIdentify.StatsModifier is not null)
+        var statsModifier = itemToIdentify.GetActiveStatsModifier();
+
+        if (statsModifier is not null)
         {
-            AddSpecialItemModifiers(itemToIdentify.StatsModifier, ItemAction.Equip);
+            AddSpecialItemModifiers(statsModifier, ItemAction.Equip);
 
             UpdateDerivedAttributes();
         }
-
-
     }
+
+
+
 
     private float GetSignFromItemAction(float value, ItemAction itemAction)
     {
@@ -283,19 +291,19 @@ public abstract class Hero
         var armorModifier = statsModifier.ArmorClass;
         armorModifier = (int)GetSignFromItemAction(armorModifier, itemAction);
 
-        if (armorModifier != 0) derivedAttributes.ModifyArmorSpecialItemsBonus(armorModifier);
+        if (armorModifier != 0) DerivedAttributes.ModifyArmorSpecialItemsBonus(armorModifier);
 
         // chanceToHit
         var chanceToHitModifier = statsModifier.ChanceToHit;
         chanceToHitModifier = (int)GetSignFromItemAction(chanceToHitModifier, itemAction);
 
-        if (chanceToHitModifier != 0) derivedAttributes.ModifyChanceToHitSpecialItemsBonus(chanceToHitModifier);
+        if (chanceToHitModifier != 0) DerivedAttributes.ModifyChanceToHitSpecialItemsBonus(chanceToHitModifier);
 
         // damage
         var damageModifier = statsModifier.Damage;
         damageModifier = (int)GetSignFromItemAction(damageModifier, itemAction);
 
-        if (damageModifier != 0) derivedAttributes.ModifyDamageSpecialItemsBonus(damageModifier);
+        if (damageModifier != 0) DerivedAttributes.ModifyDamageSpecialItemsBonus(damageModifier);
 
         // magic resistance
         var magicResistance = statsModifier.MagicResistance;
@@ -375,7 +383,7 @@ public abstract class Hero
         sb.AppendLine(lifeManager.ToString());
         sb.AppendLine(manaManager.ToString());
         sb.AppendLine(CharacterAttributes.ToString());
-        sb.AppendLine(derivedAttributes.ToString());
+        sb.AppendLine(DerivedAttributes.ToString());
         //sb.AppendLine($"MaxLife:{lifeManager.CurrentMaxValue}. CurrentLife: {lifeManager.CurrentValue}");
         //sb.AppendLine($"MaxMana:{manaManager.CurrentMaxValue}. CurrentMana: {manaManager.CurrentValue}");
         sb.AppendLine(lightRadius.ToString());

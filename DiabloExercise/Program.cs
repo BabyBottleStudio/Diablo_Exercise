@@ -35,8 +35,8 @@ var helmetModifier = new StatsModifier()
     LightningResistance = 15
 
 };
-var equippedHelmet = new HeadArmor("CurrentHelmet", armor: 1, maxDuration: 50, currentDurration: 23, requirement: 0);
-var helmet = new HeadArmor("Helmet", 5, 25, 14, 5, helmetModifier);
+var equippedHelmet = new HeadArmor(name: "CurrentHelmet", armor: 1, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
+var helmet = new HeadArmor(name: "Helmet", armor: 5, strengthRequirement: 5, maxDuration: 25, currentDuration: 14, helmetModifier);
 
 
 Console.WriteLine(equippedHelmet);
@@ -54,10 +54,21 @@ Console.WriteLine(jovana);
 jovana.RemoveHeadArmor();
 Console.WriteLine(jovana);
 
-Console.WriteLine(
-    heroFactory.Instantiate("Warrior", "Milisav")
+var negativeHelmetModifier = new StatsModifier()
+{
+    Strength = -50,
+    Magic = -50,
+    Dexterity = -50,
+    Vitality = -50,
 
-    );
+};
+
+var milisav = heroFactory.Instantiate("Warrior", "Milisav");
+var negativeHelmet = new HeadArmor("Helmet", 5, 25, 14, 5, negativeHelmetModifier);
+negativeHelmet.Identify();
+milisav.EquipHeadArmor(negativeHelmet);
+
+Console.WriteLine(milisav);
 
 
 public class EquipmentManager
@@ -131,86 +142,156 @@ public interface IHand
 
 public interface IIdentifiable
 {
-    public bool IsIdentified { get; }
-    public StatsModifier? StatsModifier { get; }
+    //public bool IsIdentified { get; }
+
+    //public StatsModifier? StatsModifier { get; }
+    public StatsModifier? GetActiveStatsModifier();
     public void Identify();
 }
 public interface IReparable
 {
+    public bool ShouldRepare();
     public void Repare();
 }
 public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
 {
-    //bool _isEquipped;
-
+    // bool _isEquipped;
     // name system with prefix and suffix 
-
+    // Duration system and _isIndistructible
 
     public bool IsIdentified { get; private set; }
     public int Armor { get; private set; }
     public int MaxDuration { get; private set; }
 
-    public bool _isIndistructible;
-    public int CurrentDurration { get; private set; }
+    public bool IsIndistructible { get; private set; }
+    public int CurrentDuration { get; private set; }
 
-    public int Requirement { get; init; }
+    public int StrengthRequirement { get; init; }
 
-    public StatsModifier? StatsModifier { get; init; }
+    StatsModifier? statsModifier { get; init; }
 
-    public ArmorEquipment(string name, int armor, int maxDuration, int currentDurration, int requirement, StatsModifier? statsModifier) : base(name)
+    /// <summary>
+    /// Creates an destructible armor item with special attributes.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="armor"></param>
+    /// <param name="strengthRequirement"></param>
+    /// <param name="maxDuration"></param>
+    /// <param name="currentDuration"></param>
+    /// <param name="statsModifier"></param>
+    public ArmorEquipment(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name)
     {
         Armor = armor;
         MaxDuration = maxDuration;
-        CurrentDurration = currentDurration;
-        Requirement = requirement;
-        StatsModifier = statsModifier;
-        IsIdentified = StatsModifier is null;
+        CurrentDuration = currentDuration;
+        StrengthRequirement = strengthRequirement;
+        this.statsModifier = statsModifier;
+        IsIdentified = this.statsModifier is null;
     }
 
-    public ArmorEquipment(string name, int armor, int maxDuration, int currentDurration, int requirement) : this(name, armor, maxDuration, currentDurration, requirement, null)
+    /// <summary>
+    /// Creates an destructible armor item without special attributes.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="armor"></param>
+    /// <param name="strengthRequirement"></param>
+    /// <param name="maxDuration"></param>
+    /// <param name="currentDuration"></param>
+    public ArmorEquipment(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration) : this(name, armor, strengthRequirement, maxDuration, currentDuration, null)
     {
 
     }
+
+    /// <summary>
+    /// Creates an indestructible armor item without special attributes.
+    /// </summary>
+    /// <param name="name">The name of the armor.</param>
+    /// <param name="armor">The armor value provided by the item.</param>
+    /// <param name="strengthRequirement">The minimum Strength required to equip the item.</param>
+    public ArmorEquipment(string name, int armor, int strengthRequirement) : this(name, armor, strengthRequirement, int.MaxValue, int.MaxValue, null)
+    {
+        IsIndistructible = true;
+    }
+
+    /// <summary>
+    /// Creates an indestructible armor item with special attributes.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="armor"></param>
+    /// <param name="strengthRequirement"></param>
+    /// <param name="statsModifier"></param>
+    public ArmorEquipment(string name, int armor, int strengthRequirement, StatsModifier? statsModifier) : this(name, armor, strengthRequirement, int.MaxValue, int.MaxValue, statsModifier)
+    {
+        IsIndistructible = true;
+    }
+
+    public bool CanEquip(int currentHeroStrength) => StrengthRequirement <= currentHeroStrength;
+
+    public StatsModifier? GetActiveStatsModifier() => (IsIdentified && statsModifier is not null) ? statsModifier : null;
+
+
     public void Identify()
     {
         if (IsIdentified) return;
 
         IsIdentified = true;
-
     }
 
     public void Damage()
     {
-        if (!_isIndistructible) return;
+        if (IsIndistructible) return;
         // code for damage goes here
         // damage absorbed from the battle
+        throw new NotImplementedException("Damage not implemented yet!");
     }
+
+    public bool ShouldRepare() => !IsIndistructible && CurrentDuration < MaxDuration; 
+  
+
     public void Repare()
     {
-        if (!_isIndistructible) return;
+        //if (IsIndistructible) return;
 
-        CurrentDurration = MaxDuration;
+        CurrentDuration = MaxDuration;
     }
+
+    public void MakeIndistructible()
+    {
+        IsIndistructible = true;
+        CurrentDuration = int.MaxValue;
+        MaxDuration = int.MaxValue;
+    }
+
+    // repare
+    // damage
+    // makeIndistructible
+    // ToString
+    public void IncreaseDurability()
+    {
+        throw new NotImplementedException();
+    }
+
+
 
     public override string ToString()
     {
         StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"** {Name} **"); // still has to work on prefix/suffix system
-        sb.AppendLine($"Armor:{Armor}");
+        sb.AppendLine($"Armor: {Armor}");
 
-        if (!_isIndistructible)
+        if (!IsIndistructible)
         {
-            sb.AppendLine($"Durability:{CurrentDurration}/{MaxDuration}");
+            sb.AppendLine($"Durability: {CurrentDuration}/{MaxDuration}");
         }
         else
         {
             sb.AppendLine("Indistructible");
         }
 
-        if (Requirement > 0)
+        if (StrengthRequirement > 0)
         {
-            sb.AppendLine($"Requires:{Requirement}");
+            sb.AppendLine($"Requires: {StrengthRequirement}");
         }
         else
         {
@@ -223,9 +304,9 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
             sb.AppendLine("Not identified");
             return sb.ToString();
         }
-        if (StatsModifier is not null)
+        if (statsModifier is not null)
         {
-            sb.AppendLine(StatsModifier.ToString());
+            sb.AppendLine(statsModifier.ToString());
         }
 
         return sb.ToString();
@@ -234,11 +315,49 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
 
 public class HeadArmor : ArmorEquipment
 {
-    public HeadArmor(string name, int armor, int maxDuration, int currentDurration, int requirement) : base(name, armor, maxDuration, currentDurration, requirement)
+    /// <summary>
+    /// Creates an indestructible armor item with no special attributes.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="armor"></param>
+    /// <param name="strengthRequirement"></param>
+    public HeadArmor(string name, int armor, int strengthRequirement) : base(name, armor, strengthRequirement)
     {
     }
 
-    public HeadArmor(string name, int armor, int maxDuration, int currentDurration, int requirement, StatsModifier? statsModifier) : base(name, armor, maxDuration, currentDurration, requirement, statsModifier)
+    /// <summary>
+    /// Creates an indestructible armor item with special attributes modifier. 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="armor"></param>
+    /// <param name="strengthRequirement"></param>
+    /// <param name="statsModifier"></param>
+    public HeadArmor(string name, int armor, int strengthRequirement, StatsModifier? statsModifier) : base(name, armor, strengthRequirement, statsModifier)
+    {
+    }
+
+    /// <summary>
+    /// Creates an destructible armor item with no special attributes.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="armor"></param>
+    /// <param name="strengthRequirement"></param>
+    /// <param name="maxDuration"></param>
+    /// <param name="currentDuration"></param>
+    public HeadArmor(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration) : base(name, armor, strengthRequirement, maxDuration, currentDuration)
+    {
+    }
+
+    /// <summary>
+    /// Creates an destructible armor item with special attributes modifier.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="armor"></param>
+    /// <param name="strengthRequirement"></param>
+    /// <param name="maxDuration"></param>
+    /// <param name="currentDuration"></param>
+    /// <param name="statsModifier"></param>
+    public HeadArmor(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name, armor, strengthRequirement, maxDuration, currentDuration, statsModifier)
     {
     }
 }
@@ -259,14 +378,14 @@ public class HeadArmor : ArmorEquipment
 
 //public class Shield : ArmorEquipment, IHand
 //{
-//    public Shield(string name, int armor, int maxDuration, int currentDurration, int require) : base(name, armor, maxDuration, currentDurration, require)
+//    public Shield(string name, int armor, int maxDuration, int currentDuration, int require) : base(name, armor, maxDuration, currentDuration, require)
 //    {
 //    }
 //}
 
 //public class BodyArmor : ArmorEquipment
 //{
-//    public BodyArmor(string name, int armor, int maxDuration, int currentDurration, int require) : base(name, armor, maxDuration, currentDurration, require)
+//    public BodyArmor(string name, int armor, int maxDuration, int currentDuration, int require) : base(name, armor, maxDuration, currentDuration, require)
 //    {
 //    }
 //}
