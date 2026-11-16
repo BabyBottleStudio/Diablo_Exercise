@@ -36,7 +36,7 @@ var helmetModifier = new StatsModifier()
 
 };
 var equippedHelmet = new HeadArmor(name: "CurrentHelmet", armor: 1, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
-var helmet = new HeadArmor(name: "Helmet", armor: 5, strengthRequirement: 5, maxDuration: 25, currentDuration: 14, helmetModifier);
+var helmet = new HeadArmor(name: "Helmet", specialPrefix: "Incredible", specialSuffix: "of the mind", armor: 5, strengthRequirement: 5, maxDuration: 25, currentDuration: 14, helmetModifier);
 
 
 Console.WriteLine(equippedHelmet);
@@ -64,7 +64,7 @@ var negativeHelmetModifier = new StatsModifier()
 };
 
 var milisav = heroFactory.Instantiate("Warrior", "Milisav");
-var negativeHelmet = new HeadArmor("Helmet", 5, 25, 14, 5, negativeHelmetModifier);
+var negativeHelmet = new HeadArmor("Helmet", specialPrefix: "Horrible", specialSuffix: "en retard", 5, 25, 14, 5, negativeHelmetModifier);
 negativeHelmet.Identify();
 milisav.EquipHeadArmor(negativeHelmet);
 
@@ -99,7 +99,16 @@ public class EquipmentManager
 
     public void EquipHeadArmor(HeadArmor headArmor)
     {
-        if (headArmor == null) return;
+        //if (headArmor == null)
+        //{
+        //    Console.WriteLine("EquipHeadArmor - Invalid operation: HeadArmor is null.");
+        //    return;
+        //}
+        //if (headArmor.IsEquipped)
+        //{
+        //    Console.WriteLine("EquipHeadArmor - Invalid operation: HeadArmor is already equipped.");
+        //    return;
+        //}
 
         // da li je requirement ispunjen: strength
         //      true => equip => ucitaj parametre na statiskike karaktera
@@ -112,21 +121,34 @@ public class EquipmentManager
         // inventori bi trebalo da ima opciju za Pick()
         // 
 
+
         HeadArmor = headArmor;
-        //    HeadArmor.OnEquip();
+        HeadArmor.UpdateIsEquippedStatus(true);
     }
 
     public void RemoveHeadArmor()
     {
+        //if (HeadArmor is null)
+        //{
+        //    Console.WriteLine("EquipHeadArmor - Invalid operation: HeadArmor is null.");
+        //    return;
+        //}
+
+        //if (!HeadArmor.IsEquipped)
+        //{
+        //    Console.WriteLine("EquipHeadArmor - Invalid operation: Trying to remove item that is not equipped.");
+        //    return;
+        //}
+
+
+        HeadArmor?.UpdateIsEquippedStatus(false);
+
         HeadArmor = null;
     }
 }
 
 public abstract class Item
 {
-    // this class should enable using the potion as an item in the inventory
-    // not sure how is it going to work yet
-
     public virtual string Name { get; set; }
 
     public Item(string name)
@@ -158,6 +180,10 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
     // bool _isEquipped;
     // name system with prefix and suffix 
     // Duration system and _isIndistructible
+    public bool IsEquipped { get; private set; }
+    public string Prefix { get; init; }
+    public string Suffix { get; init; }
+    public string DisplayName => (IsIdentified && statsModifier is not null) ? $"{Prefix} {Name} {Suffix}" : Name;
 
     public bool IsIdentified { get; private set; }
     public int Armor { get; private set; }
@@ -179,8 +205,10 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
     /// <param name="maxDuration"></param>
     /// <param name="currentDuration"></param>
     /// <param name="statsModifier"></param>
-    public ArmorEquipment(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name)
+    public ArmorEquipment(string name, string specialPrefix, string specialSuffix, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name)
     {
+        Prefix = specialPrefix;
+        Suffix = specialSuffix;
         Armor = armor;
         MaxDuration = maxDuration;
         CurrentDuration = currentDuration;
@@ -197,7 +225,7 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
     /// <param name="strengthRequirement"></param>
     /// <param name="maxDuration"></param>
     /// <param name="currentDuration"></param>
-    public ArmorEquipment(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration) : this(name, armor, strengthRequirement, maxDuration, currentDuration, null)
+    public ArmorEquipment(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration) : this(name, "", "", armor, strengthRequirement, maxDuration, currentDuration, null)
     {
 
     }
@@ -208,7 +236,7 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
     /// <param name="name">The name of the armor.</param>
     /// <param name="armor">The armor value provided by the item.</param>
     /// <param name="strengthRequirement">The minimum Strength required to equip the item.</param>
-    public ArmorEquipment(string name, int armor, int strengthRequirement) : this(name, armor, strengthRequirement, int.MaxValue, int.MaxValue, null)
+    public ArmorEquipment(string name, int armor, int strengthRequirement) : this(name, "", "", armor, strengthRequirement, int.MaxValue, int.MaxValue, null)
     {
         IsIndistructible = true;
     }
@@ -220,12 +248,19 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
     /// <param name="armor"></param>
     /// <param name="strengthRequirement"></param>
     /// <param name="statsModifier"></param>
-    public ArmorEquipment(string name, int armor, int strengthRequirement, StatsModifier? statsModifier) : this(name, armor, strengthRequirement, int.MaxValue, int.MaxValue, statsModifier)
+    public ArmorEquipment(string name, string specialPrefix, string specialSuffix, int armor, int strengthRequirement, StatsModifier? statsModifier) : this(name, specialPrefix, specialSuffix, armor, strengthRequirement, int.MaxValue, int.MaxValue, statsModifier)
     {
         IsIndistructible = true;
     }
 
-    public bool CanEquip(int currentHeroStrength) => StrengthRequirement <= currentHeroStrength;
+    public abstract bool CanEquip(int currentHeroStrength);
+
+    public void UpdateIsEquippedStatus(bool isEquipped)
+    {
+        IsEquipped = isEquipped;
+    }
+
+
 
     public StatsModifier? GetActiveStatsModifier() => (IsIdentified && statsModifier is not null) ? statsModifier : null;
 
@@ -245,8 +280,8 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
         throw new NotImplementedException("Damage not implemented yet!");
     }
 
-    public bool ShouldRepare() => !IsIndistructible && CurrentDuration < MaxDuration; 
-  
+    public bool ShouldRepare() => !IsIndistructible && CurrentDuration < MaxDuration;
+
 
     public void Repare()
     {
@@ -325,14 +360,17 @@ public class HeadArmor : ArmorEquipment
     {
     }
 
+
     /// <summary>
     /// Creates an indestructible armor item with special attributes modifier. 
     /// </summary>
     /// <param name="name"></param>
+    /// <param name="specialPrefix"></param>
+    /// <param name="specialSuffix"></param>
     /// <param name="armor"></param>
     /// <param name="strengthRequirement"></param>
     /// <param name="statsModifier"></param>
-    public HeadArmor(string name, int armor, int strengthRequirement, StatsModifier? statsModifier) : base(name, armor, strengthRequirement, statsModifier)
+    public HeadArmor(string name, string specialPrefix, string specialSuffix, int armor, int strengthRequirement, StatsModifier? statsModifier) : base(name, specialPrefix, specialSuffix, armor, strengthRequirement, statsModifier)
     {
     }
 
@@ -348,18 +386,24 @@ public class HeadArmor : ArmorEquipment
     {
     }
 
+
     /// <summary>
     /// Creates an destructible armor item with special attributes modifier.
     /// </summary>
     /// <param name="name"></param>
+    /// <param name="specialPrefix"></param>
+    /// <param name="specialSuffix"></param>
     /// <param name="armor"></param>
     /// <param name="strengthRequirement"></param>
     /// <param name="maxDuration"></param>
     /// <param name="currentDuration"></param>
     /// <param name="statsModifier"></param>
-    public HeadArmor(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name, armor, strengthRequirement, maxDuration, currentDuration, statsModifier)
+    public HeadArmor(string name, string specialPrefix, string specialSuffix, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name, specialPrefix, specialSuffix, armor, strengthRequirement, maxDuration, currentDuration, statsModifier)
     {
     }
+
+
+    public override bool CanEquip(int currentHeroStrength) => StrengthRequirement <= currentHeroStrength;
 }
 
 
@@ -436,71 +480,4 @@ public interface IDurable
 }
 
 
-
-public class TestWeapon : Item, IEquipable, IDealDamage, IDurable
-{
-    bool isEquipped = false;
-    public float MinDamage { get; init; }
-    public float MaxDamage { get; init; }
-
-    private bool _isIndistructable;
-    public bool IsIndistructable => _isIndistructable;
-    public float MaxDurability { get; }
-    public float CurrentDurability { get; }
-
-
-    private StatsModifier _statsModifier;
-    public StatsModifier StatsModifier => _statsModifier;
-
-    public TestWeapon(string name, float minDamage, float maxDamage, StatsModifier statsModifier) : base(name)
-    {
-        if (minDamage < 0 || maxDamage < 0)
-        {
-            throw new ArgumentOutOfRangeException("Arguemts must be positive numbers.");
-        }
-
-        if (statsModifier is null)
-        {
-            throw new ArgumentNullException("Stats modifier can't be null!");
-        }
-
-
-        if (minDamage < maxDamage)
-        {
-            this.MinDamage = minDamage;
-            this.MaxDamage = maxDamage;
-        }
-        else
-        {
-            this.MinDamage = maxDamage;
-            this.MaxDamage = minDamage;
-        }
-
-        _statsModifier = statsModifier;
-    }
-
-    public void OnEquip()
-    {
-        if (isEquipped)
-        {
-            Console.WriteLine("Weapon already equipped.");
-            return;
-        }
-
-        EquipementEvents.InvokeOnItemEquip(StatsModifier);
-        isEquipped = true;
-    }
-
-    public void OnUnequip()
-    {
-        if (!isEquipped)
-        {
-            Console.WriteLine("Unable to unequip: weapon is not equipped.");
-            return;
-        }
-
-        EquipementEvents.InvokeOnItemUnequip(StatsModifier);
-        isEquipped = false;
-    }
-}
 

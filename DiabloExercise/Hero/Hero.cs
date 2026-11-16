@@ -151,9 +151,17 @@ public abstract class Hero
         manaManager.UpdateBaseMaxValue(value);
     }
 
+    // koliko treba da se desava ovde a koliko u equipment manageru
+
     public void EquipHeadArmor(HeadArmor headArmor)
     {
         if (headArmor == null) return;
+
+        if (headArmor.IsEquipped)
+        {
+            Console.WriteLine("Invalid operation. Item is already equipped!");
+            return;
+        }
 
         if (!headArmor.CanEquip(CharacterAttributes.CurrentStrength))
         {
@@ -195,6 +203,8 @@ public abstract class Hero
 
         if (headArmor is null) return;
 
+        if (!headArmor.IsEquipped) return; // testovi za ovaj uslov
+
         // recalculate armor
         DerivedAttributes.ModifyArmorBasicItems(ChangeSign(headArmor.Armor));
 
@@ -215,6 +225,9 @@ public abstract class Hero
 
     public void IdentifyItem(IIdentifiable itemToIdentify)
     {
+        if (itemToIdentify is null) return;
+
+
         itemToIdentify.Identify();
 
 
