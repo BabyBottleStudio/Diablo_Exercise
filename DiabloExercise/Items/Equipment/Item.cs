@@ -2,12 +2,12 @@
 {
     public virtual string Name { get; init; }
 
-    public int SizeInInventory { get; init; }
+    public int InventorySlotSize { get; init; }
 
-    public Item(string name, int sizeInInventory)
+    public Item(string name, int inventorySlotSize)
     {
         Name = name;
-        SizeInInventory = sizeInInventory;
+        InventorySlotSize = inventorySlotSize;
     }
 }
 

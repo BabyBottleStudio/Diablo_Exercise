@@ -37,8 +37,8 @@ var helmetModifier = new StatsModifier()
     LightningResistance = 15
 
 };
-var equippedHelmet = new HeadArmor(name: "CurrentHelmet", sizeInInventory: 6, armor: 1, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
-var helmet = new HeadArmor(name: "Helmet", specialPrefix: "Incredible", specialSuffix: "of the mind", sizeInInventory: 6, armor: 5, strengthRequirement: 5, maxDuration: 25, currentDuration: 14, helmetModifier);
+var equippedHelmet = new HeadArmor(name: "CurrentHelmet", inventorySlotSize: 6, armor: 1, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
+var helmet = new HeadArmor(name: "Helmet", specialPrefix: "Incredible", specialSuffix: "of the mind", inventorySlotSize: 6, armor: 5, strengthRequirement: 5, maxDuration: 25, currentDuration: 14, helmetModifier);
 
 
 Console.WriteLine(equippedHelmet);
@@ -83,7 +83,7 @@ Console.WriteLine(inv);
 
 public interface IInventoryItem
 {
-    int SizeInInventory { get; }
+    int InventorySlotSize { get; }
 }
 
 
@@ -108,7 +108,7 @@ public class Inventory
     {
         if (item is null) { throw new ArgumentNullException("item"); }
 
-        int testInventorySize = currentCapacity + item.SizeInInventory;
+        int testInventorySize = currentCapacity + item.InventorySlotSize;
 
 
         if (testInventorySize > _inventoryCapacity)
@@ -129,7 +129,7 @@ public class Inventory
 
         if (itemToRemove != null)
         {
-            int sizeInInventory = itemToRemove.SizeInInventory;
+            int sizeInInventory = itemToRemove.InventorySlotSize;
             bool itemIsRemoved = _inventory.Remove(itemToRemove);
 
             if (itemIsRemoved)

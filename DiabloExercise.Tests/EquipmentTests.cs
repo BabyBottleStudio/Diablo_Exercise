@@ -41,7 +41,7 @@ namespace DiabloExercise.Tests
         {
             // Arrange 
             string testName = "TestHelmet";
-            HeadArmor testHeadArmor = new HeadArmor(name: testName, sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
+            HeadArmor testHeadArmor = new HeadArmor(name: testName, inventorySlotSize: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
 
             // Act
             string name = testHeadArmor.DisplayName;
@@ -60,7 +60,7 @@ namespace DiabloExercise.Tests
                 ArmorClass = 5,
             };
 
-            HeadArmor testHeadArmor = new HeadArmor(name: testName, specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25, statsModifier);
+            HeadArmor testHeadArmor = new HeadArmor(name: testName, specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize:6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25, statsModifier);
 
             // Act
             string name = testHeadArmor.DisplayName;
@@ -79,7 +79,7 @@ namespace DiabloExercise.Tests
                 ArmorClass = 5,
             };
 
-            HeadArmor testHeadArmor = new HeadArmor(name: testName, specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25, statsModifier);
+            HeadArmor testHeadArmor = new HeadArmor(name: testName, specialPrefix: prefix, specialSuffix: suffix, 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25, statsModifier);
 
             // Act
             testHeadArmor.Identify();
@@ -94,7 +94,7 @@ namespace DiabloExercise.Tests
         public void HeadArmor_Constructor_BasicDestructibleItem()
         {
             // Arrange
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
 
             Assert.That(testHeadArmor.IsIndistructible, Is.False);
             Assert.That(testHeadArmor.IsIdentified, Is.True); // all basic items are identified by default
@@ -104,7 +104,7 @@ namespace DiabloExercise.Tests
         [Test]
         public void HeadArmor_Constructor_BasicInDestructibleItem()
         {
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: 5, strengthRequirement: 0);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: 5, strengthRequirement: 0);
 
             Assert.That(testHeadArmor.IsIndistructible, Is.True);
             Assert.That(testHeadArmor.IsIdentified, Is.True); // all basic items are identified by default
@@ -119,7 +119,7 @@ namespace DiabloExercise.Tests
                 ArmorClass = 5,
             };
 
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25, statsModifier: statsModifier);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25, statsModifier: statsModifier);
 
             Assert.That(testHeadArmor.IsIndistructible, Is.False);
             Assert.That(testHeadArmor.IsIdentified, Is.False); // all special items are not identified by default
@@ -139,7 +139,7 @@ namespace DiabloExercise.Tests
                 ArmorClass = 5,
             };
 
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: 5, strengthRequirement: 0, statsModifier: statsModifier);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: 5, strengthRequirement: 0, statsModifier: statsModifier);
 
             //Act
 
@@ -158,7 +158,7 @@ namespace DiabloExercise.Tests
                 ArmorClass = 5,
             };
 
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: 5, strengthRequirement: 0, statsModifier: statsModifier);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: 5, strengthRequirement: 0, statsModifier: statsModifier);
 
             //Act
             testHeadArmor.Identify();
@@ -172,7 +172,7 @@ namespace DiabloExercise.Tests
         [Test]
         public void HeadArmor_Constructor_StatsModifierAsNull_ReturnsIdentifiedTrue_GetActiveStatsModiferReturnsNull()
         {
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25, statsModifier: null);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25, statsModifier: null);
 
             Assert.That(testHeadArmor.IsIndistructible, Is.False); // it has parameters for duration
             Assert.That(testHeadArmor.IsIdentified, Is.True); // all basic items are identified by default
@@ -184,7 +184,7 @@ namespace DiabloExercise.Tests
         public void HeadArmor_Repare_IncreaseCurrentDurabilityToMaxDurability()
         {
             // Arrange
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
 
             // Act
             testHeadArmor.Repare();
@@ -197,7 +197,7 @@ namespace DiabloExercise.Tests
         public void HeadArmor_Equip_ItemAlreadyEquipped()
         {
             // Arrange
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
 
             // Act
             hero.EquipHeadArmor(testHeadArmor);
@@ -224,7 +224,7 @@ namespace DiabloExercise.Tests
         public void HeadArmor_MakeIndistructible_ShouldReturnIsIndistructibleTrue()
         {
             // Arrange
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
 
             // Act
             testHeadArmor.MakeIndistructible();
@@ -239,7 +239,7 @@ namespace DiabloExercise.Tests
         public void HeadArmor_ShouldRepare_IndistructibleItem_ReturnsFalse()
         {
             // Arrange
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: 5, strengthRequirement: 0);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: 5, strengthRequirement: 0);
 
             // Act
             bool shouldRepare = testHeadArmor.ShouldRepare();
@@ -252,7 +252,7 @@ namespace DiabloExercise.Tests
         public void HeadArmor_ShouldRepare_NotDamagedItem_ReturnsFalse()
         {
             // Arrange
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 50);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 50);
 
             // Act
             bool shouldRepare = testHeadArmor.ShouldRepare();
@@ -266,7 +266,7 @@ namespace DiabloExercise.Tests
         public void HeadArmor_ShouldRepare()
         {
             // Arrange
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: 5, strengthRequirement: 0, maxDuration: 50, currentDuration: 25);
 
             // Act
             bool shouldRepare = testHeadArmor.ShouldRepare();
@@ -285,7 +285,7 @@ namespace DiabloExercise.Tests
             int testMaxDur = 50;
             int testCurrentDur = 25;
 
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: testArmor, strengthRequirement: testRequirement, maxDuration: testMaxDur, currentDuration: testCurrentDur);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: testArmor, strengthRequirement: testRequirement, maxDuration: testMaxDur, currentDuration: testCurrentDur);
 
             // Act
             string testResult = testHeadArmor.ToString();
@@ -307,7 +307,7 @@ namespace DiabloExercise.Tests
             //int testMaxDur = 50;
             //int testCurrentDur = 25;
 
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: testArmor, strengthRequirement: testRequirement);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: testArmor, strengthRequirement: testRequirement);
 
             // Act
             string testResult = testHeadArmor.ToString();
@@ -329,7 +329,7 @@ namespace DiabloExercise.Tests
             int testMaxDur = 50;
             int testCurrentDur = 25;
 
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", sizeInInventory: 6, armor: testArmor, strengthRequirement: testRequirement, maxDuration: testMaxDur, currentDuration: testCurrentDur);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", inventorySlotSize: 6, armor: testArmor, strengthRequirement: testRequirement, maxDuration: testMaxDur, currentDuration: testCurrentDur);
 
             // Act
             string testResult = testHeadArmor.ToString();
@@ -358,7 +358,7 @@ namespace DiabloExercise.Tests
             int testMaxDur = 50;
             int testCurrentDur = 25;
 
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: testArmor, strengthRequirement: testRequirement, maxDuration: testMaxDur, currentDuration: testCurrentDur, statsModifier);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: testArmor, strengthRequirement: testRequirement, maxDuration: testMaxDur, currentDuration: testCurrentDur, statsModifier);
 
             // Act
             string testResult = testHeadArmor.ToString();
@@ -389,7 +389,7 @@ namespace DiabloExercise.Tests
             int testMaxDur = 50;
             int testCurrentDur = 25;
 
-            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: testArmor, strengthRequirement: testRequirement, maxDuration: testMaxDur, currentDuration: testCurrentDur, statsModifier);
+            HeadArmor testHeadArmor = new HeadArmor(name: "TestHelmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: testArmor, strengthRequirement: testRequirement, maxDuration: testMaxDur, currentDuration: testCurrentDur, statsModifier);
 
             // Act
             testHeadArmor.Identify();
@@ -410,7 +410,7 @@ namespace DiabloExercise.Tests
         public void HeadArmor_Equip_IncreaseHerosArmorClassValue()
         {
             int testArmorValue = 3;
-            var testHelmet = new HeadArmor(name: "Helmet", sizeInInventory: 6, armor: testArmorValue, strengthRequirement: 5, maxDuration: 45, currentDuration: 14);
+            var testHelmet = new HeadArmor(name: "Helmet", inventorySlotSize: 6, armor: testArmorValue, strengthRequirement: 5, maxDuration: 45, currentDuration: 14);
             int initialArmor = hero.DerivedAttributes.CurrentArmorClass;
 
             hero.EquipHeadArmor(testHelmet);
@@ -422,7 +422,7 @@ namespace DiabloExercise.Tests
         public void HeadArmor_Remove_ReturnToHerosBasicArmorClassValue()
         {
             int testArmorValue = 3;
-            var testHelmet = new HeadArmor(name: "Helmet", sizeInInventory: 6, armor: testArmorValue, strengthRequirement: 5, maxDuration: 45, currentDuration: 14);
+            var testHelmet = new HeadArmor(name: "Helmet", inventorySlotSize: 6, armor: testArmorValue, strengthRequirement: 5, maxDuration: 45, currentDuration: 14);
             int initialArmor = hero.DerivedAttributes.CurrentArmorClass;
 
             hero.EquipHeadArmor(testHelmet);
@@ -439,7 +439,7 @@ namespace DiabloExercise.Tests
         {
             //Arrange
             int testRequirementValue = 300;
-            var testHelmet = new HeadArmor(name: "Helmet", sizeInInventory: 6, armor: 5, strengthRequirement: testRequirementValue, maxDuration: 45, currentDuration: 14);
+            var testHelmet = new HeadArmor(name: "Helmet", inventorySlotSize: 6, armor: 5, strengthRequirement: testRequirementValue, maxDuration: 45, currentDuration: 14);
 
             //var stringWriter = new StringWriter();
             Console.SetOut(stringWriter);
@@ -460,11 +460,11 @@ namespace DiabloExercise.Tests
         {
             //Arrange
             int equippedHelmetArmorClass = 1;
-            var equippedHelmet = new HeadArmor(name: "CurrentHelmet", sizeInInventory: 6, armor: equippedHelmetArmorClass, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
+            var equippedHelmet = new HeadArmor(name: "CurrentHelmet", inventorySlotSize: 6, armor: equippedHelmetArmorClass, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
 
             int testArmor = 5;
             int testRequirementValue = 0;
-            var testHelmet = new HeadArmor(name: "Helmet", sizeInInventory: 6, armor: testArmor, strengthRequirement: testRequirementValue, maxDuration: 45, currentDuration: 14);
+            var testHelmet = new HeadArmor(name: "Helmet", inventorySlotSize: 6, armor: testArmor, strengthRequirement: testRequirementValue, maxDuration: 45, currentDuration: 14);
             int initialArmorClass = hero.DerivedAttributes.CurrentArmorClass;    // warrior has 4    
 
             //Act1
@@ -486,10 +486,10 @@ namespace DiabloExercise.Tests
         public void HeadArmor_Replace_NotReplaced_RequirementsNotMet()
         {
             //Arrange
-            var equippedHelmet = new HeadArmor(name: "CurrentHelmet", sizeInInventory: 6, armor: 1, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
+            var equippedHelmet = new HeadArmor(name: "CurrentHelmet", inventorySlotSize: 6, armor: 1, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
 
             int testRequirementValue = 300;
-            var testHelmet = new HeadArmor(name: "Helmet", sizeInInventory: 6, armor: 5, strengthRequirement: testRequirementValue, maxDuration: 45, currentDuration: 14);
+            var testHelmet = new HeadArmor(name: "Helmet", inventorySlotSize: 6, armor: 5, strengthRequirement: testRequirementValue, maxDuration: 45, currentDuration: 14);
 
             //var stringWriter = new StringWriter();
             Console.SetOut(stringWriter);
@@ -519,7 +519,7 @@ namespace DiabloExercise.Tests
                 Strength = 1,
             };
 
-            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: 1, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
+            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: 1, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
 
             var initialStrength = hero.CharacterAttributes.CurrentStrength;
 
@@ -540,7 +540,7 @@ namespace DiabloExercise.Tests
                 Strength = strengthModiferValue,
             };
             int testArmorValue = 1;
-            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: testArmorValue, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
+            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: testArmorValue, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
 
             var initialStrength = hero.CharacterAttributes.CurrentStrength;
             var initialHeroArmor = hero.DerivedAttributes.CurrentArmorClass;
@@ -578,7 +578,7 @@ namespace DiabloExercise.Tests
                 Strength = strengthModiferValue,
             };
             int testArmorValue = 1;
-            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: testArmorValue, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
+            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: testArmorValue, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
 
             var initialStrength = hero.CharacterAttributes.CurrentStrength;
             var initialHeroArmor = hero.DerivedAttributes.CurrentArmorClass;
@@ -611,7 +611,7 @@ namespace DiabloExercise.Tests
                 Vitality = -5,
             };
 
-            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: 1, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
+            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: 1, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
 
             var initialStrength = hero.CharacterAttributes.CurrentStrength;
 
@@ -639,7 +639,7 @@ namespace DiabloExercise.Tests
             };
 
 
-            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, sizeInInventory: 6, armor: 1, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
+            var testHelmet = new HeadArmor(name: "Helmet", specialPrefix: prefix, specialSuffix: suffix, inventorySlotSize: 6, armor: 1, strengthRequirement: 0, maxDuration: 45, currentDuration: 14, helmetModifier);
 
             var initialStrength = hero.CharacterAttributes.CurrentStrength;
 

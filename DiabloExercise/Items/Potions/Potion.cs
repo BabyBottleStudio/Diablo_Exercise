@@ -15,7 +15,7 @@ public abstract class Potion : IInventoryItem
 
     public string Instruction => _instruction;
 
-    public int SizeInInventory => 1;
+    public int InventorySlotSize => 1;
 
     public abstract void Consume();
 
