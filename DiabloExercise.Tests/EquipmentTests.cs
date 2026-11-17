@@ -219,6 +219,7 @@ namespace DiabloExercise.Tests
 
         }
 
+        
         [Test]
         public void HeadArmor_MakeIndistructible_ShouldReturnIsIndistructibleTrue()
         {

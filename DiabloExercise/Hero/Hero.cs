@@ -203,7 +203,12 @@ public abstract class Hero
 
         if (headArmor is null) return;
 
-        if (!headArmor.IsEquipped) return; // testovi za ovaj uslov
+        // it has to be equipped, it should be is imposible to pass anything else save current head armor
+        //if (!headArmor.IsEquipped)
+        //{
+        //    Console.WriteLine("Invalid operation. Item is not equipped!");
+        //    return;
+        //}
 
         // recalculate armor
         DerivedAttributes.ModifyArmorBasicItems(ChangeSign(headArmor.Armor));
