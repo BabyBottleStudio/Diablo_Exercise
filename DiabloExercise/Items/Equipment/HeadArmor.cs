@@ -6,7 +6,7 @@
     /// <param name="name"></param>
     /// <param name="armor"></param>
     /// <param name="strengthRequirement"></param>
-    public HeadArmor(string name, int armor, int strengthRequirement) : base(name, armor, strengthRequirement)
+    public HeadArmor(string name, int sizeInInventory, int armor, int strengthRequirement) : base(name, sizeInInventory, armor, strengthRequirement)
     {
     }
 
@@ -20,7 +20,7 @@
     /// <param name="armor"></param>
     /// <param name="strengthRequirement"></param>
     /// <param name="statsModifier"></param>
-    public HeadArmor(string name, string specialPrefix, string specialSuffix, int armor, int strengthRequirement, StatsModifier? statsModifier) : base(name, specialPrefix, specialSuffix, armor, strengthRequirement, statsModifier)
+    public HeadArmor(string name, string specialPrefix, string specialSuffix, int sizeInInventory, int armor, int strengthRequirement, StatsModifier? statsModifier) : base(name, specialPrefix, specialSuffix, sizeInInventory, armor, strengthRequirement, statsModifier)
     {
     }
 
@@ -32,7 +32,7 @@
     /// <param name="strengthRequirement"></param>
     /// <param name="maxDuration"></param>
     /// <param name="currentDuration"></param>
-    public HeadArmor(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration) : base(name, armor, strengthRequirement, maxDuration, currentDuration)
+    public HeadArmor(string name, int sizeInInventory, int armor, int strengthRequirement, int maxDuration, int currentDuration) : base(name, sizeInInventory, armor, strengthRequirement, maxDuration, currentDuration)
     {
     }
 
@@ -48,7 +48,7 @@
     /// <param name="maxDuration"></param>
     /// <param name="currentDuration"></param>
     /// <param name="statsModifier"></param>
-    public HeadArmor(string name, string specialPrefix, string specialSuffix, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name, specialPrefix, specialSuffix, armor, strengthRequirement, maxDuration, currentDuration, statsModifier)
+    public HeadArmor(string name, string specialPrefix, string specialSuffix, int sizeInInventory, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name, specialPrefix, specialSuffix, sizeInInventory, armor, strengthRequirement, maxDuration, currentDuration, statsModifier)
     {
     }
 

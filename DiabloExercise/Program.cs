@@ -1,9 +1,12 @@
 ﻿
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics.Contracts;
+using System.Net;
 using System.Net.WebSockets;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 var heroCalc = new HeroLevelingCalculator(50);
 
@@ -34,8 +37,8 @@ var helmetModifier = new StatsModifier()
     LightningResistance = 15
 
 };
-var equippedHelmet = new HeadArmor(name: "CurrentHelmet", armor: 1, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
-var helmet = new HeadArmor(name: "Helmet", specialPrefix: "Incredible", specialSuffix: "of the mind", armor: 5, strengthRequirement: 5, maxDuration: 25, currentDuration: 14, helmetModifier);
+var equippedHelmet = new HeadArmor(name: "CurrentHelmet", sizeInInventory: 6, armor: 1, strengthRequirement: 0, maxDuration: 50, currentDuration: 23);
+var helmet = new HeadArmor(name: "Helmet", specialPrefix: "Incredible", specialSuffix: "of the mind", sizeInInventory: 6, armor: 5, strengthRequirement: 5, maxDuration: 25, currentDuration: 14, helmetModifier);
 
 
 Console.WriteLine(equippedHelmet);
@@ -63,11 +66,95 @@ var negativeHelmetModifier = new StatsModifier()
 };
 
 var milisav = heroFactory.Instantiate("Warrior", "Milisav");
-var negativeHelmet = new HeadArmor("Helmet", specialPrefix: "Horrible", specialSuffix: "en retard", 5, 25, 14, 5, negativeHelmetModifier);
+var negativeHelmet = new HeadArmor("Helmet", specialPrefix: "Horrible", specialSuffix: "en retard", 6, 5, 25, 14, 5, negativeHelmetModifier);
 negativeHelmet.Identify();
 milisav.EquipHeadArmor(negativeHelmet);
 
 Console.WriteLine(milisav);
+
+Inventory inventory = new Inventory();
+
+inventory.AddItem(helmet);
+inventory.AddItem(equippedHelmet);
+inventory.AddItem(negativeHelmet);
+
+string inv = inventory.DisplayInventory();
+Console.WriteLine(inv);
+
+public interface IInventoryItem
+{
+    int SizeInInventory { get; }
+}
+
+
+public class Inventory
+{
+    const int _inventoryCapacity = 40;
+
+    int currentCapacity;
+
+    private List<IInventoryItem> _inventory;
+
+
+    public IReadOnlyCollection<IInventoryItem> ItemInventory => _inventory.AsReadOnly();
+
+
+    public Inventory()
+    {
+        _inventory = new List<IInventoryItem>();
+    }
+
+    public void AddItem(IInventoryItem item)
+    {
+        if (item is null) { throw new ArgumentNullException("item"); }
+
+        int testInventorySize = currentCapacity + item.SizeInInventory;
+
+
+        if (testInventorySize > _inventoryCapacity)
+        {
+            Console.WriteLine("Can't add item. Inventory is full");
+            return;
+        }
+
+        _inventory.Add(item);
+        currentCapacity = testInventorySize;
+    }
+
+    public void RemoveItem(int index)
+    {
+        if (index < 0 || index >= _inventory.Count) { throw new ArgumentOutOfRangeException($"{index} is out of bounds"); }
+
+        IInventoryItem itemToRemove = _inventory.ElementAt(index);
+
+        if (itemToRemove != null)
+        {
+            int sizeInInventory = itemToRemove.SizeInInventory;
+            bool itemIsRemoved = _inventory.Remove(itemToRemove);
+
+            if (itemIsRemoved)
+                currentCapacity -= sizeInInventory;
+        }
+    }
+
+
+    public string DisplayInventory()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        int index = 0;
+        foreach (IInventoryItem item in _inventory)
+        {
+            sb.AppendLine($"{index:D2}:{item.ToString()}");
+            index++;
+        }
+
+        return sb.ToString();
+    }
+
+
+}
+
 
 
 public class EquipmentManager

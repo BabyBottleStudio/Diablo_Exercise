@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
+public abstract class ArmorEquipment : Item, IIdentifiable, IReparable 
 {
     // bool _isEquipped;
     // name system with prefix and suffix 
@@ -30,7 +30,7 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
     /// <param name="maxDuration"></param>
     /// <param name="currentDuration"></param>
     /// <param name="statsModifier"></param>
-    public ArmorEquipment(string name, string specialPrefix, string specialSuffix, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name)
+    public ArmorEquipment(string name, string specialPrefix, string specialSuffix, int sizeInInventory, int armor, int strengthRequirement, int maxDuration, int currentDuration, StatsModifier? statsModifier) : base(name, sizeInInventory)
     {
         Prefix = specialPrefix;
         Suffix = specialSuffix;
@@ -50,7 +50,7 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
     /// <param name="strengthRequirement"></param>
     /// <param name="maxDuration"></param>
     /// <param name="currentDuration"></param>
-    public ArmorEquipment(string name, int armor, int strengthRequirement, int maxDuration, int currentDuration) : this(name, "", "", armor, strengthRequirement, maxDuration, currentDuration, null)
+    public ArmorEquipment(string name, int sizeInInventory, int armor, int strengthRequirement, int maxDuration, int currentDuration) : this(name, "", "", sizeInInventory, armor, strengthRequirement, maxDuration, currentDuration, null)
     {
 
     }
@@ -61,7 +61,7 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
     /// <param name="name">The name of the armor.</param>
     /// <param name="armor">The armor value provided by the item.</param>
     /// <param name="strengthRequirement">The minimum Strength required to equip the item.</param>
-    public ArmorEquipment(string name, int armor, int strengthRequirement) : this(name, "", "", armor, strengthRequirement, int.MaxValue, int.MaxValue, null)
+    public ArmorEquipment(string name, int sizeInInventory, int armor, int strengthRequirement) : this(name, "", "", sizeInInventory, armor, strengthRequirement, int.MaxValue, int.MaxValue, null)
     {
         IsIndistructible = true;
     }
@@ -73,7 +73,7 @@ public abstract class ArmorEquipment : Item, IIdentifiable, IReparable
     /// <param name="armor"></param>
     /// <param name="strengthRequirement"></param>
     /// <param name="statsModifier"></param>
-    public ArmorEquipment(string name, string specialPrefix, string specialSuffix, int armor, int strengthRequirement, StatsModifier? statsModifier) : this(name, specialPrefix, specialSuffix, armor, strengthRequirement, int.MaxValue, int.MaxValue, statsModifier)
+    public ArmorEquipment(string name, string specialPrefix, string specialSuffix, int sizeInInventory, int armor, int strengthRequirement, StatsModifier? statsModifier) : this(name, specialPrefix, specialSuffix, sizeInInventory, armor, strengthRequirement, int.MaxValue, int.MaxValue, statsModifier)
     {
         IsIndistructible = true;
     }
